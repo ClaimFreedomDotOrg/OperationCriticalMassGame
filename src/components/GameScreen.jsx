@@ -244,13 +244,13 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
         {activeBubbles.map(bubble => (
           <div
             key={bubble.id}
-            className="absolute z-50 px-6 py-8 bg-red-950/90 border-2 border-red-500 text-red-100 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] animate-bounce backdrop-blur-sm cursor-pointer"
+            className="absolute z-50 px-6 py-8 bg-red-950/90 border-2 border-red-500 text-red-100 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] animate-bounce backdrop-blur-sm cursor-pointer max-w-xs"
             style={{ left: `${bubble.position.x}%`, top: `${bubble.position.y}%` }}
             onClick={() => onDismissBubble(bubble.id)}
           >
             <div className="flex flex-col items-center">
               <ShieldAlertIcon size={24} className="mb-2 text-red-400" />
-              <span className="font-bold text-sm uppercase tracking-wider">{bubble.word}</span>
+              <span className="font-bold text-sm uppercase tracking-wider text-center">{bubble.word}</span>
             </div>
           </div>
         ))}
