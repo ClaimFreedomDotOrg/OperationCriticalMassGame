@@ -14,10 +14,16 @@ import { GAME_CONFIG, WORDS_OF_THE_VOICE } from '../constants/gameConfig';
 
 const { INFECTION_SPAWN_INTERVAL, INFECTION_DURATION } = GAME_CONFIG;
 
-export const useThoughtBubbles = ({ isActive }) => {
+export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
   const [activeBubbles, setActiveBubbles] = useState([]);
   const spawnIntervalRef = useRef(null);
   const bubbleIdCounter = useRef(0);
+  const onBubbleExpiredRef = useRef(onBubbleExpired);
+
+  // Keep ref up to date
+  useEffect(() => {
+    onBubbleExpiredRef.current = onBubbleExpired;
+  }, [onBubbleExpired]);
 
   /**
    * Spawn new thought bubble
@@ -40,7 +46,14 @@ export const useThoughtBubbles = ({ isActive }) => {
 
     // Auto-remove after duration
     setTimeout(() => {
-      setActiveBubbles(prev => prev.filter(b => b.id !== bubbleId));
+      setActiveBubbles(prev => {
+        const bubble = prev.find(b => b.id === bubbleId);
+        // If bubble still exists (wasn't dismissed), it expired naturally
+        if (bubble && onBubbleExpiredRef.current) {
+          onBubbleExpiredRef.current(bubbleId);
+        }
+        return prev.filter(b => b.id !== bubbleId);
+      });
     }, INFECTION_DURATION);
   }, []);
 

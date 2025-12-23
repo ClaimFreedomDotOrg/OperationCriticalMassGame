@@ -57,9 +57,31 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const updatePlayerState = gameMode === 'multi' ? firebaseSync?.updatePlayerState : () => {};
   const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
 
+  /**
+   * Handle missed tap
+   */
+  const handleMiss = useCallback(() => {
+    setIsInSync(false);
+    setFeedback('MISS');
+
+    // Update local coherence in single-player mode
+    if (gameMode === 'single') {
+      setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
+    }
+
+    updatePlayerState({
+      isInSync: false,
+      score,
+      lastTap: Date.now(),
+    });
+
+    setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
+  }, [score, updatePlayerState, gameMode]);
+
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
     isActive: true,
+    onBubbleExpired: handleMiss,
   });
 
   /**
@@ -83,27 +105,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     });
 
     // Clear feedback after duration
-    setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode]);
-
-  /**
-   * Handle missed tap
-   */
-  const handleMiss = useCallback(() => {
-    setIsInSync(false);
-    setFeedback('MISS');
-
-    // Update local coherence in single-player mode
-    if (gameMode === 'single') {
-      setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
-    }
-
-    updatePlayerState({
-      isInSync: false,
-      score,
-      lastTap: Date.now(),
-    });
-
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [score, updatePlayerState, gameMode]);
 
@@ -245,7 +246,20 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       </div>
 
       {/* 2. CENTER STAGE (Pulse Visualizer) */}
-      <div className="flex-1 relative flex items-center justify-center">
+      <div className="flex-1 relative flex flex-col items-center justify-center">
+        {/* Instructions */}
+        <div className="w-full text-center mb-8 z-20 px-4">
+          {hasBlockingBubbles ? (
+            <div className="text-red-400/70 text-sm animate-pulse">
+              Tap the thought bubble to dismiss it
+            </div>
+          ) : (
+            <div className="text-cyan-400/50 text-sm">
+              Tap the glowing side in rhythm
+            </div>
+          )}
+        </div>
+
         {/* Pulse Orb */}
         <div className="relative w-full max-w-md h-24 z-10 flex items-center">
           {/* Oscillation Line */}
@@ -336,19 +350,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         >
           <span className="text-2xl font-bold tracking-widest mb-2">RIGHT</span>
         </div>
-      </div>
-
-      {/* Instructions & Connection Status */}
-      <div className="absolute bottom-32 left-0 w-full text-center pointer-events-none z-20 px-4">
-        {hasBlockingBubbles ? (
-          <div className="text-red-400/70 text-sm animate-pulse">
-            Tap the thought bubble to dismiss it
-          </div>
-        ) : (
-          <div className="text-cyan-400/50 text-sm">
-            Tap the glowing side in rhythm
-          </div>
-        )}
       </div>
     </div>
   );
