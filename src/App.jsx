@@ -28,6 +28,7 @@ function App() {
   const [sessionStats, setSessionStats] = useState(null);
   const [sessionStartTime, setSessionStartTime] = useState(null);
   const [visualTaps, setVisualTaps] = useState([]); // { id, x, y, type }
+  const [gameMode, setGameMode] = useState(null); // 'single' or 'multi'
 
   /**
    * Generate body cells for visualization
@@ -71,8 +72,9 @@ function App() {
   /**
    * Handle game start
    */
-  const handleStart = useCallback(() => {
-    const newSessionId = generateSessionId();
+  const handleStart = useCallback(({ mode, gameId }) => {
+    setGameMode(mode);
+    const newSessionId = mode === 'multi' && gameId ? gameId : generateSessionId();
     const newPlayerId = generatePlayerId();
     setSessionStartTime(Date.now());
     startGame(newSessionId, newPlayerId);
@@ -84,6 +86,7 @@ function App() {
   const handleReset = useCallback(() => {
     setSessionStats(null);
     setSessionStartTime(null);
+    setGameMode(null);
     resetGame();
   }, [resetGame]);
 
