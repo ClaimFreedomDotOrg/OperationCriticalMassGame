@@ -294,16 +294,29 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           <div
             key={bubble.id}
             data-bubble="true"
-            className="absolute z-50 px-6 py-8 bg-red-950/90 border-2 border-red-500 text-red-100 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] animate-bounce backdrop-blur-sm cursor-pointer max-w-xs"
+            className="absolute z-50 cursor-pointer max-w-xs"
             style={{ left: `${bubble.position.x}%`, top: `${bubble.position.y}%` }}
             onClick={(e) => {
               e.stopPropagation();
               onDismissBubble(bubble.id);
             }}
           >
-            <div className="flex flex-col items-center">
-              <ShieldAlertIcon size={24} className="mb-2 text-red-400" />
-              <span className="font-bold text-sm uppercase tracking-wider text-center">{bubble.word}</span>
+            {/* Cloud Shape */}
+            <div className="relative px-8 py-6 bg-red-950/90 border-2 border-red-500 text-red-100 backdrop-blur-sm animate-bounce shadow-[0_0_30px_rgba(220,38,38,0.6)]"
+              style={{
+                borderRadius: '50% 60% 70% 50% / 60% 50% 60% 50%',
+              }}
+            >
+              {/* Cloud Puffs */}
+              <div className="absolute -top-3 left-1/4 w-8 h-8 bg-red-950/90 border-2 border-red-500 rounded-full"></div>
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-red-950/90 border-2 border-red-500 rounded-full"></div>
+              <div className="absolute -top-3 right-1/4 w-8 h-8 bg-red-950/90 border-2 border-red-500 rounded-full"></div>
+
+              {/* Content */}
+              <div className="relative flex flex-col items-center">
+                <ShieldAlertIcon size={24} className="mb-2 text-red-400" />
+                <span className="font-bold text-sm uppercase tracking-wider text-center">{bubble.word}</span>
+              </div>
             </div>
           </div>
         ))}
