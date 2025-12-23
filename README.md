@@ -124,12 +124,6 @@ A massive **Coherence Meter** on the livestream shows each player as a dot (red 
 
 See [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md) for comprehensive peer-reviewed citations and mechanisms.
 
-## Documentation
-
-- [GAME_OVERVIEW.md](GAME_OVERVIEW.md) - Complete game concept, mechanics, and vision
-- [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md) - Comprehensive neuroscience foundation with peer-reviewed citations
-- [H.A.L.O. Scientific Foundation](https://github.com/ClaimFreedomDotOrg/ProjectHALO/blob/main/docs/SCIENTIFIC_FOUNDATION.md) - Additional scientific framework and research backing (Project H.A.L.O.)
-
 ## Why This Matters: The Mission
 
 We live in an age of unprecedented isolation, anxiety, and fragmentation. People are more "connected" than ever through technology, yet feel more alone. Mental health is collapsing. Community is disintegrating. **The Body is sick.**
@@ -213,13 +207,33 @@ In an age of doomscrolling and isolation:
 - Radical inclusion (anyone with a phone can play)
 - Proof of concept: humans CAN synchronize and cooperate at scale
 
+## Documentation & Resources
+
+### Core Documentation
+
+- **[Development Guide](DEVELOPMENT_GUIDE.md)** - Setup, architecture, and technical implementation
+- **[Game Overview](GAME_OVERVIEW.md)** - Complete game concept and mechanics
+- **[Scientific Basis](SCIENTIFIC_BASIS.md)** - Neuroscience foundation and research
+- **[Contributing](CONTRIBUTING.md)** - How to contribute to the project
+
+### Additional Resources
+
+- **[H.A.L.O. Scientific Foundation](https://github.com/ClaimFreedomDotOrg/ProjectHALO/blob/main/docs/SCIENTIFIC_FOUNDATION.md)** - Additional scientific framework and research backing (Project H.A.L.O.)
+
 ## Demo
 
 Check out the [non-interactive demo](demos/non-interactive-demo.html) to see a visual representation of the game concept.
 
 ## Getting Started
 
-*Development setup instructions will be added as the project progresses.*
+See the [Development Guide](DEVELOPMENT_GUIDE.md) for complete setup instructions, architecture overview, and implementation details.
+
+Quick start:
+
+```bash
+npm install
+npm run dev
+```
 
 ## Contributing
 
