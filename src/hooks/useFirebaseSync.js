@@ -11,7 +11,7 @@ import { PERFORMANCE } from '../constants/gameConfig';
 
 const { FIREBASE_THROTTLE_MS } = PERFORMANCE;
 
-export const useFirebaseSync = ({ sessionId, playerId }) => {
+export const useFirebaseSync = ({ sessionId, playerId } = {}) => {
   const [connectionStatus, setConnectionStatus] = useState('connecting');
   const [coherence, setCoherence] = useState(0);
   const [activePlayers, setActivePlayers] = useState(0);
@@ -24,7 +24,10 @@ export const useFirebaseSync = ({ sessionId, playerId }) => {
    * Initialize Firebase connection
    */
   useEffect(() => {
-    if (!sessionId || !playerId) return;
+    if (!sessionId || !playerId) {
+      setConnectionStatus('local');
+      return;
+    }
 
     const connectionCheck = checkFirebaseConnection();
 

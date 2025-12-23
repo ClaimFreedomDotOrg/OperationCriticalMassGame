@@ -134,6 +134,7 @@ function App() {
         <GameScreen
           sessionId={sessionId}
           playerId={playerId}
+          gameMode={gameMode}
           cells={cells}
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}

@@ -38,16 +38,24 @@ const ShieldAlertIcon = ({ size = 24 }) => (
   </svg>
 );
 
-const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerVisualTap }) => {
+const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
   const [isInSync, setIsInSync] = useState(false);
+  const [localCoherence, setLocalCoherence] = useState(0);
+  const [localActivePlayers] = useState(1);
 
-  // Firebase sync
-  const { coherence, activePlayers, updatePlayerState, connectionStatus } = useFirebaseSync({
+  // Firebase sync (only in multiplayer mode)
+  const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
     sessionId,
     playerId,
-  });
+  }) : null;
+
+  // Use Firebase data in multiplayer, local state in single player
+  const coherence = gameMode === 'multi' ? (firebaseSync?.coherence || 0) : localCoherence;
+  const activePlayers = gameMode === 'multi' ? (firebaseSync?.activePlayers || 0) : localActivePlayers;
+  const updatePlayerState = gameMode === 'multi' ? firebaseSync?.updatePlayerState : () => {};
+  const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
 
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
@@ -62,7 +70,12 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
     setFeedback('HIT');
     setScore(prev => prev + 10);
 
-    // Update Firebase with sync status
+    // Update local coherence in single-player mode
+    if (gameMode === 'single') {
+      setLocalCoherence(prev => Math.min(100, prev + 2)); // Increase by 2% per hit
+    }
+
+    // Update Firebase with sync status in multiplayer
     updatePlayerState({
       isInSync: true,
       score: score + 10,
@@ -71,7 +84,7 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState]);
+  }, [score, updatePlayerState, gameMode]);
 
   /**
    * Handle missed tap
@@ -80,6 +93,11 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
     setIsInSync(false);
     setFeedback('MISS');
 
+    // Update local coherence in single-player mode
+    if (gameMode === 'single') {
+      setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
+    }
+
     updatePlayerState({
       isInSync: false,
       score,
@@ -87,7 +105,7 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
     });
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState]);
+  }, [score, updatePlayerState, gameMode]);
 
   // Bilateral stimulation
   const { activeSide, handleTap, position } = useBilateralStimulation({
@@ -183,8 +201,8 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
         <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/90"></div>
       </div>
 
-      {/* Connection Status - Above HUD */}
-      {connectionStatus !== 'connected' && (
+      {/* Connection Status - Above HUD (Multiplayer only) */}
+      {gameMode === 'multi' && connectionStatus !== 'connected' && (
         <div className="w-full py-2 bg-red-900/50 text-red-200 text-center text-sm animate-pulse z-40">
           Reconnecting...
         </div>
