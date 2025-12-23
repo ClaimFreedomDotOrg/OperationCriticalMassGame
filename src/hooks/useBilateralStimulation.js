@@ -2,6 +2,7 @@
  * useBilateralStimulation Hook
  *
  * Implements bilateral stimulation based on EMDR research.
+ * Uses smooth oscillation across a center line rather than discrete beats.
  *
  * Scientific Basis:
  * - Andrade et al. (1997): Bilateral eye movements reduce emotional intensity
@@ -13,84 +14,74 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GAME_CONFIG } from '../constants/gameConfig';
 
-const { TAP_WINDOW_MS, BEAT_INTERVAL_MS } = GAME_CONFIG;
+const { BPM } = GAME_CONFIG;
+const OSCILLATION_PERIOD = (60000 / BPM) * 2; // Full left-right-left cycle time
 
 export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
-  const [activeSide, setActiveSide] = useState('LEFT'); // Current beat side
-  const [lastBeatTime, setLastBeatTime] = useState(0);
-  const intervalRef = useRef(null);
-  const beatCountRef = useRef(0);
+  const [position, setPosition] = useState(0); // -1 (left) to 1 (right), 0 is center
+  const animationFrameRef = useRef(null);
+  const startTimeRef = useRef(null);
 
   /**
-   * Start the bilateral pulse rhythm
+   * Start the smooth oscillation animation
    */
   useEffect(() => {
     if (!isActive) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
       return;
     }
 
-    // Initialize first beat
-    const startTime = Date.now();
-    setLastBeatTime(startTime);
-    beatCountRef.current = 0;
+    startTimeRef.current = Date.now();
 
-    // Alternating beat timer
-    intervalRef.current = setInterval(() => {
-      beatCountRef.current += 1;
-      const currentSide = beatCountRef.current % 2 === 0 ? 'LEFT' : 'RIGHT';
-      setActiveSide(currentSide);
-      setLastBeatTime(Date.now());
-    }, BEAT_INTERVAL_MS);
+    const animate = () => {
+      const elapsed = Date.now() - startTimeRef.current;
+      // Sine wave oscillation: -1 to 1
+      const newPosition = Math.sin((elapsed / OSCILLATION_PERIOD) * Math.PI * 2);
+      setPosition(newPosition);
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
   }, [isActive]);
 
   /**
    * Handle player tap
-   * Validates timing within TAP_WINDOW_MS
+   * Validates if tap side matches current oscillation side
    */
   const handleTap = useCallback((side) => {
-    const now = Date.now();
-    const timeSinceLastBeat = now - lastBeatTime;
+    // Determine which side of center the oscillation is on
+    const oscillationSide = position < 0 ? 'LEFT' : 'RIGHT';
 
-    // Check if tap is within the timing window
-    const isInSync = Math.abs(timeSinceLastBeat) < TAP_WINDOW_MS;
+    // Check if tapped side matches oscillation side
+    const isCorrectSide = side === oscillationSide;
 
-    // Check if correct side
-    const isCorrectSide = side === activeSide;
-
-    if (isInSync && isCorrectSide) {
+    if (isCorrectSide) {
       onSync?.();
-      return { success: true, timing: timeSinceLastBeat };
+      return { success: true, position };
     } else {
       onMiss?.();
-      return { success: false, timing: timeSinceLastBeat };
+      return { success: false, position };
     }
-  }, [lastBeatTime, activeSide, onSync, onMiss]);
+  }, [position, onSync, onMiss]);
 
   /**
-   * Calculate accuracy for a given tap time
-   * Returns value from 0 (worst) to 1 (perfect)
+   * Get which side the oscillation is currently on
    */
-  const calculateAccuracy = useCallback((tapTime) => {
-    const timeDiff = Math.abs(tapTime - lastBeatTime);
-    return Math.max(0, 1 - (timeDiff / TAP_WINDOW_MS));
-  }, [lastBeatTime]);
+  const activeSide = position < 0 ? 'LEFT' : 'RIGHT';
 
   return {
+    position, // -1 to 1, for visual rendering
     activeSide,
-    lastBeatTime,
     handleTap,
-    calculateAccuracy,
-    beatCount: beatCountRef.current,
   };
 };
 

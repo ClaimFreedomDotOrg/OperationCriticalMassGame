@@ -90,7 +90,7 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
   }, [score, updatePlayerState]);
 
   // Bilateral stimulation
-  const { activeSide, handleTap } = useBilateralStimulation({
+  const { activeSide, handleTap, position } = useBilateralStimulation({
     isActive: true,
     onSync: handleSync,
     onMiss: handleMiss,
@@ -223,14 +223,18 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
       <div className="flex-1 relative flex items-center justify-center">
         {/* Pulse Orb */}
         <div className="relative w-full max-w-md h-24 z-10 flex items-center">
+          {/* Oscillation Line */}
           <div className="absolute top-1/2 left-0 w-full h-1 bg-cyan-900/50 -translate-y-1/2"></div>
+
+          {/* Center Line */}
+          <div className="absolute top-1/2 left-1/2 h-16 w-1 bg-cyan-500/60 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_rgba(34,211,238,0.4)]"></div>
+
+          {/* Moving Orb */}
           <div
-            className={`absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full blur-sm transition-all duration-[1000ms] ease-linear
-              ${activeSide === 'LEFT'
-                ? 'left-0 bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)]'
-                : 'left-[calc(100%-3rem)] bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)]'
-              }
-            `}
+            className="absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full blur-sm transition-none bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)]"
+            style={{
+              left: `calc(50% + ${position * 50}% - 1.5rem)`, // -50% to +50% from center
+            }}
           >
             <div className="absolute inset-0 bg-white rounded-full opacity-50 animate-ping"></div>
           </div>
