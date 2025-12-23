@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation: Critical Mass - Non-Interactive Demo</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+        // Icon components (replacing lucide-react)
+        const Play = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+        );
+
+        const Activity = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+        );
+
+        const ShieldAlert = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        );
+
+        const Users = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        );
+
+        /**
+         * OPERATION: CRITICAL MASS - Simulation Demo v5.0 (Continuous Loop)
+         * * Updates:
+         * - Added Auto-Loop Logic:
+         * - Waiting 9s after Breakthrough -> Auto Click Reset.
+         * - Waiting 6s after Idle -> Auto Click Start.
+         * - Added Visual Tap rendering to IDLE and BREAKTHROUGH screens for bot feedback.
+         */
+
+const BPM = 60; // Beats per minute
+const BEAT_INTERVAL = 60000 / BPM;
+const VISUAL_CELL_COUNT = 300; // Increased count for better body density
+
+const WORDS_OF_THE_VOICE = [
+  "Not Enough", "Fear", "Anxiety", "Past", "Future",
+  "Doom", "You Can't", "They Hate You", "Give Up"
+];
+
+const Simulation = () => {
+  // --- STATE ---
+  const [gameStatus, setGameStatus] = useState('IDLE'); // IDLE, PLAYING, BREAKTHROUGH
+  const [coherence, setCoherence] = useState(0); // 0 to 100
+  const [localScore, setLocalScore] = useState(0);
+  const [activeSide, setActiveSide] = useState('LEFT'); // LEFT or RIGHT target
+  const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', 'INFECTED'
+  const [infections, setInfections] = useState([]); // Array of active bubble objects
+  const [activeUsers, setActiveUsers] = useState(1240); // Simulated user count
+
+  // Visual Taps (The Neon Pink Circles)
+  const [visualTaps, setVisualTaps] = useState([]); // { id, x, y, type }
+
+  // Refs for timing
+  const lastBeatTimeRef = useRef(0);
+  const animationFrameRef = useRef(null);
+
+  // --- GAME LOOP ---
+  useEffect(() => {
+    if (gameStatus !== 'PLAYING') return;
+
+    const gameLoop = (timestamp) => {
+      // 1. Rhythm Logic
+      if (timestamp - lastBeatTimeRef.current >= BEAT_INTERVAL) {
+        lastBeatTimeRef.current = timestamp;
+        setActiveSide(prev => prev === 'LEFT' ? 'RIGHT' : 'LEFT');
+
+        // Passive Global Progress
+        const momentum = coherence > 50 ? 0.2 : 0.1;
+        setCoherence(prev => Math.min(prev + momentum, 100));
+
+        // Simulate fluctuating user count
+        if (Math.random() > 0.7) {
+          setActiveUsers(prev => prev + Math.floor(Math.random() * 5));
+        }
+
+        // 2. Infection Spawning Logic
+        if (coherence > 15 && Math.random() > 0.85 && infections.length < 3) {
+          spawnInfection();
+        }
+      }
+
+      // 3. Check Win Condition
+      if (coherence >= 100) {
+        setGameStatus('BREAKTHROUGH');
+        return;
+      }
+
+      animationFrameRef.current = requestAnimationFrame(gameLoop);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(animationFrameRef.current);
+  }, [gameStatus, coherence, infections]);
+
+
+  // --- AUTO-LOOP BOT LOGIC ---
+  useEffect(() => {
+    let timer;
+    let clickTimer;
+
+    if (gameStatus === 'BREAKTHROUGH') {
+        // Wait 9 seconds total
+        // At 8.5s, trigger visual click
+        timer = setTimeout(() => {
+            triggerVisualTap(50, 70, 'TAP'); // Position of Reset text
+
+            clickTimer = setTimeout(() => {
+                setGameStatus('IDLE');
+                setCoherence(0);
+                setInfections([]);
+                setVisualTaps([]);
+            }, 500);
+        }, 8500);
+    }
+    else if (gameStatus === 'IDLE') {
+        // Wait 6 seconds total
+        // At 5.5s, trigger visual click
+        timer = setTimeout(() => {
+            triggerVisualTap(50, 60, 'TAP'); // Position of Start button
+
+            clickTimer = setTimeout(() => {
+                setGameStatus('PLAYING');
+                lastBeatTimeRef.current = performance.now();
+            }, 500);
+        }, 5500);
+    }
+
+    return () => {
+        clearTimeout(timer);
+        clearTimeout(clickTimer);
+    };
+  }, [gameStatus]);
+
+
+  // --- BOT: SIMULATED IMPERFECT PLAYER (INGAME) ---
+  useEffect(() => {
+    if (gameStatus !== 'PLAYING') return;
+
+    const baseDelay = infections.length > 0 ? 800 : 250;
+    const variableDelay = Math.random() * (infections.length > 0 ? 1000 : 350);
+    const reactionDelay = baseDelay + variableDelay;
+
+    const isMiss = Math.random() > 0.95;
+    const isError = Math.random() > 0.95;
+
+    const botTimer = setTimeout(() => {
+      if (infections.length > 0) {
+        const bubbleToClear = infections[0];
+        if (bubbleToClear) {
+            clearInfection(bubbleToClear.id);
+            triggerVisualTap(bubbleToClear.x, bubbleToClear.y, 'CLEAR');
+        }
+        return;
+      }
+
+      if (isMiss) return;
+
+      const targetSide = isError ? (activeSide === 'LEFT' ? 'RIGHT' : 'LEFT') : activeSide;
+
+      let tapX, tapY;
+      if (targetSide === 'LEFT') {
+        tapX = 15 + Math.random() * 20;
+      } else {
+        tapX = 65 + Math.random() * 20;
+      }
+      tapY = 78 + Math.random() * 10;
+
+      handleTap(targetSide);
+      triggerVisualTap(tapX, tapY, 'TAP');
+
+    }, reactionDelay);
+
+    return () => clearTimeout(botTimer);
+  }, [activeSide, infections]);
+
+
+  // --- VISUALS & LOGIC ---
+
+  const triggerVisualTap = (x, y, type) => {
+    const id = Date.now() + Math.random();
+    setVisualTaps(prev => [...prev, { id, x, y, type }]);
+    setTimeout(() => {
+        setVisualTaps(prev => prev.filter(t => t.id !== id));
+    }, 600);
+  };
+
+  const handleTap = (side) => {
+    if (infections.length > 0) {
+      triggerFeedback('INFECTED');
+      setCoherence(prev => Math.max(prev - 2, 0));
+      return;
+    }
+
+    if (side === activeSide) {
+      triggerFeedback('HIT');
+      setLocalScore(prev => prev + 10);
+      setCoherence(prev => Math.min(prev + 1.2, 100));
+    } else {
+      triggerFeedback('MISS');
+      setCoherence(prev => Math.max(prev - 1, 0));
+    }
+  };
+
+  const spawnInfection = () => {
+    const id = Date.now();
+    const text = WORDS_OF_THE_VOICE[Math.floor(Math.random() * WORDS_OF_THE_VOICE.length)];
+    const x = Math.random() * 60 + 20;
+    const y = Math.random() * 40 + 30;
+    setInfections(prev => [...prev, { id, text, x, y }]);
+  };
+
+  const clearInfection = (id) => {
+    setInfections(prev => prev.filter(inf => inf.id !== id));
+    setLocalScore(prev => prev + 50);
+  };
+
+  const triggerFeedback = (type) => {
+    setFeedback(type);
+    setTimeout(() => setFeedback(null), 300);
+  };
+
+  // --- BODY GENERATOR ---
+  const cells = useMemo(() => {
+    const generatedCells = [];
+    const parts = [
+      { count: 30, xMin: 45, xMax: 55, yMin: 15, yMax: 25 }, // Head
+      { count: 100, xMin: 40, xMax: 60, yMin: 25, yMax: 55 }, // Torso
+      { count: 40, xMin: 20, xMax: 40, yMin: 28, yMax: 50 }, // Left Arm
+      { count: 40, xMin: 60, xMax: 80, yMin: 28, yMax: 50 }, // Right Arm
+      { count: 45, xMin: 40, xMax: 48, yMin: 55, yMax: 85 }, // Left Leg
+      { count: 45, xMin: 52, xMax: 60, yMin: 55, yMax: 85 }, // Right Leg
+    ];
+
+    parts.forEach((part, partIndex) => {
+      for (let i = 0; i < part.count; i++) {
+        generatedCells.push({
+          id: `${partIndex}-${i}`,
+          left: part.xMin + Math.random() * (part.xMax - part.xMin),
+          top: part.yMin + Math.random() * (part.yMax - part.yMin),
+          delay: Math.random() * 2,
+          size: Math.random() * 3 + 2
+        });
+      }
+    });
+    return generatedCells;
+  }, []);
+
+  const getContainerStyle = () => {
+    if (infections.length > 0) return 'bg-red-950/40 border-red-500 shadow-[inset_0_0_50px_rgba(220,38,38,0.5)]';
+    if (feedback === 'HIT') return 'bg-black border-amber-400 shadow-[inset_0_0_30px_rgba(251,191,36,0.3)]';
+    return 'bg-black border-gray-800';
+  };
+
+
+  // --- RENDER ---
+
+  if (gameStatus === 'IDLE') {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-screen bg-black text-cyan-400 font-mono p-6 text-center select-none overflow-hidden relative">
+        {/* Visual Taps Overlay for IDLE state */}
+        <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
+            {visualTaps.map(tap => (
+                <div key={tap.id} className="absolute w-12 h-12 rounded-full border-2 border-pink-500 bg-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.8),inset_0_0_10px_rgba(236,72,153,0.5)] animate-ping" style={{ left: `${tap.x}%`, top: `${tap.y}%`, animationDuration: '0.6s' }} />
+            ))}
+        </div>
+
+        <h1 className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 relative z-10">
+          OPERATION: CRITICAL MASS
+        </h1>
+        <p className="text-lg md:text-xl mb-8 max-w-md text-cyan-100/80 relative z-10">
+          Sync your mind. Clear the static. Join the Body.
+        </p>
+
+        <button
+          onClick={() => {
+            setGameStatus('PLAYING');
+            lastBeatTimeRef.current = performance.now();
+          }}
+          className="group relative z-20 px-8 py-4 bg-cyan-900/30 border border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-lg overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-cyan-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          <span className="relative flex items-center gap-3 text-xl font-bold tracking-widest">
+            <Play size={24} /> START SIMULATION
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  if (gameStatus === 'BREAKTHROUGH') {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-screen bg-amber-50 text-amber-900 font-serif p-6 text-center select-none animate-in fade-in duration-1000 relative">
+        {/* Visual Taps Overlay for BREAKTHROUGH state */}
+        <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
+            {visualTaps.map(tap => (
+                <div key={tap.id} className="absolute w-12 h-12 rounded-full border-2 border-pink-500 bg-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.8),inset_0_0_10px_rgba(236,72,153,0.5)] animate-ping" style={{ left: `${tap.x}%`, top: `${tap.y}%`, animationDuration: '0.6s' }} />
+            ))}
+        </div>
+
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-100 to-white opacity-50"></div>
+        <div className="relative z-20 mt-12">
+          <h1 className="text-5xl md:text-7xl font-bold text-amber-600 mb-4 tracking-tighter drop-shadow-lg">
+            CRITICAL MASS ACHIEVED
+          </h1>
+          <p className="text-2xl text-amber-800/80 italic font-light tracking-widest mb-8">
+            THE BODY IS ONE
+          </p>
+          <button
+            onClick={() => { setGameStatus('IDLE'); setCoherence(0); setInfections([]); setVisualTaps([]); }}
+            className="text-sm uppercase tracking-widest text-amber-900/50 hover:text-amber-900 transition-colors border-b border-amber-900/30 pb-1"
+          >
+            Reset Simulation
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`relative w-full h-screen overflow-hidden flex flex-col font-mono transition-all duration-300 border-[10px] ${getContainerStyle()}`}>
+
+      {/* 0. BACKGROUND BODY (The Cells) */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {cells.map((cell, idx) => {
+          const isAwake = (idx % 100) < coherence;
+
+          return (
+            <div
+              key={cell.id}
+              className={`absolute rounded-full transition-colors duration-1000 ease-in-out opacity-60
+                ${isAwake ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.8)]' : 'bg-red-900/60'}
+              `}
+              style={{
+                left: `${cell.left}%`,
+                top: `${cell.top}%`,
+                width: `${cell.size}px`,
+                height: `${cell.size}px`,
+                animation: `pulse ${2 + cell.delay}s infinite`
+              }}
+            />
+          );
+        })}
+        {/* Vignette */}
+        <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/90"></div>
+      </div>
+
+      {/* 1. TOP HUD (Global Metrics) */}
+      <div className="w-full p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px]">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex justify-between items-end mb-2 text-xs uppercase tracking-widest">
+            <span className="text-cyan-500 flex items-center gap-2"><Activity size={14}/> Global Body Status</span>
+            <span className={`font-bold transition-colors duration-500 ${coherence > 80 ? 'text-amber-400' : 'text-cyan-400'}`}>
+              {coherence.toFixed(1)}% COHERENT
+            </span>
+          </div>
+
+          <div className="w-full h-4 bg-gray-900 rounded-full overflow-hidden border border-gray-800 shadow-[0_0_15px_rgba(0,255,255,0.1)]">
+            <div
+              className={`h-full transition-all duration-300 ease-out relative overflow-hidden ${coherence > 90 ? 'bg-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.8)]' : 'bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)]'}`}
+              style={{ width: `${coherence}%` }}
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+            </div>
+          </div>
+
+          <div className="flex justify-between mt-2 text-xs text-gray-400 font-bold">
+            <span className="flex items-center gap-1"><Users size={12}/> {activeUsers.toLocaleString()} CELLS CONNECTED</span>
+            <span className={infections.length > 0 ? "text-red-500 animate-pulse" : "text-amber-500"}>
+               YOU ARE: {infections.length > 0 ? "INFECTED (CLEAR IT!)" : "COHERENT"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. CENTER STAGE (Pulse Visualizer) */}
+      <div className="flex-1 relative flex items-center justify-center">
+        {/* Pulse Orb */}
+        <div className="relative w-full max-w-md h-24 z-10 flex items-center">
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-cyan-900/50 -translate-y-1/2"></div>
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full blur-sm transition-all duration-[1000ms] ease-linear
+              ${activeSide === 'LEFT' ? 'left-0 bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)]' : 'left-[calc(100%-3rem)] bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)]'}
+            `}
+          >
+            <div className="absolute inset-0 bg-white rounded-full opacity-50 animate-ping"></div>
+          </div>
+          {feedback && (
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold animate-bounce z-50
+              ${feedback === 'HIT' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]'}
+            `}>
+              {feedback === 'HIT' ? 'SYNC' : feedback === 'MISS' ? 'MISS' : 'STATIC'}
+            </div>
+          )}
+        </div>
+
+        {/* Infections */}
+        {infections.map(inf => (
+          <div
+            key={inf.id}
+            className="absolute z-50 px-6 py-8 bg-red-950/90 border-2 border-red-500 text-red-100 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] animate-bounce backdrop-blur-sm"
+            style={{ left: `${inf.x}%`, top: `${inf.y}%` }}
+          >
+            <div className="flex flex-col items-center">
+              <ShieldAlert size={24} className="mb-2 text-red-400"/>
+              <span className="font-bold text-sm uppercase tracking-wider">{inf.text}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 3. VISUAL TAPS */}
+      <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
+        {visualTaps.map(tap => (
+            <div
+                key={tap.id}
+                className="absolute w-12 h-12 rounded-full border-2 border-pink-500 bg-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.8),inset_0_0_10px_rgba(236,72,153,0.5)] animate-ping"
+                style={{
+                    left: `${tap.x}%`,
+                    top: `${tap.y}%`,
+                    animationDuration: '0.6s'
+                }}
+            />
+        ))}
+      </div>
+
+      {/* 4. CONTROLS */}
+      <div className="h-1/3 w-full flex gap-2 p-4 pb-8 z-20">
+        <div className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100
+            ${activeSide === 'LEFT' ? 'border-cyan-400 bg-cyan-900/40 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'border-gray-800 bg-gray-900/50 text-gray-600'}
+          `}
+        >
+          <span className="text-2xl font-bold tracking-widest mb-2">LEFT</span>
+        </div>
+        <div className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100
+            ${activeSide === 'RIGHT' ? 'border-cyan-400 bg-cyan-900/40 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : 'border-gray-800 bg-gray-900/50 text-gray-600'}
+          `}
+        >
+          <span className="text-2xl font-bold tracking-widest mb-2">RIGHT</span>
+        </div>
+      </div>
+
+      <div className="absolute bottom-32 left-0 w-full text-center pointer-events-none animate-pulse text-cyan-200/50 text-sm">
+        Simulated Operator Active...
+      </div>
+    </div>
+  );
+};
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Simulation />);
+    </script>
+</body>
+</html>
