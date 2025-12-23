@@ -183,6 +183,13 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
         <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/90"></div>
       </div>
 
+      {/* Connection Status - Above HUD */}
+      {connectionStatus !== 'connected' && (
+        <div className="w-full py-2 bg-red-900/50 text-red-200 text-center text-sm animate-pulse z-40">
+          Reconnecting...
+        </div>
+      )}
+
       {/* 1. TOP HUD (Global Metrics) */}
       <div className="w-full p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px]">
         <div className="max-w-2xl mx-auto">
@@ -315,11 +322,7 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
 
       {/* Instructions & Connection Status */}
       <div className="absolute bottom-32 left-0 w-full text-center pointer-events-none z-20 px-4">
-        {connectionStatus !== 'connected' ? (
-          <div className="animate-pulse text-cyan-200/50 text-sm">
-            Reconnecting...
-          </div>
-        ) : hasBlockingBubbles ? (
+        {hasBlockingBubbles ? (
           <div className="text-red-400/70 text-sm animate-pulse">
             Tap the thought bubble to dismiss it
           </div>
