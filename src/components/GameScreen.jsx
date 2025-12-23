@@ -151,6 +151,12 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
   return (
     <div
       className={`relative w-full h-screen overflow-hidden flex flex-col font-mono transition-all duration-300 border-[10px] ${getContainerStyle()}`}
+      onClick={(e) => {
+        // If there are blocking bubbles and click wasn't on a bubble, count as miss
+        if (hasBlockingBubbles && !e.target.closest('[data-bubble]')) {
+          handleMiss();
+        }
+      }}
     >
       {/* 0. BACKGROUND BODY (The Cells) */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -244,9 +250,13 @@ const GameScreen = ({ sessionId, playerId, cells = [], visualTaps = [], triggerV
         {activeBubbles.map(bubble => (
           <div
             key={bubble.id}
+            data-bubble="true"
             className="absolute z-50 px-6 py-8 bg-red-950/90 border-2 border-red-500 text-red-100 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.6)] animate-bounce backdrop-blur-sm cursor-pointer max-w-xs"
             style={{ left: `${bubble.position.x}%`, top: `${bubble.position.y}%` }}
-            onClick={() => onDismissBubble(bubble.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDismissBubble(bubble.id);
+            }}
           >
             <div className="flex flex-col items-center">
               <ShieldAlertIcon size={24} className="mb-2 text-red-400" />

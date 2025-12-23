@@ -31,8 +31,8 @@ export const useThoughtBubbles = ({ isActive }) => {
       word: randomWord,
       spawnTime: Date.now(),
       position: {
-        x: Math.random() * 60 + 20, // 20-80% from left
-        y: 100, // Start from bottom
+        x: Math.random() * 70 + 15, // 15-85% from left (avoid edges)
+        y: Math.random() * 50 + 20, // 20-70% from top (avoid HUD and controls)
       },
     };
 
