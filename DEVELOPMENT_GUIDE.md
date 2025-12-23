@@ -42,10 +42,6 @@ I've built the foundational code structure for Operation: Critical Mass - a neur
 - [src/components/PlayerFeedback.jsx](src/components/PlayerFeedback.jsx) - HIT/MISS visual feedback
 - [src/components/BreakthroughScreen.jsx](src/components/BreakthroughScreen.jsx) - Victory state (100% coherence)
 
-#### Documentation
-
-- [README_SETUP.md](README_SETUP.md) - Setup and installation guide
-
 ---
 
 ## 🧠 Key Features Implemented
@@ -336,38 +332,55 @@ Full citations in [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md)
 
 ### "Firebase not initialized" warning
 
-**Fix**: Update credentials in [src/config/firebase.js](src/config/firebase.js)
+**Fix**: Update credentials in [src/config/firebase.js](src/config/firebase.js)  
+**Verify**: Firebase project is active and database URL is correct
 
 ### Tap buttons not responding on mobile
 
-**Fix**: Ensure `touch-action: manipulation` is set (already in code)
+**Fix**: Ensure `touch-action: manipulation` is set (already in code)  
+**Check**: Browser console for errors, try disabling browser touch gesture overrides
 
 ### Animation stuttering
 
-**Fix**: Close background apps, check frame rate in DevTools
+**Fix**: Close background apps, check frame rate in DevTools  
+**Test**: On different device to isolate performance issues
 
 ### Thought bubbles not dismissing
 
 **Fix**: Check console for swipe gesture errors, ensure sufficient swipe distance (100px minimum)
 
+### Poor performance
+
+**Fix**: Close other applications, test on different device  
+**Check**: Network connection for Firebase sync
+
 ---
 
 ## 📚 Additional Resources
+
+### Project Documentation
 
 - **Game Overview**: [GAME_OVERVIEW.md](GAME_OVERVIEW.md)
 - **Scientific Basis**: [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md)
 - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **GitHub Copilot Instructions**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
 
+### External Documentation
+
+- [React Documentation](https://react.dev)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Vite](https://vitejs.dev)
+
 ---
 
-## 🎬 Next Actions for You
+## 🎬 Quick Start
 
-1. **Install dependencies**: `npm install` (already running)
-2. **Test locally**: `npm run dev` → Open `http://localhost:3000`
-3. **Configure Firebase**: Get credentials from Firebase Console
-4. **Test gameplay**: Try tapping in rhythm, dismiss thought bubbles
-5. **Open multiple windows**: See multiplayer sync in action (after Firebase setup)
+1. **Install dependencies**: `npm install`
+2. **Start dev server**: `npm run dev` → Visit `http://localhost:3000`
+3. **Test locally**: Try bilateral tapping and thought bubble dismissal (works without Firebase)
+4. **Configure Firebase** (optional): Get credentials from [Firebase Console](https://console.firebase.google.com/)
+5. **Test multiplayer**: Open multiple browser windows to see real-time sync
 
 ---
 
