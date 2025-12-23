@@ -45,6 +45,15 @@ a {
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @keyframes thought-float {
   0% {
     transform: translateY(100vh) translateX(0);

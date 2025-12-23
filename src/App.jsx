@@ -4,7 +4,7 @@
  * Root component managing game state and screen transitions
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import useGameState from './hooks/useGameState';
 import IdleScreen from './components/IdleScreen';
 import GameScreen from './components/GameScreen';
@@ -27,6 +27,46 @@ function App() {
 
   const [sessionStats, setSessionStats] = useState(null);
   const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [visualTaps, setVisualTaps] = useState([]); // { id, x, y, type }
+
+  /**
+   * Generate body cells for visualization
+   */
+  const cells = useMemo(() => {
+    const generatedCells = [];
+    const parts = [
+      { count: 30, xMin: 45, xMax: 55, yMin: 15, yMax: 25 }, // Head
+      { count: 100, xMin: 40, xMax: 60, yMin: 25, yMax: 55 }, // Torso
+      { count: 40, xMin: 20, xMax: 40, yMin: 28, yMax: 50 }, // Left Arm
+      { count: 40, xMin: 60, xMax: 80, yMin: 28, yMax: 50 }, // Right Arm
+      { count: 45, xMin: 40, xMax: 48, yMin: 55, yMax: 85 }, // Left Leg
+      { count: 45, xMin: 52, xMax: 60, yMin: 55, yMax: 85 }, // Right Leg
+    ];
+
+    parts.forEach((part, partIndex) => {
+      for (let i = 0; i < part.count; i++) {
+        generatedCells.push({
+          id: `${partIndex}-${i}`,
+          left: part.xMin + Math.random() * (part.xMax - part.xMin),
+          top: part.yMin + Math.random() * (part.yMax - part.yMin),
+          delay: Math.random() * 2,
+          size: Math.random() * 3 + 2
+        });
+      }
+    });
+    return generatedCells;
+  }, []);
+
+  /**
+   * Trigger visual tap indicator
+   */
+  const triggerVisualTap = useCallback((x, y, type = 'TAP') => {
+    const id = Date.now() + Math.random();
+    setVisualTaps(prev => [...prev, { id, x, y, type }]);
+    setTimeout(() => {
+      setVisualTaps(prev => prev.filter(t => t.id !== id));
+    }, 600);
+  }, []);
 
   /**
    * Handle game start
@@ -79,12 +119,21 @@ function App() {
 
   return (
     <div className="App">
-      {isIdle && <IdleScreen onStart={handleStart} />}
+      {isIdle && (
+        <IdleScreen
+          onStart={handleStart}
+          visualTaps={visualTaps}
+          triggerVisualTap={triggerVisualTap}
+        />
+      )}
 
       {isPlaying && (
         <GameScreen
           sessionId={sessionId}
           playerId={playerId}
+          cells={cells}
+          visualTaps={visualTaps}
+          triggerVisualTap={triggerVisualTap}
         />
       )}
 
@@ -92,6 +141,8 @@ function App() {
         <BreakthroughScreen
           onReset={handleReset}
           sessionStats={sessionStats}
+          visualTaps={visualTaps}
+          triggerVisualTap={triggerVisualTap}
         />
       )}
     </div>
