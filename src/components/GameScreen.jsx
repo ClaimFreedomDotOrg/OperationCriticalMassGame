@@ -118,23 +118,23 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Handle tap button press
    */
-  const onTapButton = useCallback((side) => {
+  const onTapButton = useCallback((side, event) => {
     // Cannot tap while bubbles are blocking
     if (hasBlockingBubbles) {
       handleMiss();
       return;
     }
 
-    // Trigger visual tap indicator
-    let tapX, tapY;
-    if (side === 'LEFT') {
-      tapX = 15 + Math.random() * 20;
-    } else {
-      tapX = 65 + Math.random() * 20;
-    }
-    tapY = 78 + Math.random() * 10;
+    // Get click position relative to viewport
+    if (event && triggerVisualTap) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX;
+      const clickY = event.clientY;
 
-    if (triggerVisualTap) {
+      // Convert to percentage of screen
+      const tapX = (clickX / window.innerWidth) * 100;
+      const tapY = (clickY / window.innerHeight) * 100;
+
       triggerVisualTap(tapX, tapY, 'TAP');
     }
 
@@ -144,15 +144,22 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Handle bubble swipe dismissal
    */
-  const onDismissBubble = useCallback((bubbleId) => {
-    const bubble = activeBubbles.find(b => b.id === bubbleId);
-    if (bubble && triggerVisualTap) {
-      triggerVisualTap(bubble.position.x, bubble.position.y, 'CLEAR');
+  const onDismissBubble = useCallback((bubbleId, event) => {
+    // Get click position relative to viewport
+    if (event && triggerVisualTap) {
+      const clickX = event.clientX;
+      const clickY = event.clientY;
+
+      // Convert to percentage of screen
+      const tapX = (clickX / window.innerWidth) * 100;
+      const tapY = (clickY / window.innerHeight) * 100;
+
+      triggerVisualTap(tapX, tapY, 'CLEAR');
     }
 
     dismissBubble(bubbleId);
     setScore(prev => prev + 5);
-  }, [dismissBubble, activeBubbles, triggerVisualTap]);
+  }, [dismissBubble, triggerVisualTap]);
 
   /**
    * Determine container style based on state
@@ -301,7 +308,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             style={{ left: `${bubble.position.x}%`, top: `${bubble.position.y}%` }}
             onClick={(e) => {
               e.stopPropagation();
-              onDismissBubble(bubble.id);
+              onDismissBubble(bubble.id, e);
             }}
           >
             {/* Cloud Shape */}
@@ -345,7 +352,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       {/* 4. CONTROLS */}
       <div className="h-1/3 w-full flex gap-2 p-4 pb-8 z-20">
         <div
-          onClick={() => onTapButton('LEFT')}
+          onClick={(e) => onTapButton('LEFT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
             ${activeSide === 'LEFT'
               ? 'border-cyan-400 bg-cyan-900/40 shadow-[0_0_20px_rgba(34,211,238,0.2)] text-cyan-400'
@@ -356,7 +363,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           <span className="text-2xl font-bold tracking-widest mb-2">LEFT</span>
         </div>
         <div
-          onClick={() => onTapButton('RIGHT')}
+          onClick={(e) => onTapButton('RIGHT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
             ${activeSide === 'RIGHT'
               ? 'border-cyan-400 bg-cyan-900/40 shadow-[0_0_20px_rgba(34,211,238,0.2)] text-cyan-400'
