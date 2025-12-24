@@ -36,12 +36,18 @@ function App() {
   const cells = useMemo(() => {
     const generatedCells = [];
     const parts = [
-      { count: 30, xMin: 45, xMax: 55, yMin: 15, yMax: 25 }, // Head
-      { count: 100, xMin: 40, xMax: 60, yMin: 25, yMax: 55 }, // Torso
-      { count: 40, xMin: 20, xMax: 40, yMin: 28, yMax: 50 }, // Left Arm
-      { count: 40, xMin: 60, xMax: 80, yMin: 28, yMax: 50 }, // Right Arm
-      { count: 45, xMin: 40, xMax: 48, yMin: 55, yMax: 85 }, // Left Leg
-      { count: 45, xMin: 52, xMax: 60, yMin: 55, yMax: 85 }, // Right Leg
+      { count: 40, xMin: 43, xMax: 57, yMin: 12, yMax: 22 }, // Head (circular)
+      { count: 25, xMin: 44, xMax: 56, yMin: 22, yMax: 28 }, // Neck
+      { count: 80, xMin: 38, xMax: 62, yMin: 28, yMax: 42 }, // Upper Torso (chest)
+      { count: 60, xMin: 40, xMax: 60, yMin: 42, yMax: 56 }, // Lower Torso (abdomen)
+      { count: 35, xMin: 22, xMax: 38, yMin: 30, yMax: 44 }, // Left Upper Arm
+      { count: 25, xMin: 18, xMax: 28, yMin: 44, yMax: 58 }, // Left Forearm
+      { count: 35, xMin: 62, xMax: 78, yMin: 30, yMax: 44 }, // Right Upper Arm
+      { count: 25, xMin: 72, xMax: 82, yMin: 44, yMax: 58 }, // Right Forearm
+      { count: 50, xMin: 38, xMax: 48, yMin: 56, yMax: 72 }, // Left Thigh
+      { count: 35, xMin: 40, xMax: 48, yMin: 72, yMax: 88 }, // Left Calf
+      { count: 50, xMin: 52, xMax: 62, yMin: 56, yMax: 72 }, // Right Thigh
+      { count: 35, xMin: 52, xMax: 60, yMin: 72, yMax: 88 }, // Right Calf
     ];
 
     parts.forEach((part, partIndex) => {

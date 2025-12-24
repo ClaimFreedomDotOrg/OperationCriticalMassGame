@@ -178,26 +178,29 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       }}
     >
       {/* 0. BACKGROUND BODY (The Cells) */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {cells.map((cell, idx) => {
-          const isAwake = (idx % 100) < coherence;
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center">
+        {/* Body Container - Maintains aspect ratio */}
+        <div className="relative w-full max-w-md h-full">
+          {cells.map((cell, idx) => {
+            const isAwake = (idx % 100) < coherence;
 
-          return (
-            <div
-              key={cell.id}
-              className={`absolute rounded-full transition-colors duration-1000 ease-in-out opacity-60
-                ${isAwake ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.8)]' : 'bg-red-900/60'}
-              `}
-              style={{
-                left: `${cell.left}%`,
-                top: `${cell.top}%`,
-                width: `${cell.size}px`,
-                height: `${cell.size}px`,
-                animation: `pulse ${2 + cell.delay}s infinite`
-              }}
-            />
-          );
-        })}
+            return (
+              <div
+                key={cell.id}
+                className={`absolute rounded-full transition-colors duration-1000 ease-in-out opacity-60
+                  ${isAwake ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.8)]' : 'bg-red-900/60'}
+                `}
+                style={{
+                  left: `${cell.left}%`,
+                  top: `${cell.top}%`,
+                  width: `${cell.size}px`,
+                  height: `${cell.size}px`,
+                  animation: `pulse ${2 + cell.delay}s infinite`
+                }}
+              />
+            );
+          })}
+        </div>
         {/* Vignette */}
         <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/90"></div>
       </div>
