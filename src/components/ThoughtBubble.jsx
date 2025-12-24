@@ -84,10 +84,10 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       onTouchEnd={handleEnd}
     >
       <div
-        className="bg-red-950/90 border-2 border-red-500 rounded-full px-6 py-3
+        className="bg-red-950/90 border-2 border-red-500 rounded-full px-3 py-2 md:px-6 md:py-3
                    shadow-[0_0_30px_rgba(220,38,38,0.6)] backdrop-blur-sm"
       >
-        <p className="text-red-100 text-lg font-semibold whitespace-nowrap">
+        <p className="text-red-100 text-sm md:text-lg font-semibold whitespace-nowrap">
           {bubble.word}
         </p>
       </div>
