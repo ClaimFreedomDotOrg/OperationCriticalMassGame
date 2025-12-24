@@ -121,7 +121,9 @@ a {
 }
 
 .animate-bubble-dismiss {
-  animation: bubble-dismiss var(--dismiss-duration, 600ms) ease-out forwards;
+  animation-name: bubble-dismiss;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
 }
 
 /* Accessibility: Respect reduced motion preferences */

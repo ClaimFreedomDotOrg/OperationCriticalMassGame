@@ -115,7 +115,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
         left: `${adjustedPosition.x}%`,
         top: `${adjustedPosition.y}%`,
         transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
-        '--dismiss-duration': `${dismissDuration}ms`,
+        animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
       }}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
