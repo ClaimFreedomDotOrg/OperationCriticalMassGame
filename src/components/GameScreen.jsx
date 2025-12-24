@@ -359,7 +359,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       )}
 
       {/* 4. CONTROLS */}
-      <div className="w-full min-h-[120px] max-h-[180px] flex gap-2 p-2 md:p-4 pb-3 md:pb-8 z-20 flex-shrink-0">
+      <div className="w-full min-h-[240px] max-h-[360px] flex gap-2 p-2 md:p-4 pb-3 md:pb-8 z-20 flex-shrink-0">
         <div
           onClick={(e) => onTapButton('LEFT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
