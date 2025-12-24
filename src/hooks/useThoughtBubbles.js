@@ -12,7 +12,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GAME_CONFIG, WORDS_OF_THE_VOICE } from '../constants/gameConfig';
 
-const { INFECTION_SPAWN_INTERVAL, INFECTION_DURATION, BUBBLE_DISMISS_DELAY } = GAME_CONFIG;
+const { INFECTION_SPAWN_INTERVAL, INFECTION_DURATION, BUBBLE_DISMISS_DELAY, BUBBLE_FADE_DURATION } = GAME_CONFIG;
 
 export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
   const [activeBubbles, setActiveBubbles] = useState([]);
@@ -97,10 +97,17 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
       b.id === bubbleId ? { ...b, isDismissing: true } : b
     ));
 
-    // Remove after delay for animation
+    // After delay, start fade animation
+    setTimeout(() => {
+      setActiveBubbles(prev => prev.map(b =>
+        b.id === bubbleId ? { ...b, isFading: true } : b
+      ));
+    }, BUBBLE_DISMISS_DELAY);
+
+    // Remove after delay + fade duration
     setTimeout(() => {
       setActiveBubbles(prev => prev.filter(b => b.id !== bubbleId));
-    }, BUBBLE_DISMISS_DELAY);
+    }, BUBBLE_DISMISS_DELAY + BUBBLE_FADE_DURATION);
 
     return true;
   }, []);

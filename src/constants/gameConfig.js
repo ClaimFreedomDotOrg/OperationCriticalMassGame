@@ -23,7 +23,8 @@ export const GAME_CONFIG = {
   INFECTION_DURATION: 8000, // Bubble exists for 8 seconds
   MIN_SWIPE_DISTANCE: 100, // Minimum pixels for valid swipe
   MAX_SWIPE_TIME: 500, // Maximum milliseconds for valid swipe
-  BUBBLE_DISMISS_DELAY: 300, // 300ms delay before bubble disappears (user feedback)
+  BUBBLE_DISMISS_DELAY: 300, // 300ms delay before bubble starts fading (user feedback)
+  BUBBLE_FADE_DURATION: 300, // 300ms fade-out animation duration
 
   // Coherence Thresholds
   COHERENCE_THRESHOLDS: {

@@ -8,7 +8,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GAME_CONFIG } from '../constants/gameConfig';
 
-const { MIN_SWIPE_DISTANCE, MAX_SWIPE_TIME, BUBBLE_DISMISS_DELAY } = GAME_CONFIG;
+const { MIN_SWIPE_DISTANCE, MAX_SWIPE_TIME, BUBBLE_DISMISS_DELAY, BUBBLE_FADE_DURATION } = GAME_CONFIG;
 
 const ThoughtBubble = ({ bubble, onDismiss }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -106,13 +106,19 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
     <div
       ref={bubbleRef}
       className={`absolute z-40 cursor-grab active:cursor-grabbing ${
-        bubble.isDismissing ? 'animate-ping opacity-50' : 'animate-thought-float'
+        bubble.isFading ? 'opacity-0' : bubble.isDismissing ? 'animate-ping opacity-50' : 'animate-thought-float'
       }`}
       style={{
         left: `${adjustedPosition.x}%`,
         top: `${adjustedPosition.y}%`,
-        transform: `translate(${position.x}px, ${position.y}px) scale(${bubble.isDismissing ? 0.8 : 1})`,
-        transition: isDragging ? 'none' : bubble.isDismissing ? 'all 1s ease-out' : 'transform 0.3s ease-out',
+        transform: `translate(${position.x}px, ${position.y}px) scale(${bubble.isFading ? 0.5 : bubble.isDismissing ? 0.8 : 1})`,
+        transition: isDragging
+          ? 'none'
+          : bubble.isFading
+            ? `all ${BUBBLE_FADE_DURATION}ms ease-out`
+            : bubble.isDismissing
+              ? `all ${BUBBLE_DISMISS_DELAY}ms ease-out`
+              : 'transform 0.3s ease-out',
       }}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
