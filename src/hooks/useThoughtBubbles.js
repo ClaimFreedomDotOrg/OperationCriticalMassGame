@@ -98,10 +98,13 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
     ));
 
     // After delay, start fade animation
+    // Use requestAnimationFrame to ensure browser renders dismissing state first
     setTimeout(() => {
-      setActiveBubbles(prev => prev.map(b =>
-        b.id === bubbleId ? { ...b, isFading: true } : b
-      ));
+      requestAnimationFrame(() => {
+        setActiveBubbles(prev => prev.map(b =>
+          b.id === bubbleId ? { ...b, isFading: true } : b
+        ));
+      });
     }, BUBBLE_DISMISS_DELAY);
 
     // Remove after delay + fade duration
