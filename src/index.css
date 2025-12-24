@@ -105,6 +105,25 @@ a {
   animation: thought-float 8s linear forwards;
 }
 
+@keyframes bubble-dismiss {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.animate-bubble-dismiss {
+  animation: bubble-dismiss var(--dismiss-duration, 600ms) ease-out forwards;
+}
+
 /* Accessibility: Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *,

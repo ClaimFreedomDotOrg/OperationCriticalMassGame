@@ -102,24 +102,20 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
     setIsDragging(false);
   };
 
+  // Calculate total dismiss animation duration
+  const dismissDuration = BUBBLE_DISMISS_DELAY + BUBBLE_FADE_DURATION;
+
   return (
     <div
       ref={bubbleRef}
       className={`absolute z-40 cursor-grab active:cursor-grabbing ${
-        bubble.isFading ? '' : bubble.isDismissing ? '' : 'animate-thought-float'
+        bubble.isDismissing ? 'animate-bubble-dismiss' : 'animate-thought-float'
       }`}
       style={{
         left: `${adjustedPosition.x}%`,
         top: `${adjustedPosition.y}%`,
-        transform: `translate(${position.x}px, ${position.y}px) scale(${bubble.isFading ? 0.5 : bubble.isDismissing ? 0.8 : 1})`,
-        opacity: bubble.isFading ? 0 : bubble.isDismissing ? 0.5 : 1,
-        transition: isDragging
-          ? 'none'
-          : bubble.isFading
-            ? `all ${BUBBLE_FADE_DURATION}ms ease-out`
-            : bubble.isDismissing
-              ? `all ${BUBBLE_DISMISS_DELAY}ms ease-out`
-              : 'transform 0.3s ease-out',
+        transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
+        '--dismiss-duration': `${dismissDuration}ms`,
       }}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}

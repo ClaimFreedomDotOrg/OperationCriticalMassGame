@@ -92,22 +92,12 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
    * Dismiss a bubble (swipe action)
    */
   const dismissBubble = useCallback((bubbleId) => {
-    // Mark bubble as dismissing
+    // Mark bubble as dismissing (triggers CSS animation)
     setActiveBubbles(prev => prev.map(b =>
       b.id === bubbleId ? { ...b, isDismissing: true } : b
     ));
 
-    // After delay, start fade animation
-    // Use requestAnimationFrame to ensure browser renders dismissing state first
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        setActiveBubbles(prev => prev.map(b =>
-          b.id === bubbleId ? { ...b, isFading: true } : b
-        ));
-      });
-    }, BUBBLE_DISMISS_DELAY);
-
-    // Remove after delay + fade duration
+    // Remove from DOM after animation completes
     setTimeout(() => {
       setActiveBubbles(prev => prev.filter(b => b.id !== bubbleId));
     }, BUBBLE_DISMISS_DELAY + BUBBLE_FADE_DURATION);
