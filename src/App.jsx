@@ -36,8 +36,8 @@ function App() {
   const cells = useMemo(() => {
     const generatedCells = [];
     const parts = [
-      { count: 40, xMin: 43, xMax: 57, yMin: 12, yMax: 22 }, // Head (circular)
-      { count: 25, xMin: 44, xMax: 56, yMin: 22, yMax: 28 }, // Neck
+      { count: 60, xMin: 38, xMax: 62, yMin: 10, yMax: 24 }, // Head (wider and more circular)
+      { count: 20, xMin: 46, xMax: 54, yMin: 24, yMax: 28 }, // Neck (narrower)
       { count: 80, xMin: 38, xMax: 62, yMin: 28, yMax: 42 }, // Upper Torso (chest)
       { count: 60, xMin: 40, xMax: 60, yMin: 42, yMax: 56 }, // Lower Torso (abdomen)
       { count: 35, xMin: 22, xMax: 38, yMin: 30, yMax: 44 }, // Left Upper Arm
