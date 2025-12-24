@@ -365,10 +365,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         </div>
       )}
 
-      {/* Feedback - Above Instructions */}
+      {/* Feedback - Positioned above instructions without affecting layout */}
       {feedback && (
-        <div className="w-full text-center py-2 z-30 flex-shrink-0">
-          <div className={`text-4xl font-bold animate-bounce
+        <div className="absolute left-0 right-0 z-50 pointer-events-none" style={{ bottom: 'calc(240px + 3.5rem)' }}>
+          <div className={`text-4xl font-bold animate-bounce text-center
             ${feedback === 'HIT'
               ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]'
               : 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]'
