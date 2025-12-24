@@ -185,7 +185,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   return (
     <div
-      className={`relative w-full max-w-full h-screen overflow-hidden flex flex-col font-mono transition-all duration-300 border-4 md:border-8 ${getContainerStyle()}`}
+      className={`relative w-full max-w-full min-h-screen max-h-screen overflow-hidden flex flex-col font-mono transition-all duration-300 border-2 md:border-4 ${getContainerStyle()}`}
       onClick={(e) => {
         // If there are blocking bubbles and click wasn't on a bubble, count as miss
         if (hasBlockingBubbles && !e.target.closest('[data-bubble]')) {

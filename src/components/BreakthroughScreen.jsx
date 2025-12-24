@@ -9,7 +9,7 @@ import React from 'react';
 
 const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap }) => {
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-full h-screen bg-amber-50 text-amber-900 font-serif p-4 md:p-6 text-center select-none animate-in fade-in duration-1000 relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center w-full max-w-full min-h-screen max-h-screen bg-amber-50 text-amber-900 font-serif p-3 md:p-6 text-center select-none animate-in fade-in duration-1000 relative overflow-hidden">
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
         <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
@@ -45,10 +45,10 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
 
       {/* Content */}
       <div className="relative z-20">
-        <h1 className="text-5xl md:text-7xl font-bold text-amber-600 mb-4 tracking-tighter drop-shadow-lg">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-amber-600 mb-3 md:mb-4 tracking-tighter drop-shadow-lg">
           BREAKTHROUGH
         </h1>
-        <p className="text-2xl text-amber-800/80 font-semibold mb-4">
+        <p className="text-xl sm:text-2xl text-amber-800/80 font-semibold mb-3 md:mb-4">
           CRITICAL MASS ACHIEVED
         </p>
         <p className="text-xl text-gray-700 mb-8 max-w-lg mx-auto text-center">

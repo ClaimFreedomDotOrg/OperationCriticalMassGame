@@ -53,7 +53,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
     setGameId('');
   };
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-full h-screen bg-black text-cyan-400 font-mono p-4 md:p-6 text-center select-none overflow-hidden relative">
+    <div className="flex flex-col items-center justify-center w-full max-w-full min-h-screen max-h-screen bg-black text-cyan-400 font-mono p-3 md:p-6 text-center select-none overflow-hidden relative">
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
         <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
@@ -72,16 +72,16 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
       )}
 
       {/* Title with gradient */}
-      <h1 className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 relative z-10 animate-pulse-glow">
+      <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 relative z-10 animate-pulse-glow px-2">
         OPERATION: CRITICAL MASS
       </h1>
 
       {/* Description */}
-      <p className="text-lg md:text-xl mb-4 max-w-md text-cyan-100/80 relative z-10">
+      <p className="text-base sm:text-lg md:text-xl mb-3 md:mb-4 max-w-md text-cyan-100/80 relative z-10 px-4">
         Join other players in a collective experience of synchronization and coherence.
       </p>
 
-      <p className="text-md mb-8 max-w-md text-cyan-200/70 relative z-10">
+      <p className="text-sm sm:text-md mb-6 md:mb-8 max-w-md text-cyan-200/70 relative z-10 px-4">
         Tap in rhythm. Dismiss intrusive thoughts. Achieve collective breakthrough.
       </p>
 
@@ -91,10 +91,10 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           {/* Single Player Button */}
           <button
             onClick={() => handleModeSelect('single')}
-            className="group relative px-6 py-4 md:px-8 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm"
           >
             <div className="absolute inset-0 bg-cyan-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <span className="relative flex items-center justify-center gap-3 text-xl font-bold tracking-widest text-cyan-400">
+            <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-cyan-400">
               <UserIcon size={24} /> SINGLE PLAYER
             </span>
             <span className="relative block text-xs text-cyan-300/60 mt-1">Play offline</span>
@@ -103,10 +103,10 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           {/* Multiplayer Button */}
           <button
             onClick={() => handleModeSelect('multi')}
-            className="group relative px-6 py-4 md:px-8 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 w-full max-w-sm"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 w-full max-w-sm"
           >
             <div className="absolute inset-0 bg-amber-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <span className="relative flex items-center justify-center gap-3 text-xl font-bold tracking-widest text-amber-400">
+            <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-amber-400">
               <UsersIcon size={24} /> MULTIPLAYER
             </span>
             <span className="relative block text-xs text-amber-300/60 mt-1">Join collective game</span>
@@ -117,10 +117,10 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           {/* Single Player Confirmation */}
           <button
             onClick={handleStartGame}
-            className="group relative px-6 py-4 md:px-8 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm"
           >
             <div className="absolute inset-0 bg-cyan-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <span className="relative flex items-center justify-center gap-3 text-xl font-bold tracking-widest text-cyan-400">
+            <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-cyan-400">
               <PlayIcon size={24} /> START GAME
             </span>
           </button>
@@ -148,10 +148,10 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           <button
             onClick={handleStartGame}
             disabled={!gameId.trim()}
-            className="group relative px-6 py-4 md:px-8 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900/30 w-full"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900/30 w-full"
           >
             <div className="absolute inset-0 bg-amber-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <span className="relative flex items-center justify-center gap-3 text-xl font-bold tracking-widest text-amber-400">
+            <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-amber-400">
               <PlayIcon size={24} /> JOIN GAME
             </span>
           </button>
