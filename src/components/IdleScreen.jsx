@@ -53,7 +53,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
     setGameId('');
   };
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-full min-h-screen max-h-screen bg-black text-cyan-400 font-mono p-3 md:p-6 text-center select-none overflow-hidden relative">
+    <div className="flex flex-col items-center justify-start md:justify-center w-full max-w-full min-h-screen max-h-screen bg-black text-cyan-400 font-mono pt-2 px-3 pb-3 md:p-6 text-center select-none overflow-hidden relative">
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
         <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
@@ -76,7 +76,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
         href="https://claimfreedom.org"
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative mb-6 px-4 py-3 max-w-2xl w-full bg-gradient-to-r from-amber-900/40 via-cyan-900/40 to-amber-900/40 border border-cyan-500/50 hover:border-amber-400 rounded-lg transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] relative z-10"
+        className="group relative mt-2 mb-4 md:mb-6 px-3 py-2 md:px-4 md:py-3 max-w-2xl w-full bg-gradient-to-r from-amber-900/40 via-cyan-900/40 to-amber-900/40 border border-cyan-500/50 hover:border-amber-400 rounded-lg transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] relative z-10"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 via-cyan-400/10 to-amber-400/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
         <div className="relative flex flex-col gap-1 text-center">
@@ -91,16 +91,16 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
       </a>
 
       {/* Title with gradient */}
-      <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 relative z-10 animate-pulse-glow px-2">
+      <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-2 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 relative z-10 animate-pulse-glow px-2">
         OPERATION: CRITICAL MASS
       </h1>
 
       {/* Description */}
-      <p className="text-base sm:text-lg md:text-xl mb-3 md:mb-4 max-w-md text-cyan-100/80 relative z-10 px-4">
+      <p className="text-base sm:text-lg md:text-xl mb-2 md:mb-4 max-w-md text-cyan-100/80 relative z-10 px-4">
         Join other players in a collective experience of synchronization and coherence.
       </p>
 
-      <p className="text-sm sm:text-md mb-6 md:mb-8 max-w-md text-cyan-200/70 relative z-10 px-4">
+      <p className="text-sm sm:text-md mb-4 md:mb-8 max-w-md text-cyan-200/70 relative z-10 px-4">
         Tap in rhythm. Dismiss intrusive thoughts. Achieve collective breakthrough.
       </p>
 
