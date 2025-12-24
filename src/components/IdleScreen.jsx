@@ -78,7 +78,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
 
       {/* Description */}
       <p className="text-lg md:text-xl mb-4 max-w-md text-cyan-100/80 relative z-10">
-        Join thousands of players in a collective experience of synchronization and coherence.
+        Join other players in a collective experience of synchronization and coherence.
       </p>
 
       <p className="text-md mb-8 max-w-md text-cyan-200/70 relative z-10">
