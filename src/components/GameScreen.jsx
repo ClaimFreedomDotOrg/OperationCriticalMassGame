@@ -134,17 +134,33 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       return;
     }
 
-    // Get click position relative to viewport
+    // Get click/touch position relative to viewport
     if (event && triggerVisualTap) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const clickX = event.clientX;
-      const clickY = event.clientY;
+      // Prevent duplicate events on mobile (touch + click)
+      if (event.type === 'touchstart' || event.type === 'touchend') {
+        event.preventDefault();
+      }
 
-      // Convert to percentage of screen
-      const tapX = (clickX / window.innerWidth) * 100;
-      const tapY = (clickY / window.innerHeight) * 100;
+      let clientX, clientY;
 
-      triggerVisualTap(tapX, tapY, 'TAP');
+      if (event.type === 'touchstart' || event.type === 'touchend') {
+        const touch = event.changedTouches?.[0] || event.touches?.[0];
+        if (touch) {
+          clientX = touch.clientX;
+          clientY = touch.clientY;
+        }
+      } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+      }
+
+      if (clientX !== undefined && clientY !== undefined) {
+        // Convert to percentage of screen
+        const tapX = (clientX / window.innerWidth) * 100;
+        const tapY = (clientY / window.innerHeight) * 100;
+
+        triggerVisualTap(tapX, tapY, 'TAP');
+      }
     }
 
     handleTap(side);
@@ -361,6 +377,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       {/* 4. CONTROLS */}
       <div className="w-full min-h-[240px] max-h-[360px] flex gap-2 p-2 md:p-4 pb-3 md:pb-8 z-20 flex-shrink-0">
         <div
+          onTouchStart={(e) => onTapButton('LEFT', e)}
           onClick={(e) => onTapButton('LEFT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
             ${activeSide === 'LEFT'
@@ -372,6 +389,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           <span className="text-xl md:text-2xl font-bold tracking-widest">LEFT</span>
         </div>
         <div
+          onTouchStart={(e) => onTapButton('RIGHT', e)}
           onClick={(e) => onTapButton('RIGHT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
             ${activeSide === 'RIGHT'
