@@ -12,7 +12,6 @@ const { MIN_SWIPE_DISTANCE, MAX_SWIPE_TIME, BUBBLE_DISMISS_DELAY } = GAME_CONFIG
 
 const ThoughtBubble = ({ bubble, onDismiss }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [isDismissing, setIsDismissing] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [adjustedPosition, setAdjustedPosition] = useState({ x: bubble.position.x, y: bubble.position.y });
   const startPos = useRef({ x: 0, y: 0, time: 0 });
@@ -94,13 +93,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
 
     // Valid swipe: sufficient distance and quick enough
     if (distance >= MIN_SWIPE_DISTANCE && duration <= MAX_SWIPE_TIME) {
-      // Set dismissing state for visual feedback
-      setIsDismissing(true);
-
-      // Delay actual dismissal by BUBBLE_DISMISS_DELAY
-      setTimeout(() => {
-        onDismiss();
-      }, BUBBLE_DISMISS_DELAY);
+      onDismiss();
     } else {
       // Reset position if invalid swipe
       setPosition({ x: 0, y: 0 });
@@ -113,13 +106,13 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
     <div
       ref={bubbleRef}
       className={`absolute z-40 cursor-grab active:cursor-grabbing ${
-        isDismissing ? 'animate-ping opacity-50' : 'animate-thought-float'
+        bubble.isDismissing ? 'animate-ping opacity-50' : 'animate-thought-float'
       }`}
       style={{
         left: `${adjustedPosition.x}%`,
         top: `${adjustedPosition.y}%`,
-        transform: `translate(${position.x}px, ${position.y}px) scale(${isDismissing ? 0.8 : 1})`,
-        transition: isDragging ? 'none' : isDismissing ? 'all 1s ease-out' : 'transform 0.3s ease-out',
+        transform: `translate(${position.x}px, ${position.y}px) scale(${bubble.isDismissing ? 0.8 : 1})`,
+        transition: isDragging ? 'none' : bubble.isDismissing ? 'all 1s ease-out' : 'transform 0.3s ease-out',
       }}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
