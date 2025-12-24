@@ -44,6 +44,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [isInSync, setIsInSync] = useState(false);
   const [localCoherence, setLocalCoherence] = useState(0);
   const [localActivePlayers] = useState(1);
+  const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
 
   // Firebase sync (only in multiplayer mode)
@@ -177,7 +178,16 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       }
     }
 
-    handleTap(side);
+    // Handle the tap and check if it was successful
+    const result = handleTap(side);
+
+    // If tap was successful (in sync), show green feedback on the button
+    if (result?.success) {
+      setSyncedButton(side);
+      setTimeout(() => {
+        setSyncedButton(null);
+      }, 300); // Show green for 300ms
+    }
   }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap]);
 
   /**
@@ -405,7 +415,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           onTouchStart={(e) => onTapButton('LEFT', e)}
           onClick={(e) => onTapButton('LEFT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
-            ${activeSide === 'LEFT'
+            ${syncedButton === 'LEFT'
+              ? 'border-green-400 bg-green-900/40 shadow-[0_0_20px_rgba(34,197,94,0.5)] text-green-400'
+              : activeSide === 'LEFT'
               ? 'border-cyan-400 bg-cyan-900/40 shadow-[0_0_20px_rgba(34,211,238,0.2)] text-cyan-400'
               : 'border-gray-800 bg-gray-900/50 text-gray-600'
             }
@@ -417,7 +429,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           onTouchStart={(e) => onTapButton('RIGHT', e)}
           onClick={(e) => onTapButton('RIGHT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
-            ${activeSide === 'RIGHT'
+            ${syncedButton === 'RIGHT'
+              ? 'border-green-400 bg-green-900/40 shadow-[0_0_20px_rgba(34,197,94,0.5)] text-green-400'
+              : activeSide === 'RIGHT'
               ? 'border-cyan-400 bg-cyan-900/40 shadow-[0_0_20px_rgba(34,211,238,0.2)] text-cyan-400'
               : 'border-gray-800 bg-gray-900/50 text-gray-600'
             }
