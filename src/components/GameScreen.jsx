@@ -5,7 +5,7 @@
  * Implements bilateral tapping, thought bubble dismissal, and visual feedback
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import useBilateralStimulation from '../hooks/useBilateralStimulation';
 import useThoughtBubbles from '../hooks/useThoughtBubbles';
 import useFirebaseSync from '../hooks/useFirebaseSync';
@@ -142,7 +142,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       // If this is a click event but a touch just happened, skip it (it's a duplicate)
       if (event.type === 'click' && touchInProgressRef.current) {
         touchInProgressRef.current = false;
-        handleTap(side);
         return;
       }
 
