@@ -44,6 +44,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [isInSync, setIsInSync] = useState(false);
   const [localCoherence, setLocalCoherence] = useState(0);
   const [localActivePlayers] = useState(1);
+  const touchInProgressRef = useRef(false);
 
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
@@ -136,14 +137,28 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     // Get click/touch position relative to viewport
     if (event && triggerVisualTap) {
-      // Prevent duplicate events on mobile (touch + click)
-      if (event.type === 'touchstart' || event.type === 'touchend') {
+      const isTouchEvent = event.type === 'touchstart' || event.type === 'touchend';
+
+      // If this is a click event but a touch just happened, skip it (it's a duplicate)
+      if (event.type === 'click' && touchInProgressRef.current) {
+        touchInProgressRef.current = false;
+        handleTap(side);
+        return;
+      }
+
+      // If it's a touch event, mark it and prevent the click
+      if (isTouchEvent) {
         event.preventDefault();
+        touchInProgressRef.current = true;
+        // Clear the flag after a short delay
+        setTimeout(() => {
+          touchInProgressRef.current = false;
+        }, 300);
       }
 
       let clientX, clientY;
 
-      if (event.type === 'touchstart' || event.type === 'touchend') {
+      if (isTouchEvent) {
         const touch = event.changedTouches?.[0] || event.touches?.[0];
         if (touch) {
           clientX = touch.clientX;
