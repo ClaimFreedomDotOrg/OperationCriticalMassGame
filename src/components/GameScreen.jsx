@@ -69,6 +69,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Handle missed tap
+   * Spawns a thought bubble to simulate DMN cascade into negative thinking
    */
   const handleMiss = useCallback(() => {
     setIsInSync(false);
@@ -79,6 +80,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
     }
 
+    // Spawn a thought bubble when flow is broken (DMN cascade)
+    if (spawnBubble) {
+      spawnBubble();
+    }
+
     updatePlayerState({
       isInSync: false,
       score,
@@ -86,10 +92,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     });
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode]);
+  }, [score, updatePlayerState, gameMode, spawnBubble]);
 
   // Thought bubbles (The Voice)
-  const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
+  const { activeBubbles, dismissBubble, hasBlockingBubbles, spawnBubble } = useThoughtBubbles({
     isActive: true,
     onBubbleExpired: handleMiss,
   });

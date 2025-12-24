@@ -106,6 +106,7 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
     dismissBubble,
     hasBlockingBubbles,
     bubbleCount: activeBubbles.length,
+    spawnBubble, // Expose for manual spawning (e.g., on miss)
   };
 };
 
