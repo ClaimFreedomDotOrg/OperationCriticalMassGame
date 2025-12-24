@@ -319,16 +319,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           >
             <div className="absolute inset-0 bg-white rounded-full opacity-50 animate-ping"></div>
           </div>
-          {feedback && (
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold animate-bounce z-50
-              ${feedback === 'HIT'
-                ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]'
-                : 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]'
-              }
-            `}>
-              {feedback === 'HIT' ? 'SYNC' : feedback === 'MISS' ? 'MISS' : 'STATIC'}
-            </div>
-          )}
         </div>
 
         {/* Infections/Thought Bubbles */}
@@ -378,6 +368,20 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
               }}
             />
           ))}
+        </div>
+      )}
+
+      {/* Feedback - Above Instructions */}
+      {feedback && (
+        <div className="w-full text-center py-2 z-30 flex-shrink-0">
+          <div className={`text-4xl font-bold animate-bounce
+            ${feedback === 'HIT'
+              ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]'
+              : 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]'
+            }
+          `}>
+            {feedback === 'HIT' ? 'SYNC' : feedback === 'MISS' ? 'MISS' : 'STATIC'}
+          </div>
         </div>
       )}
 
