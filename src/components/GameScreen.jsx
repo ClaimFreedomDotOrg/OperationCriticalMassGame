@@ -266,19 +266,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* 2. CENTER STAGE (Pulse Visualizer) */}
       <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center overflow-hidden">
-        {/* Instructions */}
-        <div className="w-full text-center mb-4 md:mb-6 z-20 px-4">
-          {hasBlockingBubbles ? (
-            <div className="text-red-400/70 text-sm animate-pulse">
-              Tap the thought bubble to dismiss it
-            </div>
-          ) : (
-            <div className="text-cyan-400/50 text-sm">
-              Tap the glowing side in rhythm
-            </div>
-          )}
-        </div>
-
         {/* Pulse Orb */}
         <div className="relative w-full max-w-md h-24 z-10 flex items-center px-8">
           {/* Oscillation Line */}
@@ -357,6 +344,19 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           ))}
         </div>
       )}
+
+      {/* Instructions - Above Controls */}
+      <div className="w-full text-center py-2 z-20 px-4 bg-black/60 backdrop-blur-sm flex-shrink-0">
+        {hasBlockingBubbles ? (
+          <div className="text-red-400/90 text-sm md:text-base font-semibold animate-pulse">
+            Tap the thought bubble to dismiss it
+          </div>
+        ) : (
+          <div className="text-cyan-400/70 text-sm md:text-base">
+            Tap the glowing side in rhythm
+          </div>
+        )}
+      </div>
 
       {/* 4. CONTROLS */}
       <div className="w-full min-h-[240px] max-h-[360px] flex gap-2 p-2 md:p-4 pb-3 md:pb-8 z-20 flex-shrink-0">
