@@ -185,7 +185,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   return (
     <div
-      className={`relative w-full max-w-full min-h-screen max-h-screen overflow-hidden flex flex-col font-mono transition-all duration-300 border-2 md:border-4 ${getContainerStyle()}`}
+      className={`relative w-full max-w-full h-full overflow-hidden flex flex-col font-mono transition-all duration-300 border-2 md:border-4 ${getContainerStyle()}`}
       onClick={(e) => {
         // If there are blocking bubbles and click wasn't on a bubble, count as miss
         if (hasBlockingBubbles && !e.target.closest('[data-bubble]')) {
@@ -229,9 +229,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       )}
 
       {/* 1. TOP HUD (Global Metrics) */}
-      <div className="w-full p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px]">
+      <div className="w-full p-2 md:p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px] flex-shrink-0">
         <div className="max-w-2xl mx-auto">
-          <div className="flex justify-between items-end mb-2 text-xs uppercase tracking-widest">
+          <div className="flex justify-between items-end mb-1 text-xs uppercase tracking-widest">
             <span className="text-cyan-500 flex items-center gap-2">
               <ActivityIcon size={14} /> Global Body Status
             </span>
@@ -253,9 +253,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             </div>
           </div>
 
-          <div className="flex justify-between mt-2 text-xs text-gray-400 font-bold">
+          <div className="flex justify-between mt-1 text-[10px] md:text-xs text-gray-400 font-bold">
             <span className="flex items-center gap-1">
-              <UsersIcon size={12} /> {activePlayers.toLocaleString()} CELLS CONNECTED
+              <UsersIcon size={12} /> {activePlayers.toLocaleString()} CELLS
             </span>
             <span className={hasBlockingBubbles ? "text-red-500 animate-pulse" : "text-amber-500"}>
               YOU ARE: {hasBlockingBubbles ? "INFECTED (CLEAR IT!)" : "COHERENT"}
@@ -265,9 +265,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       </div>
 
       {/* 2. CENTER STAGE (Pulse Visualizer) */}
-      <div className="flex-1 relative flex flex-col items-center justify-center">
+      <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center overflow-hidden">
         {/* Instructions */}
-        <div className="w-full text-center mb-8 z-20 px-4">
+        <div className="w-full text-center mb-4 md:mb-6 z-20 px-4">
           {hasBlockingBubbles ? (
             <div className="text-red-400/70 text-sm animate-pulse">
               Tap the thought bubble to dismiss it
@@ -280,9 +280,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         </div>
 
         {/* Pulse Orb */}
-        <div className="relative w-full max-w-md h-24 z-10 flex items-center">
+        <div className="relative w-full max-w-md h-24 z-10 flex items-center px-8">
           {/* Oscillation Line */}
-          <div className="absolute top-1/2 left-0 w-full h-1 bg-cyan-900/50 -translate-y-1/2"></div>
+          <div className="absolute top-1/2 left-8 right-8 h-1 bg-cyan-900/50 -translate-y-1/2"></div>
 
           {/* Center Line */}
           <div className="absolute top-1/2 left-1/2 h-16 w-1 bg-cyan-500/60 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_rgba(34,211,238,0.4)]"></div>
@@ -291,7 +291,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           <div
             className="absolute top-1/2 -translate-y-1/2 w-12 h-12 rounded-full blur-sm transition-none bg-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.8)]"
             style={{
-              left: `calc(50% + ${position * 50}% - 1.5rem)`, // -50% to +50% from center
+              left: `calc(50% + ${position * 40}% - 1.5rem)`, // -40% to +40% from center (reduced range)
             }}
           >
             <div className="absolute inset-0 bg-white rounded-full opacity-50 animate-ping"></div>
@@ -359,7 +359,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       )}
 
       {/* 4. CONTROLS */}
-      <div className="h-1/3 w-full flex gap-2 p-4 pb-8 z-20">
+      <div className="w-full min-h-[120px] max-h-[180px] flex gap-2 p-2 md:p-4 pb-3 md:pb-8 z-20 flex-shrink-0">
         <div
           onClick={(e) => onTapButton('LEFT', e)}
           className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
@@ -369,7 +369,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             }
           `}
         >
-          <span className="text-2xl font-bold tracking-widest mb-2">LEFT</span>
+          <span className="text-xl md:text-2xl font-bold tracking-widest">LEFT</span>
         </div>
         <div
           onClick={(e) => onTapButton('RIGHT', e)}
@@ -380,7 +380,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             }
           `}
         >
-          <span className="text-2xl font-bold tracking-widest mb-2">RIGHT</span>
+          <span className="text-xl md:text-2xl font-bold tracking-widest">RIGHT</span>
         </div>
       </div>
     </div>
