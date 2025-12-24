@@ -21,6 +21,8 @@ export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
   const [position, setPosition] = useState(0); // -1 (left) to 1 (right), 0 is center
   const animationFrameRef = useRef(null);
   const startTimeRef = useRef(null);
+  const lastTappedSideRef = useRef(null); // Track which side was last successfully tapped
+  const previousSideRef = useRef(null); // Track the previous oscillation side
 
   /**
    * Start the smooth oscillation animation
@@ -41,6 +43,15 @@ export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
       // Sine wave oscillation: -1 to 1
       const newPosition = Math.sin((elapsed / OSCILLATION_PERIOD) * Math.PI * 2);
       setPosition(newPosition);
+
+      // Detect side change and reset tap tracking
+      const currentSide = newPosition < 0 ? 'LEFT' : 'RIGHT';
+      if (previousSideRef.current !== null && previousSideRef.current !== currentSide) {
+        // Side changed, allow taps again on the new side
+        lastTappedSideRef.current = null;
+      }
+      previousSideRef.current = currentSide;
+
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -56,20 +67,28 @@ export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
   /**
    * Handle player tap
    * Validates if tap side matches current oscillation side
+   * Only counts the first successful tap per side
    */
   const handleTap = useCallback((side) => {
     // Determine which side of center the oscillation is on
     const oscillationSide = position < 0 ? 'LEFT' : 'RIGHT';
 
+    // Check if this side was already tapped successfully
+    if (lastTappedSideRef.current === oscillationSide) {
+      // Already tapped this side, ignore (don't count as miss or success)
+      return { success: false, position, alreadyTapped: true };
+    }
+
     // Check if tapped side matches oscillation side
     const isCorrectSide = side === oscillationSide;
 
     if (isCorrectSide) {
+      lastTappedSideRef.current = oscillationSide; // Mark this side as tapped
       onSync?.();
-      return { success: true, position };
+      return { success: true, position, alreadyTapped: false };
     } else {
       onMiss?.();
-      return { success: false, position };
+      return { success: false, position, alreadyTapped: false };
     }
   }, [position, onSync, onMiss]);
 
