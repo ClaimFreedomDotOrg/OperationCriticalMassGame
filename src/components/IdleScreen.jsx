@@ -85,7 +85,10 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-amber-300">You Are Not That Voice.</span> Learn How to Break Free.
           </div>
           <div className="text-xs text-amber-400/80 font-semibold">
-            📚 Free Books & Ancient Practices → ClaimFreedom.org
+            📚 Free Books & Ancient Practices
+          </div>
+          <div className="text-xs text-cyan-400 group-hover:text-amber-300 font-bold transition-colors mt-0.5">
+            <span className="underline">Click Here</span> → ClaimFreedom.org
           </div>
         </div>
       </a>
