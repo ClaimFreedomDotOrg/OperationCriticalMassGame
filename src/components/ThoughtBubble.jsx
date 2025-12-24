@@ -106,12 +106,13 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
     <div
       ref={bubbleRef}
       className={`absolute z-40 cursor-grab active:cursor-grabbing ${
-        bubble.isFading ? 'opacity-0' : bubble.isDismissing ? 'animate-ping opacity-50' : 'animate-thought-float'
+        bubble.isFading ? '' : bubble.isDismissing ? '' : 'animate-thought-float'
       }`}
       style={{
         left: `${adjustedPosition.x}%`,
         top: `${adjustedPosition.y}%`,
         transform: `translate(${position.x}px, ${position.y}px) scale(${bubble.isFading ? 0.5 : bubble.isDismissing ? 0.8 : 1})`,
+        opacity: bubble.isFading ? 0 : bubble.isDismissing ? 0.5 : 1,
         transition: isDragging
           ? 'none'
           : bubble.isFading
