@@ -7,7 +7,7 @@
 
 **Operation: Critical Mass** is not a traditional video game. It is a **mass participation experience** designed to be played by thousands of people simultaneously during a live broadcast—a digital experiment in collective consciousness that makes the invisible bonds between human beings visible, tangible, and powerful.
 
-When you play, you are not competing against others or playing alone. You are playing **as a single cell in a vast living organism**, working in perfect synchrony with thousands of others to achieve a state called **Coherence**
+When you play, you are not competing against others or playing alone. You are playing **as a single cell in a vast living organism**, working in perfect synchrony with thousands of others to achieve a state called **Coherence**.
 
 ---
 
