@@ -320,9 +320,16 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           <div
             key={bubble.id}
             data-bubble="true"
-            className="absolute z-50 cursor-pointer max-w-xs"
-            style={{ left: `${bubble.position.x}%`, top: `${bubble.position.y}%` }}
+            className={`absolute z-50 cursor-pointer max-w-xs ${
+              bubble.isDismissing ? 'animate-bubble-dismiss pointer-events-none' : ''
+            }`}
+            style={{
+              left: `${bubble.position.x}%`,
+              top: `${bubble.position.y}%`,
+              animationDuration: bubble.isDismissing ? `${GAME_CONFIG.BUBBLE_DISMISS_DELAY + GAME_CONFIG.BUBBLE_FADE_DURATION}ms` : undefined,
+            }}
             onClick={(e) => {
+              if (bubble.isDismissing) return; // Prevent clicks during dismiss animation
               e.stopPropagation();
               onDismissBubble(bubble.id, e);
             }}
