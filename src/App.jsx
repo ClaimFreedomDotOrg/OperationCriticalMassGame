@@ -127,7 +127,7 @@ function App() {
   }, [isBreakthrough, sessionStartTime]);
 
   return (
-    <div className="App">
+    <div className="App w-full max-w-full overflow-hidden">
       {isIdle && (
         <IdleScreen
           onStart={handleStart}

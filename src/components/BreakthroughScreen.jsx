@@ -9,7 +9,7 @@ import React from 'react';
 
 const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap }) => {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-screen bg-amber-50 text-amber-900 font-serif p-6 text-center select-none animate-in fade-in duration-1000 relative">
+    <div className="flex flex-col items-center justify-center w-full max-w-full h-screen bg-amber-50 text-amber-900 font-serif p-4 md:p-6 text-center select-none animate-in fade-in duration-1000 relative overflow-hidden">
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
         <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
