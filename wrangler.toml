@@ -1,9 +1,3 @@
 name = "operation-critical-mass"
 compatibility_date = "2024-12-23"
 pages_build_output_dir = "dist"
-
-[env.production]
-name = "operation-critical-mass"
-
-[site]
-bucket = "./dist"
