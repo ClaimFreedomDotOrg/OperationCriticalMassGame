@@ -71,6 +71,25 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
         </div>
       )}
 
+      {/* Promotional Banner */}
+      <a
+        href="https://claimfreedom.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group relative mb-6 px-4 py-3 max-w-2xl w-full bg-gradient-to-r from-amber-900/40 via-cyan-900/40 to-amber-900/40 border border-cyan-500/50 hover:border-amber-400 rounded-lg transition-all duration-300 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] relative z-10"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 via-cyan-400/10 to-amber-400/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+        <div className="relative flex flex-col gap-1 text-center">
+          <div className="text-xs tracking-widest text-red-400/90 font-bold uppercase">That Voice In Your Head That Never Stops?</div>
+          <div className="text-sm sm:text-base text-cyan-100/90 font-semibold">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-amber-300">You Are Not That Voice.</span> Learn How to Break Free.
+          </div>
+          <div className="text-xs text-amber-400/80 font-semibold">
+            📚 Free Books & Ancient Practices → ClaimFreedom.org
+          </div>
+        </div>
+      </a>
+
       {/* Title with gradient */}
       <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 relative z-10 animate-pulse-glow px-2">
         OPERATION: CRITICAL MASS
