@@ -144,6 +144,7 @@ function App() {
           cells={cells}
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
+          onBreakthrough={triggerBreakthrough}
         />
       )}
 

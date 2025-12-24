@@ -38,7 +38,7 @@ const ShieldAlertIcon = ({ size = 24 }) => (
   </svg>
 );
 
-const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap }) => {
+const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
   const [isInSync, setIsInSync] = useState(false);
@@ -56,6 +56,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const activePlayers = gameMode === 'multi' ? (firebaseSync?.activePlayers || 0) : localActivePlayers;
   const updatePlayerState = gameMode === 'multi' ? firebaseSync?.updatePlayerState : () => {};
   const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
+
+  /**
+   * Monitor for breakthrough condition (100% coherence)
+   */
+  useEffect(() => {
+    if (coherence >= 100 && onBreakthrough) {
+      onBreakthrough();
+    }
+  }, [coherence, onBreakthrough]);
 
   /**
    * Handle missed tap

@@ -51,7 +51,7 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
         <p className="text-2xl text-amber-800/80 font-semibold mb-4">
           CRITICAL MASS ACHIEVED
         </p>
-        <p className="text-xl text-gray-700 mb-8 max-w-lg">
+        <p className="text-xl text-gray-700 mb-8 max-w-lg mx-auto text-center">
           The Body is One.
         </p>
 
