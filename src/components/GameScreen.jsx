@@ -38,7 +38,7 @@ const ShieldAlertIcon = ({ size = 24 }) => (
   </svg>
 );
 
-const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough }) => {
+const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, gameStats }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
   const [isInSync, setIsInSync] = useState(false);
@@ -60,13 +60,26 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
 
   /**
+   * Update score in stats whenever it changes
+   */
+  useEffect(() => {
+    if (gameStats) {
+      gameStats.updateScore(score);
+    }
+  }, [score, gameStats]);
+
+  /**
    * Monitor for breakthrough condition (100% coherence)
    */
   useEffect(() => {
     if (coherence >= 100 && onBreakthrough) {
       onBreakthrough();
     }
-  }, [coherence, onBreakthrough]);
+    // Update coherence tracking in stats
+    if (gameStats) {
+      gameStats.updateCoherence(coherence);
+    }
+  }, [coherence, onBreakthrough, gameStats]);
 
   /**
    * Handle missed tap
@@ -92,7 +105,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
     isActive: true,
-    onBubbleExpired: handleMiss,
+    onBubbleExpired: (bubbleId) => {
+      handleMiss();
+      // Track expired thought bubble
+      if (gameStats) {
+        gameStats.recordThoughtExpired();
+      }
+    },
   });
 
   /**
@@ -181,6 +200,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     // Handle the tap and check if it was successful
     const result = handleTap(side);
 
+    // Track tap in stats
+    if (gameStats) {
+      gameStats.recordTap({ side, isSync: result?.success || false });
+    }
+
     // If tap was successful (in sync), show green feedback on the button
     if (result?.success) {
       setSyncedButton(side);
@@ -188,7 +212,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         setSyncedButton(null);
       }, 300); // Show green for 300ms
     }
-  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap]);
+  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats]);
 
   /**
    * Handle bubble swipe dismissal
@@ -208,7 +232,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     dismissBubble(bubbleId);
     setScore(prev => prev + 5);
-  }, [dismissBubble, triggerVisualTap]);
+    
+    // Track dismissed thought bubble
+    if (gameStats) {
+      gameStats.recordThoughtDismissed();
+    }
+  }, [dismissBubble, triggerVisualTap, gameStats]);
 
   /**
    * Determine container style based on state

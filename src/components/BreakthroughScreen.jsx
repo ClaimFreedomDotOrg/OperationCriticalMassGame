@@ -5,9 +5,12 @@
  * Displays the moment of collective transformation
  */
 
-import React from 'react';
+import React, { useState } from 'react';
+import StatsModal from './StatsModal';
 
-const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap }) => {
+const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap, gameStats }) => {
+  const [showStatsModal, setShowStatsModal] = useState(false);
+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-full h-full bg-amber-50 text-amber-900 font-serif p-3 md:p-6 text-center select-none animate-in fade-in duration-1000 relative overflow-y-auto overflow-x-hidden">
       {/* Visual Taps Overlay */}
@@ -75,6 +78,19 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
           Begin Again
         </button>
 
+        {/* View Stats Button */}
+        {gameStats && (
+          <button
+            onClick={() => setShowStatsModal(true)}
+            className="px-6 py-3 md:px-8 md:py-4 bg-cyan-900/50 border-2 border-cyan-600/50 text-cyan-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-cyan-900/60 active:scale-95 mb-4 md:mb-8 flex items-center justify-center gap-2 mx-auto"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            View Stats
+          </button>
+        )}
+
         {/* Debrief Text */}
         <div className="mt-4 md:mt-8 max-w-2xl text-gray-600 text-xs md:text-sm text-center space-y-2 md:space-y-4 px-4">
           <p>
@@ -90,6 +106,17 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
           </p>
         </div>
       </div>
+
+      {/* Stats Modal */}
+      {gameStats && (
+        <StatsModal
+          stats={gameStats.stats}
+          isOpen={showStatsModal}
+          onClose={() => setShowStatsModal(false)}
+          getTapAccuracy={gameStats.getTapAccuracy}
+          getThoughtBubbleSuccessRate={gameStats.getThoughtBubbleSuccessRate}
+        />
+      )}
     </div>
   );
 };

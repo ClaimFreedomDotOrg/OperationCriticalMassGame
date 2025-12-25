@@ -6,6 +6,7 @@
 
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import useGameState from './hooks/useGameState';
+import useGameStats from './hooks/useGameStats';
 import IdleScreen from './components/IdleScreen';
 import GameScreen from './components/GameScreen';
 import BreakthroughScreen from './components/BreakthroughScreen';
@@ -29,6 +30,9 @@ function App() {
   const [sessionStartTime, setSessionStartTime] = useState(null);
   const [visualTaps, setVisualTaps] = useState([]); // { id, x, y, type }
   const [gameMode, setGameMode] = useState(null); // 'single' or 'multi'
+
+  // Game statistics tracking
+  const gameStats = useGameStats();
 
   /**
    * Generate body cells for visualization
@@ -83,8 +87,9 @@ function App() {
     const newSessionId = mode === 'multi' && gameId ? gameId : generateSessionId();
     const newPlayerId = generatePlayerId();
     setSessionStartTime(Date.now());
+    gameStats.resetStats(); // Reset stats for new game
     startGame(newSessionId, newPlayerId);
-  }, [startGame]);
+  }, [startGame, gameStats]);
 
   /**
    * Handle game reset
@@ -93,8 +98,9 @@ function App() {
     setSessionStats(null);
     setSessionStartTime(null);
     setGameMode(null);
+    gameStats.resetStats(); // Reset stats
     resetGame();
-  }, [resetGame]);
+  }, [resetGame, gameStats]);
 
   /**
    * Monitor for breakthrough condition
@@ -119,12 +125,13 @@ function App() {
    */
   useEffect(() => {
     if (isBreakthrough && sessionStartTime) {
+      gameStats.updateDuration(); // Update final duration
       setSessionStats({
         duration: Date.now() - sessionStartTime,
         activePlayers: 1, // TODO: Get from Firebase
       });
     }
-  }, [isBreakthrough, sessionStartTime]);
+  }, [isBreakthrough, sessionStartTime, gameStats]);
 
   return (
     <div className="App w-full max-w-full h-full overflow-hidden">
@@ -145,6 +152,7 @@ function App() {
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
           onBreakthrough={triggerBreakthrough}
+          gameStats={gameStats}
         />
       )}
 
@@ -154,6 +162,7 @@ function App() {
           sessionStats={sessionStats}
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
+          gameStats={gameStats}
         />
       )}
     </div>
