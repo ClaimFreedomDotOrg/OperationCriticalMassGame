@@ -19,7 +19,7 @@ After the site is deployed, test the metadata using these official tools:
 **URL:** https://developers.facebook.com/tools/debug/
 
 **Steps:**
-1. Enter your site URL: `https://operationcriticalmass.com/`
+1. Enter your site URL: `https://tamethedemon.com/`
 2. Click "Debug"
 3. Review the preview card
 
@@ -37,7 +37,7 @@ After the site is deployed, test the metadata using these official tools:
 **URL:** https://cards-dev.twitter.com/validator
 
 **Steps:**
-1. Enter your site URL: `https://operationcriticalmass.com/`
+1. Enter your site URL: `https://tamethedemon.com/`
 2. Click "Preview card"
 
 **What to check:**
@@ -52,7 +52,7 @@ After the site is deployed, test the metadata using these official tools:
 **URL:** https://www.linkedin.com/post-inspector/
 
 **Steps:**
-1. Enter your site URL: `https://operationcriticalmass.com/`
+1. Enter your site URL: `https://tamethedemon.com/`
 2. Click "Inspect"
 
 **What to check:**
@@ -66,7 +66,7 @@ After the site is deployed, test the metadata using these official tools:
 **URL:** https://search.google.com/test/rich-results
 
 **Steps:**
-1. Enter your site URL: `https://operationcriticalmass.com/`
+1. Enter your site URL: `https://tamethedemon.com/`
 2. Click "Test URL"
 3. Review structured data
 
@@ -81,7 +81,7 @@ After the site is deployed, test the metadata using these official tools:
 **URL:** https://metatags.io/
 
 **Steps:**
-1. Enter your site URL: `https://operationcriticalmass.com/`
+1. Enter your site URL: `https://tamethedemon.com/`
 2. Review all metadata across platforms
 
 **What to check:**
@@ -124,7 +124,7 @@ A neuroscience-based multiplayer experience for thousands. Synchronize with othe
 ```
 
 ### Image
-- **URL:** `https://operationcriticalmass.com/og-image.png`
+- **URL:** `https://tamethedemon.com/og-image.png`
 - **Dimensions:** 1200x630px
 - **Size:** ~179 KB
 - **Content:** Shows transformation from chaos (red cells) to coherence (gold cells)
