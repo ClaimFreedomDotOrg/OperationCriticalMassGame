@@ -62,24 +62,38 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Update score in stats whenever it changes
    */
+  const updateScoreRef = useRef(null);
+  if (gameStats) {
+    updateScoreRef.current = gameStats.updateScore;
+  }
+  
   useEffect(() => {
-    if (gameStats) {
-      gameStats.updateScore(score);
+    if (updateScoreRef.current) {
+      updateScoreRef.current(score);
     }
-  }, [score, gameStats]);
+  }, [score]);
 
   /**
    * Monitor for breakthrough condition (100% coherence)
+   * Update coherence tracking periodically (every second)
    */
+  const lastCoherenceUpdateRef = useRef(0);
+  const updateCoherenceRef = useRef(null);
+  if (gameStats) {
+    updateCoherenceRef.current = gameStats.updateCoherence;
+  }
+  
   useEffect(() => {
     if (coherence >= 100 && onBreakthrough) {
       onBreakthrough();
     }
-    // Update coherence tracking in stats
-    if (gameStats) {
-      gameStats.updateCoherence(coherence);
+    // Update coherence tracking in stats (throttled to once per second)
+    const now = Date.now();
+    if (updateCoherenceRef.current && (now - lastCoherenceUpdateRef.current) >= 1000) {
+      updateCoherenceRef.current(coherence);
+      lastCoherenceUpdateRef.current = now;
     }
-  }, [coherence, onBreakthrough, gameStats]);
+  }, [coherence, onBreakthrough]);
 
   /**
    * Handle missed tap

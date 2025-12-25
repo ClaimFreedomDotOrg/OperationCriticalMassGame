@@ -125,13 +125,18 @@ function App() {
    */
   useEffect(() => {
     if (isBreakthrough && sessionStartTime) {
-      gameStats.updateDuration(); // Update final duration
+      // Update final duration
+      const duration = Date.now() - sessionStartTime;
       setSessionStats({
-        duration: Date.now() - sessionStartTime,
+        duration,
         activePlayers: 1, // TODO: Get from Firebase
       });
+      // Update stats duration once
+      if (gameStats && gameStats.stats.sessionDuration === 0) {
+        gameStats.updateDuration();
+      }
     }
-  }, [isBreakthrough, sessionStartTime, gameStats]);
+  }, [isBreakthrough, sessionStartTime]);
 
   return (
     <div className="App w-full max-w-full h-full overflow-hidden">
