@@ -52,19 +52,19 @@ const MUSIC_CONFIG = {
     PERFECT: [1, 1.25, 1.5, 2, 2.5, 3], // Root, major 3rd, 5th, octave, major 10th, 12th
   },
   
-  // Volume levels for different layers
+  // Volume levels for different layers (increased for more presence)
   VOLUMES: {
-    BASS: 0.15,
-    PAD: 0.08,
-    MELODY: 0.06,
-    CHAOS: 0.12,
+    BASS: 0.25, // Increased from 0.15
+    PAD: 0.18, // Increased from 0.08
+    MELODY: 0.15, // Increased from 0.06
+    CHAOS: 0.25, // Increased from 0.12 for more impact on miss
   },
   
-  // Layer activation thresholds
+  // Layer activation thresholds (lowered so music is audible from start)
   THRESHOLDS: {
     BASS: 0, // Always present (grounding)
-    PAD: 30, // Harmonic pad enters
-    MELODY: 60, // Melodic layer enters
+    PAD: 0, // Start immediately (was 30)
+    MELODY: 20, // Start early (was 60)
     PERFECT: 90, // Perfect harmony mode
   }
 };
@@ -79,12 +79,15 @@ export const useDynamicMusic = ({
   // Oscillator references for each layer
   const bassOscillatorRef = useRef(null);
   const bassGainRef = useRef(null);
+  const bassPannerRef = useRef(null); // Add panner for bass
   
   const padOscillatorsRef = useRef([]); // Array of oscillators for pad chords
   const padGainRef = useRef(null);
+  const padPannersRef = useRef([]); // Add panners for pad oscillators
   
   const melodyOscillatorRef = useRef(null);
   const melodyGainRef = useRef(null);
+  const melodyPannerRef = useRef(null); // Add panner for melody
   
   const chaosOscillatorRef = useRef(null);
   const chaosGainRef = useRef(null);
@@ -97,6 +100,9 @@ export const useDynamicMusic = ({
   // Melody pattern state
   const melodyIndexRef = useRef(0);
   const lastMelodyTimeRef = useRef(0);
+  
+  // Bilateral panning state (alternates like bilateral audio)
+  const panningPhaseRef = useRef(0);
 
   /**
    * Get current scale based on coherence level
@@ -115,6 +121,7 @@ export const useDynamicMusic = ({
 
   /**
    * Create bass drone (always playing, changes tone with coherence)
+   * Now with bilateral panning for immersive stereo effect
    */
   const startBassLayer = useCallback(() => {
     if (!audioContext || !masterGain) return;
@@ -128,8 +135,17 @@ export const useDynamicMusic = ({
       bassGainRef.current = audioContext.createGain();
       bassGainRef.current.gain.value = MUSIC_CONFIG.VOLUMES.BASS;
 
-      bassOscillatorRef.current.connect(bassGainRef.current);
-      bassGainRef.current.connect(masterGain);
+      // Add stereo panner for bilateral effect
+      if (audioContext.createStereoPanner) {
+        bassPannerRef.current = audioContext.createStereoPanner();
+        bassPannerRef.current.pan.value = 0; // Start at center
+        bassOscillatorRef.current.connect(bassGainRef.current);
+        bassGainRef.current.connect(bassPannerRef.current);
+        bassPannerRef.current.connect(masterGain);
+      } else {
+        bassOscillatorRef.current.connect(bassGainRef.current);
+        bassGainRef.current.connect(masterGain);
+      }
 
       bassOscillatorRef.current.start();
     } catch (error) {
@@ -139,22 +155,36 @@ export const useDynamicMusic = ({
 
   /**
    * Create harmonic pad (chord tones that evolve with coherence)
+   * Each oscillator gets its own panner for rich stereo field
    */
   const startPadLayer = useCallback(() => {
     if (!audioContext || !masterGain || padOscillatorsRef.current.length > 0) return;
 
     try {
       padGainRef.current = audioContext.createGain();
-      padGainRef.current.gain.value = 0; // Start silent, fade in based on coherence
+      padGainRef.current.gain.value = MUSIC_CONFIG.VOLUMES.PAD; // Start at full volume now (threshold is 0)
       padGainRef.current.connect(masterGain);
 
-      // Create 3 oscillators for a chord
+      // Create 3 oscillators for a chord with stereo panning
       const scale = getScale(currentCoherenceRef.current);
+      const panPositions = [-0.5, 0, 0.5]; // Left, center, right
+      
       for (let i = 0; i < 3; i++) {
         const osc = audioContext.createOscillator();
         osc.type = 'triangle'; // Soft, pad-like tone
         osc.frequency.value = MUSIC_CONFIG.ROOT_FREQ * scale[i % scale.length] * 2; // One octave higher
-        osc.connect(padGainRef.current);
+        
+        // Add stereo panner for each oscillator
+        if (audioContext.createStereoPanner) {
+          const panner = audioContext.createStereoPanner();
+          panner.pan.value = panPositions[i];
+          osc.connect(panner);
+          panner.connect(padGainRef.current);
+          padPannersRef.current.push(panner);
+        } else {
+          osc.connect(padGainRef.current);
+        }
+        
         osc.start();
         padOscillatorsRef.current.push(osc);
       }
@@ -165,6 +195,7 @@ export const useDynamicMusic = ({
 
   /**
    * Create melody layer (arpeggiated pattern based on coherence)
+   * Pans slightly left-right to create bilateral movement
    */
   const startMelodyLayer = useCallback(() => {
     if (!audioContext || !masterGain) return;
@@ -175,10 +206,20 @@ export const useDynamicMusic = ({
       melodyOscillatorRef.current.frequency.value = MUSIC_CONFIG.ROOT_FREQ * 4; // Two octaves up
 
       melodyGainRef.current = audioContext.createGain();
-      melodyGainRef.current.gain.value = 0; // Start silent
-      melodyGainRef.current.connect(masterGain);
+      melodyGainRef.current.gain.value = 0; // Start silent, fade in at threshold
 
-      melodyOscillatorRef.current.connect(melodyGainRef.current);
+      // Add stereo panner for bilateral effect
+      if (audioContext.createStereoPanner) {
+        melodyPannerRef.current = audioContext.createStereoPanner();
+        melodyPannerRef.current.pan.value = 0;
+        melodyOscillatorRef.current.connect(melodyGainRef.current);
+        melodyGainRef.current.connect(melodyPannerRef.current);
+        melodyPannerRef.current.connect(masterGain);
+      } else {
+        melodyOscillatorRef.current.connect(melodyGainRef.current);
+        melodyGainRef.current.connect(masterGain);
+      }
+
       melodyOscillatorRef.current.start();
     } catch (error) {
       console.warn('Error starting melody layer:', error);
@@ -188,6 +229,7 @@ export const useDynamicMusic = ({
   /**
    * Update all music layers based on coherence
    * Uses smooth transitions to avoid jarring changes
+   * Adds bilateral panning animation for immersive stereo effect
    */
   const updateMusicLayers = useCallback(() => {
     if (!audioContext || !isPlayingRef.current) return;
@@ -200,6 +242,10 @@ export const useDynamicMusic = ({
     const transitionTime = 1.0;
 
     try {
+      // Update bilateral panning phase (slow oscillation for immersive effect)
+      panningPhaseRef.current += 0.01; // Increment phase
+      const panValue = Math.sin(panningPhaseRef.current * 0.5) * 0.7; // Slow sine wave, max ±0.7
+
       // Update bass tone (subtle frequency shifts based on coherence)
       if (bassOscillatorRef.current) {
         const bassMultiplier = coherenceLevel >= 90 ? 1.0 : 
@@ -210,14 +256,17 @@ export const useDynamicMusic = ({
           MUSIC_CONFIG.ROOT_FREQ * bassMultiplier,
           now + transitionTime
         );
+        
+        // Add subtle panning to bass
+        if (bassPannerRef.current) {
+          bassPannerRef.current.pan.linearRampToValueAtTime(panValue * 0.3, now + 0.1);
+        }
       }
 
-      // Update pad layer
+      // Update pad layer with full volume from start
       if (padGainRef.current) {
-        const padVolume = coherenceLevel >= MUSIC_CONFIG.THRESHOLDS.PAD
-          ? MUSIC_CONFIG.VOLUMES.PAD * Math.min(1, (coherenceLevel - 30) / 40) // Fade in 30-70%
-          : 0;
-        
+        // Volume scales with coherence but starts immediately
+        const padVolume = MUSIC_CONFIG.VOLUMES.PAD * Math.min(1, 0.3 + (coherenceLevel / 100) * 0.7);
         padGainRef.current.gain.linearRampToValueAtTime(padVolume, now + transitionTime);
 
         // Update pad chord frequencies
@@ -227,15 +276,29 @@ export const useDynamicMusic = ({
             osc.frequency.linearRampToValueAtTime(freq, now + transitionTime);
           }
         });
+        
+        // Animate pad panners for wide stereo field
+        padPannersRef.current.forEach((panner, i) => {
+          if (panner) {
+            const offset = (i - 1) * 0.5; // -0.5, 0, 0.5
+            const dynamicPan = offset + panValue * 0.2;
+            panner.pan.linearRampToValueAtTime(Math.max(-1, Math.min(1, dynamicPan)), now + 0.1);
+          }
+        });
       }
 
-      // Update melody layer (arpeggio pattern)
+      // Update melody layer with earlier activation
       if (melodyGainRef.current) {
         const melodyVolume = coherenceLevel >= MUSIC_CONFIG.THRESHOLDS.MELODY
-          ? MUSIC_CONFIG.VOLUMES.MELODY * Math.min(1, (coherenceLevel - 60) / 30) // Fade in 60-90%
+          ? MUSIC_CONFIG.VOLUMES.MELODY * Math.min(1, (coherenceLevel - 20) / 60) // Fade in 20-80%
           : 0;
         
         melodyGainRef.current.gain.linearRampToValueAtTime(melodyVolume, now + transitionTime);
+        
+        // Animate melody panning for bilateral effect
+        if (melodyPannerRef.current) {
+          melodyPannerRef.current.pan.linearRampToValueAtTime(panValue * 0.5, now + 0.1);
+        }
       }
 
       // Melody note changes (every 2 beats)
@@ -254,34 +317,53 @@ export const useDynamicMusic = ({
 
   /**
    * Inject temporary chaos into music (on player miss)
-   * Creates dissonant burst to increase stress/attention
+   * Creates dramatic dissonant burst to increase stress/attention
+   * Now with multiple oscillators for more chaotic effect
    */
   const injectChaos = useCallback(() => {
     if (!audioContext || !masterGain || !isEnabled) return;
 
     try {
       const now = audioContext.currentTime;
-      const duration = 0.3; // 300ms burst
+      const duration = 0.4; // Longer 400ms burst for more impact
 
-      // Create harsh dissonant tone
-      const chaosOsc = audioContext.createOscillator();
-      chaosOsc.type = 'sawtooth'; // Harsh waveform
-      chaosOsc.frequency.value = MUSIC_CONFIG.ROOT_FREQ * 1.414; // Tritone (most dissonant interval)
+      // Create multiple harsh dissonant tones for maximum chaos
+      const chaosFrequencies = [
+        MUSIC_CONFIG.ROOT_FREQ * 1.414, // Tritone
+        MUSIC_CONFIG.ROOT_FREQ * 1.067, // Minor 2nd (very dissonant)
+        MUSIC_CONFIG.ROOT_FREQ * 2.8,   // Dissonant high overtone
+      ];
 
-      const chaosGain = audioContext.createGain();
-      chaosGain.gain.setValueAtTime(MUSIC_CONFIG.VOLUMES.CHAOS, now);
-      chaosGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      chaosFrequencies.forEach((freq, i) => {
+        const chaosOsc = audioContext.createOscillator();
+        chaosOsc.type = i === 0 ? 'sawtooth' : 'square'; // Mix harsh waveforms
+        chaosOsc.frequency.value = freq;
 
-      chaosOsc.connect(chaosGain);
-      chaosGain.connect(masterGain);
+        const chaosGain = audioContext.createGain();
+        const volume = MUSIC_CONFIG.VOLUMES.CHAOS * (1 - i * 0.3); // Decreasing volumes
+        chaosGain.gain.setValueAtTime(volume, now);
+        chaosGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-      chaosOsc.start(now);
-      chaosOsc.stop(now + duration);
+        // Add stereo panning for chaotic spatial effect
+        if (audioContext.createStereoPanner) {
+          const chaosPanner = audioContext.createStereoPanner();
+          chaosPanner.pan.value = (i - 1) * 0.7; // Spread across stereo field
+          chaosOsc.connect(chaosGain);
+          chaosGain.connect(chaosPanner);
+          chaosPanner.connect(masterGain);
+        } else {
+          chaosOsc.connect(chaosGain);
+          chaosGain.connect(masterGain);
+        }
 
-      chaosOsc.onended = () => {
-        chaosGain.disconnect();
-        chaosOsc.disconnect();
-      };
+        chaosOsc.start(now);
+        chaosOsc.stop(now + duration);
+
+        chaosOsc.onended = () => {
+          chaosGain.disconnect();
+          chaosOsc.disconnect();
+        };
+      });
     } catch (error) {
       console.warn('Error injecting chaos:', error);
     }
@@ -303,6 +385,10 @@ export const useDynamicMusic = ({
       bassGainRef.current.disconnect();
       bassGainRef.current = null;
     }
+    if (bassPannerRef.current) {
+      bassPannerRef.current.disconnect();
+      bassPannerRef.current = null;
+    }
 
     // Stop pad
     padOscillatorsRef.current.forEach(osc => {
@@ -314,6 +400,14 @@ export const useDynamicMusic = ({
       }
     });
     padOscillatorsRef.current = [];
+    padPannersRef.current.forEach(panner => {
+      if (panner) {
+        try {
+          panner.disconnect();
+        } catch (e) { /* may already be disconnected */ }
+      }
+    });
+    padPannersRef.current = [];
     if (padGainRef.current) {
       padGainRef.current.disconnect();
       padGainRef.current = null;
@@ -330,6 +424,10 @@ export const useDynamicMusic = ({
     if (melodyGainRef.current) {
       melodyGainRef.current.disconnect();
       melodyGainRef.current = null;
+    }
+    if (melodyPannerRef.current) {
+      melodyPannerRef.current.disconnect();
+      melodyPannerRef.current = null;
     }
 
     isPlayingRef.current = false;
