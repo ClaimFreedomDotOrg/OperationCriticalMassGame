@@ -36,7 +36,40 @@ function App() {
   const gameStats = useGameStats();
 
   // Audio management (centralized at App level for single AudioContext)
-  const { playBreakthrough } = useAudio();
+  const {
+    isInitialized: isAudioInitialized,
+    initAudioContext,
+    resumeAudioContext,
+    playBreakthrough,
+  } = useAudio();
+
+  /**
+   * Initialize audio context on first user interaction
+   * Required by browser autoplay policies
+   */
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (!isAudioInitialized) {
+        initAudioContext();
+      }
+      resumeAudioContext();
+      
+      // Note: Listeners remain active throughout the app lifecycle because browsers
+      // may suspend audio context during screen transitions or user inactivity.
+      // This ensures breakthrough sound plays even after extended gameplay.
+    };
+
+    // Listen for any user interaction to initialize/resume audio
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+    document.addEventListener('keydown', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+    };
+  }, [isAudioInitialized, initAudioContext, resumeAudioContext]);
 
   /**
    * Generate body cells for visualization
