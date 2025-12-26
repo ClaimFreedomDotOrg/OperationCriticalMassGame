@@ -196,12 +196,12 @@ export const useAudio = () => {
         oscillator.frequency.value = freq;
 
         const gainNode = context.createGain();
-        gainNode.gain.value = AUDIO.BREAKTHROUGH_VOLUME * 0.8;
+        gainNode.gain.value = AUDIO.BREAKTHROUGH_VOLUME;
 
         // Apply fade out
         const duration = 0.5;
         const fadeOut = 0.2;
-        gainNode.gain.setValueAtTime(AUDIO.BREAKTHROUGH_VOLUME * 0.8, now + delay + duration - fadeOut);
+        gainNode.gain.setValueAtTime(AUDIO.BREAKTHROUGH_VOLUME, now + delay + duration - fadeOut);
         gainNode.gain.exponentialRampToValueAtTime(0.001, now + delay + duration);
 
         oscillator.connect(gainNode);
