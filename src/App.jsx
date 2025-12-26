@@ -54,8 +54,9 @@ function App() {
       }
       resumeAudioContext();
       
-      // Keep listeners active - audio context may need resuming on each screen transition
-      // Remove this comment if issues arise, but keeping active is safer for breakthrough sound
+      // Note: Listeners remain active throughout the app lifecycle because browsers
+      // may suspend audio context during screen transitions or user inactivity.
+      // This ensures breakthrough sound plays even after extended gameplay.
     };
 
     // Listen for any user interaction to initialize/resume audio
