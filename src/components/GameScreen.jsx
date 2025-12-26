@@ -593,14 +593,24 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       )}
 
       {/* Instructions - Above Controls */}
-      <div className="w-full text-center py-2 z-20 px-4 bg-black/60 backdrop-blur-sm flex-shrink-0">
+      <div className="w-full text-center py-3 z-20 px-4 bg-black/80 backdrop-blur-sm flex-shrink-0 border-t-2 border-cyan-900/50">
         {hasBlockingBubbles ? (
-          <div className="text-red-400/90 text-sm md:text-base font-semibold animate-pulse">
-            Tap the thought bubble to dismiss it
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-red-400 text-lg md:text-xl font-bold animate-pulse tracking-wide">
+              ⚠️ TAP THE THOUGHT BUBBLE TO CLEAR IT
+            </div>
+            <div className="text-red-300/70 text-xs md:text-sm">
+              Click or tap the red bubble above to dismiss the intrusive thought
+            </div>
           </div>
         ) : (
-          <div className="text-cyan-400/70 text-sm md:text-base">
-            Tap the glowing side in rhythm
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-cyan-300 text-base md:text-lg font-bold tracking-wide">
+              👆 TAP THE <span className="text-cyan-400 animate-pulse">GLOWING</span> SIDE IN RHYTHM
+            </div>
+            <div className="text-cyan-400/60 text-xs md:text-sm">
+              Match the beat timing for better coherence
+            </div>
           </div>
         )}
       </div>

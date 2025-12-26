@@ -99,13 +99,30 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
       </h1>
 
       {/* Description */}
-      <p className="text-base sm:text-lg md:text-xl mb-2 md:mb-4 max-w-md text-cyan-100/80 relative z-10 px-4">
+      <p className="text-base sm:text-lg md:text-xl mb-3 md:mb-4 max-w-md text-cyan-100/90 relative z-10 px-4 font-semibold">
         Join other players in a collective experience of synchronization and coherence.
       </p>
 
-      <p className="text-sm sm:text-md mb-4 md:mb-8 max-w-md text-cyan-200/70 relative z-10 px-4">
-        Tap in rhythm. Dismiss intrusive thoughts. Achieve collective breakthrough.
-      </p>
+      {/* How to Play - More Prominent */}
+      <div className="mb-4 md:mb-8 max-w-md relative z-10 px-4 bg-cyan-950/30 border border-cyan-700/50 rounded-lg py-3 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+        <div className="text-cyan-300 text-sm sm:text-base font-bold mb-2 tracking-wide">
+          🎮 HOW TO PLAY
+        </div>
+        <div className="flex flex-col gap-2 text-left text-sm sm:text-base text-cyan-100/80">
+          <div className="flex items-start gap-2">
+            <span className="text-amber-400 font-bold">1.</span>
+            <span><strong className="text-cyan-300">Tap in rhythm</strong> - Press the glowing button when it lights up</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-amber-400 font-bold">2.</span>
+            <span><strong className="text-red-300">Clear intrusive thoughts</strong> - Tap red bubbles to dismiss them</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-amber-400 font-bold">3.</span>
+            <span><strong className="text-amber-300">Achieve breakthrough</strong> - Reach 100% coherence together</span>
+          </div>
+        </div>
+      </div>
 
       {/* Mode Selection */}
       {!mode ? (
