@@ -11,6 +11,7 @@ import useThoughtBubbles from '../hooks/useThoughtBubbles';
 import useFirebaseSync from '../hooks/useFirebaseSync';
 import useAudio from '../hooks/useAudio';
 import useBilateralAudio from '../hooks/useBilateralAudio';
+import useDynamicMusic from '../hooks/useDynamicMusic';
 import ThoughtBubble from './ThoughtBubble';
 import TapButton from './TapButton';
 import PlayerFeedback from './PlayerFeedback';
@@ -64,6 +65,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
   const scoreRef = useRef(0); // Track current score for accurate Firebase updates
+  const injectChaosRef = useRef(null); // Ref to chaos injection function for miss handling
 
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
@@ -172,6 +174,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     // Play miss sound
     playTapMiss();
 
+    // Inject chaos into music (temporary dissonance)
+    if (injectChaosRef.current) {
+      injectChaosRef.current();
+    }
+
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
@@ -243,6 +250,20 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     masterGain,
     isEnabled: isAudioEnabled,
   });
+
+  // Dynamic music - correlates with coherence level (uses shared audio context)
+  const { injectChaos } = useDynamicMusic({
+    isActive: true,
+    coherence,
+    audioContext,
+    masterGain,
+    isEnabled: isAudioEnabled,
+  });
+
+  // Keep injectChaos ref updated for use in handleMiss callback
+  useEffect(() => {
+    injectChaosRef.current = injectChaos;
+  }, [injectChaos]);
 
   /**
    * Initialize audio on user interaction (once)
