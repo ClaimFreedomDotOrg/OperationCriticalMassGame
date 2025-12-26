@@ -9,6 +9,8 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import useBilateralStimulation from '../hooks/useBilateralStimulation';
 import useThoughtBubbles from '../hooks/useThoughtBubbles';
 import useFirebaseSync from '../hooks/useFirebaseSync';
+import useAudio from '../hooks/useAudio';
+import useBilateralAudio from '../hooks/useBilateralAudio';
 import ThoughtBubble from './ThoughtBubble';
 import TapButton from './TapButton';
 import PlayerFeedback from './PlayerFeedback';
@@ -38,6 +40,21 @@ const ShieldAlertIcon = ({ size = 24 }) => (
   </svg>
 );
 
+const VolumeIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+  </svg>
+);
+
+const VolumeOffIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <line x1="23" y1="9" x2="17" y2="15"></line>
+    <line x1="17" y1="9" x2="23" y2="15"></line>
+  </svg>
+);
+
 const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, gameStats }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
@@ -58,6 +75,40 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const activePlayers = gameMode === 'multi' ? (firebaseSync?.activePlayers || 0) : localActivePlayers;
   const updatePlayerState = gameMode === 'multi' ? firebaseSync?.updatePlayerState : () => {};
   const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
+
+  // Audio hooks
+  const {
+    isEnabled: isAudioEnabled,
+    isInitialized: isAudioInitialized,
+    initAudioContext,
+    resumeAudioContext,
+    playTapSuccess,
+    playTapMiss,
+    playThoughtDismiss,
+    toggleAudio,
+  } = useAudio();
+
+  // Get audio context for bilateral audio
+  const audioContextRef = useRef(null);
+  const masterGainRef = useRef(null);
+
+  // Initialize audio context on first user interaction
+  useEffect(() => {
+    if (isAudioInitialized) {
+      // Store refs for bilateral audio hook
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!audioContextRef.current && window.AudioContext) {
+        try {
+          audioContextRef.current = new AudioContext();
+          masterGainRef.current = audioContextRef.current.createGain();
+          masterGainRef.current.gain.value = GAME_CONFIG.AUDIO.MASTER_VOLUME;
+          masterGainRef.current.connect(audioContextRef.current.destination);
+        } catch (error) {
+          console.warn('Could not create audio context for bilateral audio:', error);
+        }
+      }
+    }
+  }, [isAudioInitialized]);
 
   /**
    * Update score in stats whenever it changes
@@ -102,6 +153,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setIsInSync(false);
     setFeedback('MISS');
 
+    // Play miss sound
+    playTapMiss();
+
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
@@ -114,7 +168,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     });
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode]);
+  }, [score, updatePlayerState, gameMode, playTapMiss]);
 
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
@@ -136,6 +190,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setFeedback('HIT');
     setScore(prev => prev + 10);
 
+    // Play success sound
+    playTapSuccess();
+
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.min(100, prev + 2)); // Increase by 2% per hit
@@ -150,7 +207,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode]);
+  }, [score, updatePlayerState, gameMode, playTapSuccess]);
 
   // Bilateral stimulation
   const { activeSide, handleTap, position } = useBilateralStimulation({
@@ -159,10 +216,25 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     onMiss: handleMiss,
   });
 
+  // Bilateral audio - synchronized with orb position
+  useBilateralAudio({
+    isActive: true,
+    position,
+    audioContext: audioContextRef.current,
+    masterGain: masterGainRef.current,
+    isEnabled: isAudioEnabled,
+  });
+
   /**
    * Handle tap button press
    */
   const onTapButton = useCallback((side, event) => {
+    // Initialize audio context on first user interaction
+    if (!isAudioInitialized) {
+      initAudioContext();
+    }
+    resumeAudioContext();
+
     // Cannot tap while bubbles are blocking
     if (hasBlockingBubbles) {
       handleMiss();
@@ -226,7 +298,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         setSyncedButton(null);
       }, 300); // Show green for 300ms
     }
-  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats]);
+  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, isAudioInitialized, initAudioContext, resumeAudioContext]);
 
   /**
    * Handle bubble swipe dismissal
@@ -247,11 +319,14 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     dismissBubble(bubbleId);
     setScore(prev => prev + 5);
     
+    // Play thought dismissal sound
+    playThoughtDismiss();
+    
     // Track dismissed thought bubble
     if (gameStats) {
       gameStats.recordThoughtDismissed();
     }
-  }, [dismissBubble, triggerVisualTap, gameStats]);
+  }, [dismissBubble, triggerVisualTap, gameStats, playThoughtDismiss]);
 
   /**
    * Determine container style based on state
@@ -313,7 +388,22 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* 1. TOP HUD (Global Metrics) */}
       <div className="w-full p-2 md:p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px] flex-shrink-0">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto relative">
+          {/* Audio Toggle Button */}
+          <button
+            onClick={() => {
+              if (!isAudioInitialized) {
+                initAudioContext();
+              }
+              resumeAudioContext();
+              toggleAudio();
+            }}
+            className="absolute right-0 top-0 p-2 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200 z-50"
+            aria-label={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
+          >
+            {isAudioEnabled ? <VolumeIcon size={20} /> : <VolumeOffIcon size={20} />}
+          </button>
+
           <div className="flex justify-between items-end mb-1 text-xs uppercase tracking-widest">
             <span className="text-cyan-500 flex items-center gap-2">
               <ActivityIcon size={14} /> Global Body Status

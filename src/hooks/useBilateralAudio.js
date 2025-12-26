@@ -1,0 +1,163 @@
+/**
+ * useBilateralAudio Hook
+ *
+ * Implements bilateral auditory stimulation synchronized with the visual orb.
+ * The audio pans left-right in sync with the orb's oscillation, creating an
+ * immersive EMDR-like experience.
+ *
+ * Scientific Basis:
+ * - Bilateral auditory stimulation activates bilateral brain regions
+ * - Enhances interhemispheric communication (Propper et al., 2007)
+ * - Supports working memory taxation (van den Hout & Engelhard, 2012)
+ * - Creates rhythmic entrainment for flow state induction
+ *
+ * Technical Implementation:
+ * - Uses Web Audio API StereoPannerNode for precise L-R positioning
+ * - Synchronizes with orb position (-1 = full left, +1 = full right)
+ * - Generates smooth continuous tone with position-based volume modulation
+ * - Optimized for performance with requestAnimationFrame
+ */
+
+import { useEffect, useRef, useCallback } from 'react';
+
+export const useBilateralAudio = ({ isActive, position, audioContext, masterGain, isEnabled }) => {
+  const oscillatorRef = useRef(null);
+  const gainNodeRef = useRef(null);
+  const pannerRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const isPlayingRef = useRef(false);
+
+  /**
+   * Start bilateral audio tone
+   * Creates a continuous tone that pans left-right with the orb
+   */
+  const startBilateralAudio = useCallback(() => {
+    if (!audioContext || !masterGain || !isEnabled || isPlayingRef.current) {
+      return;
+    }
+
+    try {
+      // Create oscillator for continuous tone
+      oscillatorRef.current = audioContext.createOscillator();
+      oscillatorRef.current.type = 'sine';
+      oscillatorRef.current.frequency.value = 220; // A3 - calming frequency
+
+      // Create gain node for volume control
+      gainNodeRef.current = audioContext.createGain();
+      gainNodeRef.current.gain.value = 0.3; // Gentle volume
+
+      // Create stereo panner for left-right positioning
+      if (audioContext.createStereoPanner) {
+        pannerRef.current = audioContext.createStereoPanner();
+        pannerRef.current.pan.value = 0; // Start at center
+      } else {
+        // Fallback for browsers without StereoPanner (older Safari)
+        pannerRef.current = audioContext.createPanner();
+        pannerRef.current.panningModel = 'equalpower';
+      }
+
+      // Connect: oscillator -> gain -> panner -> master gain -> destination
+      oscillatorRef.current.connect(gainNodeRef.current);
+      gainNodeRef.current.connect(pannerRef.current);
+      pannerRef.current.connect(masterGain);
+
+      // Start oscillator
+      oscillatorRef.current.start();
+      isPlayingRef.current = true;
+    } catch (error) {
+      console.warn('Error starting bilateral audio:', error);
+    }
+  }, [audioContext, masterGain, isEnabled]);
+
+  /**
+   * Stop bilateral audio tone
+   */
+  const stopBilateralAudio = useCallback(() => {
+    if (oscillatorRef.current) {
+      try {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+        oscillatorRef.current = null;
+      } catch (error) {
+        // Oscillator may already be stopped
+      }
+    }
+
+    if (gainNodeRef.current) {
+      gainNodeRef.current.disconnect();
+      gainNodeRef.current = null;
+    }
+
+    if (pannerRef.current) {
+      pannerRef.current.disconnect();
+      pannerRef.current = null;
+    }
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    isPlayingRef.current = false;
+  }, []);
+
+  /**
+   * Update audio panning based on orb position
+   * Smoothly transitions audio from left to right speaker
+   */
+  const updatePanning = useCallback(() => {
+    if (!pannerRef.current || !audioContext) return;
+
+    try {
+      if (pannerRef.current.pan) {
+        // Modern StereoPanner API
+        // Position ranges from -1 (left) to +1 (right)
+        pannerRef.current.pan.setValueAtTime(position, audioContext.currentTime);
+      } else if (pannerRef.current.setPosition) {
+        // Fallback for older PannerNode API
+        // Map position to 3D space (x-axis only)
+        pannerRef.current.setPosition(position, 0, 0);
+      }
+
+      // Optional: Modulate volume based on distance from center
+      // Creates a subtle "pulse" effect as orb passes through center
+      if (gainNodeRef.current) {
+        const distanceFromCenter = Math.abs(position);
+        const volumeModulation = 0.3 + (0.1 * (1 - distanceFromCenter)); // 0.3 to 0.4
+        gainNodeRef.current.gain.setValueAtTime(volumeModulation, audioContext.currentTime);
+      }
+    } catch (error) {
+      console.warn('Error updating panning:', error);
+    }
+  }, [position, audioContext]);
+
+  /**
+   * Effect: Start/stop bilateral audio based on isActive and isEnabled
+   */
+  useEffect(() => {
+    if (isActive && isEnabled && audioContext && masterGain) {
+      startBilateralAudio();
+    } else {
+      stopBilateralAudio();
+    }
+
+    return () => {
+      stopBilateralAudio();
+    };
+  }, [isActive, isEnabled, audioContext, masterGain, startBilateralAudio, stopBilateralAudio]);
+
+  /**
+   * Effect: Update panning continuously based on orb position
+   */
+  useEffect(() => {
+    if (isPlayingRef.current && pannerRef.current) {
+      updatePanning();
+    }
+  }, [position, updatePanning]);
+
+  return {
+    isPlaying: isPlayingRef.current,
+  };
+};
+
+export default useBilateralAudio;
