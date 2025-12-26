@@ -150,7 +150,7 @@ export const useAudio = () => {
       oscillator.frequency.exponentialRampToValueAtTime(800, now + duration);
 
       const gainNode = context.createGain();
-      gainNode.gain.setValueAtTime(AUDIO.TAP_VOLUME * 0.7, now);
+      gainNode.gain.setValueAtTime(AUDIO.TAP_VOLUME, now);
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
       oscillator.connect(gainNode);
