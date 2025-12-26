@@ -150,8 +150,12 @@ export const useAudio = () => {
       oscillator.frequency.exponentialRampToValueAtTime(800, now + duration);
 
       const gainNode = context.createGain();
+      // Hold volume steady, then fade out in the last 0.05 seconds
+      const fadeOut = 0.05;
+      const fadeStartTime = now + duration - fadeOut;
       gainNode.gain.setValueAtTime(AUDIO.TAP_VOLUME, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      gainNode.gain.setValueAtTime(AUDIO.TAP_VOLUME, fadeStartTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, fadeStartTime + fadeOut);
 
       oscillator.connect(gainNode);
       gainNode.connect(masterGainRef.current);
