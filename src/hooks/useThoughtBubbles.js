@@ -27,18 +27,27 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
 
   /**
    * Spawn new thought bubble
+   * 
+   * Position calculation accounts for:
+   * - Top HUD: ~15% of viewport height
+   * - Bottom controls: ~30% of viewport height  
+   * - Horizontal margins: ~10% on each side
+   * - Bubble size: Approximately 200-350px wide, 100-150px tall
    */
   const spawnBubble = useCallback(() => {
     const randomWord = WORDS_OF_THE_VOICE[Math.floor(Math.random() * WORDS_OF_THE_VOICE.length)];
     const bubbleId = `bubble_${bubbleIdCounter.current++}`;
 
+    // Calculate safe spawn area accounting for bubble dimensions
+    // Horizontal: 10-80% (leaving ~10% margin on each side for bubble width)
+    // Vertical: 20-55% (avoiding HUD at top 15%, controls at bottom 30%, with margins)
     const newBubble = {
       id: bubbleId,
       word: randomWord,
       spawnTime: Date.now(),
       position: {
-        x: Math.random() * 70 + 15, // 15-85% from left (avoid edges)
-        y: Math.random() * 50 + 20, // 20-70% from top (avoid HUD and controls)
+        x: Math.random() * 70 + 10, // 10-80% from left
+        y: Math.random() * 35 + 20, // 20-55% from top
       },
     };
 

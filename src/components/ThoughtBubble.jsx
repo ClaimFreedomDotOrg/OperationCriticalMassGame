@@ -3,9 +3,12 @@
  *
  * Represents intrusive thoughts (The Voice) that must be dismissed.
  * Implements swipe-to-dismiss gesture for dis-identification training.
+ * 
+ * Design: Classic thought bubble with circular puffs and connection dots,
+ * matching the bio-luminescent neuroscience aesthetic.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { GAME_CONFIG } from '../constants/gameConfig';
 
 const { MIN_SWIPE_DISTANCE, MAX_SWIPE_TIME, BUBBLE_DISMISS_DELAY, BUBBLE_FADE_DURATION } = GAME_CONFIG;
@@ -13,49 +16,7 @@ const { MIN_SWIPE_DISTANCE, MAX_SWIPE_TIME, BUBBLE_DISMISS_DELAY, BUBBLE_FADE_DU
 const ThoughtBubble = ({ bubble, onDismiss }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [adjustedPosition, setAdjustedPosition] = useState({ x: bubble.position.x, y: bubble.position.y });
   const startPos = useRef({ x: 0, y: 0, time: 0 });
-  const bubbleRef = useRef(null);
-
-  /**
-   * Adjust position to keep bubble within viewport bounds
-   */
-  useEffect(() => {
-    if (!bubbleRef.current) return;
-
-    const rect = bubbleRef.current.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    let adjustedX = bubble.position.x;
-    let adjustedY = bubble.position.y;
-
-    // Calculate actual pixel position
-    const leftPixels = (bubble.position.x / 100) * viewportWidth;
-    const topPixels = (bubble.position.y / 100) * viewportHeight;
-
-    // Check right edge
-    if (leftPixels + rect.width > viewportWidth) {
-      adjustedX = ((viewportWidth - rect.width - 10) / viewportWidth) * 100;
-    }
-
-    // Check left edge
-    if (leftPixels < 0) {
-      adjustedX = 1; // 1% from left
-    }
-
-    // Check bottom edge
-    if (topPixels + rect.height > viewportHeight) {
-      adjustedY = ((viewportHeight - rect.height - 10) / viewportHeight) * 100;
-    }
-
-    // Check top edge
-    if (topPixels < 0) {
-      adjustedY = 1; // 1% from top
-    }
-
-    setAdjustedPosition({ x: adjustedX, y: adjustedY });
-  }, [bubble.position.x, bubble.position.y]);
 
   /**
    * Handle touch/mouse start
@@ -107,13 +68,12 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
 
   return (
     <div
-      ref={bubbleRef}
       className={`absolute z-40 cursor-grab active:cursor-grabbing ${
-        bubble.isDismissing ? 'animate-bubble-dismiss' : 'animate-thought-float'
+        bubble.isDismissing ? 'animate-bubble-dismiss' : ''
       }`}
       style={{
-        left: `${adjustedPosition.x}%`,
-        top: `${adjustedPosition.y}%`,
+        left: `${bubble.position.x}%`,
+        top: `${bubble.position.y}%`,
         transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
       }}
@@ -131,13 +91,35 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       }}
       onTouchEnd={handleEnd}
     >
-      <div
-        className="bg-red-950/90 border-2 border-red-500 rounded-full px-3 py-2 md:px-6 md:py-3
-                   shadow-[0_0_30px_rgba(220,38,38,0.6)] backdrop-blur-sm"
-      >
-        <p className="text-red-100 text-sm md:text-lg font-semibold whitespace-nowrap">
-          {bubble.word}
-        </p>
+      {/* Thought bubble with classic comic-style design */}
+      <div className="relative inline-block max-w-xs">
+        {/* Main bubble cloud */}
+        <div className="relative bg-red-950/95 border-2 border-red-500 rounded-3xl px-6 py-4
+                        shadow-[0_0_30px_rgba(220,38,38,0.7)] backdrop-blur-sm">
+          {/* Top decorative puffs */}
+          <div className="absolute -top-2 left-1/4 w-10 h-10 bg-red-950/95 border-2 border-red-500 rounded-full"></div>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-12 bg-red-950/95 border-2 border-red-500 rounded-full"></div>
+          <div className="absolute -top-2 right-1/4 w-10 h-10 bg-red-950/95 border-2 border-red-500 rounded-full"></div>
+          
+          {/* Thought bubble content */}
+          <div className="relative z-10">
+            <p className="text-red-100 text-sm md:text-base font-semibold text-center leading-tight">
+              {bubble.word}
+            </p>
+          </div>
+        </div>
+        
+        {/* Thought bubble tail (small connecting circles) */}
+        <div className="absolute -bottom-8 left-6">
+          <div className="relative">
+            <div className="absolute bottom-0 left-0 w-5 h-5 bg-red-950/95 border-2 border-red-500 rounded-full
+                            shadow-[0_0_15px_rgba(220,38,38,0.7)]"></div>
+            <div className="absolute -bottom-5 -left-2 w-3 h-3 bg-red-950/95 border-2 border-red-500 rounded-full
+                            shadow-[0_0_10px_rgba(220,38,38,0.6)]"></div>
+            <div className="absolute -bottom-8 -left-3 w-2 h-2 bg-red-950/95 border border-red-500 rounded-full
+                            shadow-[0_0_8px_rgba(220,38,38,0.5)]"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
