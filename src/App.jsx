@@ -131,12 +131,12 @@ function App() {
         duration,
         activePlayers: 1, // TODO: Get from Firebase
       });
-      // Update stats duration once
-      if (gameStats && gameStats.stats.sessionDuration === 0) {
+      // Update stats duration
+      if (gameStats) {
         gameStats.updateDuration();
       }
     }
-  }, [isBreakthrough, sessionStartTime]);
+  }, [isBreakthrough, sessionStartTime, gameStats]);
 
   return (
     <div className="App w-full max-w-full h-full overflow-hidden">
