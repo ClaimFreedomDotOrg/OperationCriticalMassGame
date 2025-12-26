@@ -135,9 +135,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
    * Update score in stats whenever it changes
    */
   const updateScoreRef = useRef(null);
-  if (gameStats) {
-    updateScoreRef.current = gameStats.updateScore;
-  }
+  
+  useEffect(() => {
+    if (gameStats) {
+      updateScoreRef.current = gameStats.updateScore;
+    }
+  }, [gameStats]);
   
   useEffect(() => {
     if (updateScoreRef.current) {
@@ -150,9 +153,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
    * Update coherence tracking on every change for accurate statistics
    */
   const updateCoherenceRef = useRef(null);
-  if (gameStats) {
-    updateCoherenceRef.current = gameStats.updateCoherence;
-  }
+  
+  useEffect(() => {
+    if (gameStats) {
+      updateCoherenceRef.current = gameStats.updateCoherence;
+    }
+  }, [gameStats]);
   
   useEffect(() => {
     if (coherence >= 100 && onBreakthrough) {
