@@ -34,7 +34,7 @@ const StatsModal = ({ stats, isOpen, onClose, getTapAccuracy, getThoughtBubbleSu
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-amber-900/20 hover:bg-amber-900/30 text-amber-900 transition-all duration-200 active:scale-95"
+          className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-amber-900/20 hover:bg-amber-900/30 text-amber-900 transition-all duration-200 active:scale-95 select-none"
           aria-label="Close stats"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

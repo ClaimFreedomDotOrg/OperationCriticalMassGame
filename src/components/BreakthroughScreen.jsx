@@ -80,7 +80,7 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
         {/* Reset Button */}
         <button
           onClick={onReset}
-          className="px-6 py-3 md:px-8 md:py-4 bg-amber-900/50 border-2 border-amber-900/30 text-amber-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-amber-900/60 active:scale-95 mb-4 md:mb-8"
+          className="px-6 py-3 md:px-8 md:py-4 bg-amber-900/50 border-2 border-amber-900/30 text-amber-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-amber-900/60 active:scale-95 mb-4 md:mb-8 select-none"
         >
           Begin Again
         </button>
@@ -89,7 +89,7 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
         {gameStats && (
           <button
             onClick={() => setShowStatsModal(true)}
-            className="px-6 py-3 md:px-8 md:py-4 bg-cyan-900/50 border-2 border-cyan-600/50 text-cyan-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-cyan-900/60 active:scale-95 mb-4 md:mb-8 flex items-center justify-center gap-2 mx-auto"
+            className="px-6 py-3 md:px-8 md:py-4 bg-cyan-900/50 border-2 border-cyan-600/50 text-cyan-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-cyan-900/60 active:scale-95 mb-4 md:mb-8 flex items-center justify-center gap-2 mx-auto select-none"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>

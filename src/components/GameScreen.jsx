@@ -460,7 +460,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
                 ensureAudioReady();
                 toggleAudio();
               }}
-              className="p-1.5 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200"
+              className="p-1.5 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200 select-none"
               aria-label={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
             >
               {isAudioEnabled ? <VolumeIcon size={16} /> : <VolumeOffIcon size={16} />}
@@ -563,7 +563,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         <div
           onTouchStart={(e) => onTapButton('LEFT', e)}
           onClick={(e) => onTapButton('LEFT', e)}
-          className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
+          className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95 select-none
             ${syncedButton === 'LEFT'
               ? 'border-green-400 bg-green-900/40 shadow-[0_0_20px_rgba(34,197,94,0.5)] text-green-400'
               : activeSide === 'LEFT'
@@ -577,7 +577,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         <div
           onTouchStart={(e) => onTapButton('RIGHT', e)}
           onClick={(e) => onTapButton('RIGHT', e)}
-          className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95
+          className={`flex-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-100 cursor-pointer active:scale-95 select-none
             ${syncedButton === 'RIGHT'
               ? 'border-green-400 bg-green-900/40 shadow-[0_0_20px_rgba(34,197,94,0.5)] text-green-400'
               : activeSide === 'RIGHT'

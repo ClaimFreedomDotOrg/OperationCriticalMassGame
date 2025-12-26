@@ -112,7 +112,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
           }}
         >
           {/* Thought bubble content */}
-          <p className="text-red-100 text-sm md:text-base font-medium text-center leading-snug">
+          <p className="text-red-100 text-sm md:text-base font-medium text-center leading-snug select-none">
             {bubble.word}
           </p>
         </div>

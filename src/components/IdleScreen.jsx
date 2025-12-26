@@ -113,7 +113,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           {/* Single Player Button */}
           <button
             onClick={() => handleModeSelect('single')}
-            className="group relative px-4 py-3 md:px-8 md:py-4 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm select-none"
           >
             <div className="absolute inset-0 bg-cyan-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-cyan-400">
@@ -125,7 +125,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           {/* Multiplayer Button */}
           <button
             onClick={() => handleModeSelect('multi')}
-            className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 w-full max-w-sm"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 w-full max-w-sm select-none"
           >
             <div className="absolute inset-0 bg-amber-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-amber-400">
@@ -139,7 +139,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           {/* Single Player Confirmation */}
           <button
             onClick={handleStartGame}
-            className="group relative px-4 py-3 md:px-8 md:py-4 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-cyan-900/30 border-2 border-cyan-500 hover:bg-cyan-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95 w-full max-w-sm select-none"
           >
             <div className="absolute inset-0 bg-cyan-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-cyan-400">
@@ -148,7 +148,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           </button>
           <button
             onClick={handleBack}
-            className="text-cyan-400/60 hover:text-cyan-400 transition-colors text-sm"
+            className="text-cyan-400/60 hover:text-cyan-400 transition-colors text-sm select-none"
           >
             ← Back
           </button>
@@ -170,7 +170,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           <button
             onClick={handleStartGame}
             disabled={!gameId.trim()}
-            className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900/30 w-full"
+            className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900/30 w-full select-none"
           >
             <div className="absolute inset-0 bg-amber-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-amber-400">
@@ -179,7 +179,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           </button>
           <button
             onClick={handleBack}
-            className="text-amber-400/60 hover:text-amber-400 transition-colors text-sm"
+            className="text-amber-400/60 hover:text-amber-400 transition-colors text-sm select-none"
           >
             ← Back
           </button>
