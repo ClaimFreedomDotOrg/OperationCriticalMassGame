@@ -55,3 +55,4 @@ Thumbs.db
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+TEST_DURATION_FIX.md

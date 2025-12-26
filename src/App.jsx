@@ -7,6 +7,7 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import useGameState from './hooks/useGameState';
 import useGameStats from './hooks/useGameStats';
+import useAudio from './hooks/useAudio';
 import IdleScreen from './components/IdleScreen';
 import GameScreen from './components/GameScreen';
 import BreakthroughScreen from './components/BreakthroughScreen';
@@ -33,6 +34,9 @@ function App() {
 
   // Game statistics tracking
   const gameStats = useGameStats();
+
+  // Audio management (centralized at App level for single AudioContext)
+  const { playBreakthrough } = useAudio();
 
   /**
    * Generate body cells for visualization
@@ -122,21 +126,29 @@ function App() {
 
   /**
    * Calculate session stats on breakthrough
+   * Note: Only depends on isBreakthrough and sessionStartTime to ensure
+   * duration is captured exactly once when breakthrough is achieved.
+   * 
+   * The gameStats.updateDuration() call is safe here even though gameStats
+   * is not a dependency - the updateDuration function is memoized with useCallback
+   * and remains stable. We intentionally exclude gameStats from dependencies to
+   * prevent this effect from re-running on every stats update.
    */
   useEffect(() => {
     if (isBreakthrough && sessionStartTime) {
-      // Update final duration
+      // Update final duration for breakthrough screen display
       const duration = Date.now() - sessionStartTime;
       setSessionStats({
         duration,
         activePlayers: 1, // TODO: Get from Firebase
       });
-      // Update stats duration
+      // Update stats duration for detailed stats modal
       if (gameStats) {
         gameStats.updateDuration();
       }
     }
-  }, [isBreakthrough, sessionStartTime, gameStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBreakthrough, sessionStartTime]);
 
   return (
     <div className="App w-full max-w-full h-full overflow-hidden">
@@ -168,6 +180,7 @@ function App() {
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
           gameStats={gameStats}
+          playBreakthrough={playBreakthrough}
         />
       )}
     </div>
