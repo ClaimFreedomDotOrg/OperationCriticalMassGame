@@ -77,6 +77,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
 
   return (
     <div
+      data-bubble="true"
       className={`absolute z-40 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${
         bubble.isDismissing ? 'animate-bubble-dismiss' : ''
       }`}
@@ -86,6 +87,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
         transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
       }}
+      onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
       onMouseUp={handleEnd}
