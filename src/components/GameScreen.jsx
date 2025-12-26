@@ -407,7 +407,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       <div className="w-full text-center py-2 z-20 px-4 bg-black/60 backdrop-blur-sm flex-shrink-0">
         {hasBlockingBubbles ? (
           <div className="text-red-400/90 text-sm md:text-base font-semibold animate-pulse">
-            Swipe the thought bubble to dismiss it
+            Tap the thought bubble to dismiss it
           </div>
         ) : (
           <div className="text-cyan-400/70 text-sm md:text-base">

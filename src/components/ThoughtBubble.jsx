@@ -2,7 +2,7 @@
  * ThoughtBubble Component
  *
  * Represents intrusive thoughts (The Voice) that must be dismissed.
- * Implements swipe-to-dismiss gesture for dis-identification training.
+ * Implements tap-to-dismiss or swipe-to-dismiss gestures for dis-identification training.
  * 
  * Design: Clean, minimal thought bubble with subtle indicator dots,
  * matching the bio-luminescent neuroscience aesthetic.
@@ -52,11 +52,14 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
     );
     const duration = Date.now() - startPos.current.time;
 
-    // Valid swipe: sufficient distance and quick enough
-    if (distance >= MIN_SWIPE_DISTANCE && duration <= MAX_SWIPE_TIME) {
+    // Valid tap: minimal movement (< 10px) OR valid swipe (sufficient distance and quick enough)
+    const isTap = distance < 10;
+    const isSwipe = distance >= MIN_SWIPE_DISTANCE && duration <= MAX_SWIPE_TIME;
+    
+    if (isTap || isSwipe) {
       onDismiss();
     } else {
-      // Reset position if invalid swipe
+      // Reset position if invalid gesture
       setPosition({ x: 0, y: 0 });
     }
 
@@ -68,7 +71,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
 
   return (
     <div
-      className={`absolute z-40 cursor-grab active:cursor-grabbing ${
+      className={`absolute z-40 cursor-pointer ${
         bubble.isDismissing ? 'animate-bubble-dismiss' : ''
       }`}
       style={{
