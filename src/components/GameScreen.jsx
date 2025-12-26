@@ -46,6 +46,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [localActivePlayers] = useState(1);
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
+  const scoreRef = useRef(0); // Track current score for accurate Firebase updates
 
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
@@ -58,6 +59,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const activePlayers = gameMode === 'multi' ? (firebaseSync?.activePlayers || 0) : localActivePlayers;
   const updatePlayerState = gameMode === 'multi' ? firebaseSync?.updatePlayerState : () => {};
   const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
+
+  /**
+   * Keep scoreRef in sync with score state
+   */
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
 
   /**
    * Update score in stats whenever it changes
@@ -75,9 +83,8 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Monitor for breakthrough condition (100% coherence)
-   * Update coherence tracking periodically (every second)
+   * Update coherence tracking on every change for accurate statistics
    */
-  const lastCoherenceUpdateRef = useRef(0);
   const updateCoherenceRef = useRef(null);
   if (gameStats) {
     updateCoherenceRef.current = gameStats.updateCoherence;
@@ -87,11 +94,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     if (coherence >= 100 && onBreakthrough) {
       onBreakthrough();
     }
-    // Update coherence tracking in stats (throttled to once per second)
-    const now = Date.now();
-    if (updateCoherenceRef.current && (now - lastCoherenceUpdateRef.current) >= 1000) {
+    // Update coherence tracking in stats on every change
+    if (updateCoherenceRef.current) {
       updateCoherenceRef.current(coherence);
-      lastCoherenceUpdateRef.current = now;
     }
   }, [coherence, onBreakthrough]);
 
@@ -109,12 +114,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     updatePlayerState({
       isInSync: false,
-      score,
+      score: scoreRef.current,
       lastTap: Date.now(),
     });
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode]);
+  }, [updatePlayerState, gameMode]);
 
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
@@ -134,7 +139,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const handleSync = useCallback(() => {
     setIsInSync(true);
     setFeedback('HIT');
-    setScore(prev => prev + 10);
+    
+    // Calculate new score
+    const newScore = scoreRef.current + 10;
+    setScore(newScore);
 
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
@@ -144,13 +152,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     // Update Firebase with sync status in multiplayer
     updatePlayerState({
       isInSync: true,
-      score: score + 10,
+      score: newScore,
       lastTap: Date.now(),
     });
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode]);
+  }, [updatePlayerState, gameMode]);
 
   // Bilateral stimulation
   const { activeSide, handleTap, position } = useBilateralStimulation({
@@ -245,7 +253,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     }
 
     dismissBubble(bubbleId);
-    setScore(prev => prev + 5);
+    
+    // Calculate new score
+    const newScore = scoreRef.current + 5;
+    setScore(newScore);
     
     // Track dismissed thought bubble
     if (gameStats) {
