@@ -230,6 +230,8 @@ export const useAudio = () => {
     playBreakthrough,
     toggleAudio,
     setVolume,
+    audioContext: audioContextRef.current,
+    masterGain: masterGainRef.current,
   };
 };
 

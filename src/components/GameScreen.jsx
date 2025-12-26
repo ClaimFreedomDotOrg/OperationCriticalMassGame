@@ -86,29 +86,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     playTapMiss,
     playThoughtDismiss,
     toggleAudio,
+    audioContext,
+    masterGain,
   } = useAudio();
 
-  // Get audio context for bilateral audio
-  const audioContextRef = useRef(null);
-  const masterGainRef = useRef(null);
-
-  // Initialize audio context on first user interaction
-  useEffect(() => {
-    if (isAudioInitialized) {
-      // Store refs for bilateral audio hook
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!audioContextRef.current && window.AudioContext) {
-        try {
-          audioContextRef.current = new AudioContext();
-          masterGainRef.current = audioContextRef.current.createGain();
-          masterGainRef.current.gain.value = GAME_CONFIG.AUDIO.MASTER_VOLUME;
-          masterGainRef.current.connect(audioContextRef.current.destination);
-        } catch (error) {
-          console.warn('Could not create audio context for bilateral audio:', error);
-        }
-      }
-    }
-  }, [isAudioInitialized]);
+  // Bilateral audio - synchronized with orb position
+  // Note: position comes from useBilateralStimulation hook below
 
   /**
    * Update score in stats whenever it changes
@@ -216,12 +199,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     onMiss: handleMiss,
   });
 
-  // Bilateral audio - synchronized with orb position
+  // Bilateral audio - synchronized with orb position (uses shared audio context)
   useBilateralAudio({
     isActive: true,
     position,
-    audioContext: audioContextRef.current,
-    masterGain: masterGainRef.current,
+    audioContext,
+    masterGain,
     isEnabled: isAudioEnabled,
   });
 
