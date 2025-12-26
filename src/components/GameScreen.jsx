@@ -381,18 +381,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       {/* 1. TOP HUD (Global Metrics) */}
       <div className="w-full p-2 md:p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px] flex-shrink-0">
         <div className="max-w-2xl mx-auto relative">
-          {/* Audio Toggle Button */}
-          <button
-            onClick={() => {
-              ensureAudioReady();
-              toggleAudio();
-            }}
-            className="absolute right-0 top-0 p-2 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200 z-50"
-            aria-label={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
-          >
-            {isAudioEnabled ? <VolumeIcon size={20} /> : <VolumeOffIcon size={20} />}
-          </button>
-
           <div className="flex justify-between items-end mb-1 text-xs uppercase tracking-widest">
             <span className="text-cyan-500 flex items-center gap-2">
               <ActivityIcon size={14} /> Global Body Status
@@ -415,13 +403,24 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             </div>
           </div>
 
-          <div className="flex justify-between mt-1 text-[10px] md:text-xs text-gray-400 font-bold">
+          <div className="flex justify-between items-center mt-1 text-[10px] md:text-xs text-gray-400 font-bold">
             <span className="flex items-center gap-1">
               <UsersIcon size={12} /> {activePlayers.toLocaleString()} CELLS
             </span>
             <span className={hasBlockingBubbles ? "text-red-500 animate-pulse" : "text-amber-500"}>
               YOU ARE: {hasBlockingBubbles ? "INFECTED (CLEAR IT!)" : "COHERENT"}
             </span>
+            {/* Audio Toggle Button */}
+            <button
+              onClick={() => {
+                ensureAudioReady();
+                toggleAudio();
+              }}
+              className="p-1.5 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200"
+              aria-label={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
+            >
+              {isAudioEnabled ? <VolumeIcon size={16} /> : <VolumeOffIcon size={16} />}
+            </button>
           </div>
         </div>
       </div>
