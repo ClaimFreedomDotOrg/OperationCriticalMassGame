@@ -148,7 +148,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           </button>
           <button
             onClick={handleBack}
-            className="text-cyan-400/60 hover:text-cyan-400 transition-colors text-sm"
+            className="text-cyan-400/60 hover:text-cyan-400 transition-colors text-sm select-none"
           >
             ← Back
           </button>
@@ -179,7 +179,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           </button>
           <button
             onClick={handleBack}
-            className="text-amber-400/60 hover:text-amber-400 transition-colors text-sm"
+            className="text-amber-400/60 hover:text-amber-400 transition-colors text-sm select-none"
           >
             ← Back
           </button>
