@@ -79,15 +79,18 @@ export const useDynamicMusic = ({
   // Oscillator references for each layer
   const bassOscillatorRef = useRef(null);
   const bassGainRef = useRef(null);
-  const bassPannerRef = useRef(null); // Add panner for bass
+  const bassPannerRef = useRef(null);
+  const bassTremoloRef = useRef(null); // LFO for bass tremolo
   
   const padOscillatorsRef = useRef([]); // Array of oscillators for pad chords
   const padGainRef = useRef(null);
-  const padPannersRef = useRef([]); // Add panners for pad oscillators
+  const padPannersRef = useRef([]);
+  const padTremoloRef = useRef(null); // LFO for pad tremolo (rhythmic pulsing)
   
   const melodyOscillatorRef = useRef(null);
   const melodyGainRef = useRef(null);
-  const melodyPannerRef = useRef(null); // Add panner for melody
+  const melodyPannerRef = useRef(null);
+  const melodyVibratoRef = useRef(null); // LFO for melody vibrato
   
   const chaosOscillatorRef = useRef(null);
   const chaosGainRef = useRef(null);
@@ -121,7 +124,7 @@ export const useDynamicMusic = ({
 
   /**
    * Create bass drone (always playing, changes tone with coherence)
-   * Now with bilateral panning for immersive stereo effect
+   * Now with rhythmic tremolo (pulsing) and bilateral panning
    */
   const startBassLayer = useCallback(() => {
     if (!audioContext || !masterGain) return;
@@ -132,8 +135,22 @@ export const useDynamicMusic = ({
       bassOscillatorRef.current.type = 'sine';
       bassOscillatorRef.current.frequency.value = MUSIC_CONFIG.ROOT_FREQ;
 
+      // Create tremolo LFO (rhythmic pulsing at 1 Hz - slow pulse)
+      bassTremoloRef.current = audioContext.createOscillator();
+      bassTremoloRef.current.type = 'sine';
+      bassTremoloRef.current.frequency.value = 1; // 1 Hz pulse
+
+      // Tremolo gain (modulates the main gain)
+      const tremoloGain = audioContext.createGain();
+      tremoloGain.gain.value = 0.15; // Tremolo depth (15% modulation)
+
+      bassTremoloRef.current.connect(tremoloGain);
+      
       bassGainRef.current = audioContext.createGain();
       bassGainRef.current.gain.value = MUSIC_CONFIG.VOLUMES.BASS;
+      
+      // Connect tremolo to modulate the gain
+      tremoloGain.connect(bassGainRef.current.gain);
 
       // Add stereo panner for bilateral effect
       if (audioContext.createStereoPanner) {
@@ -148,6 +165,7 @@ export const useDynamicMusic = ({
       }
 
       bassOscillatorRef.current.start();
+      bassTremoloRef.current.start();
     } catch (error) {
       console.warn('Error starting bass layer:', error);
     }
@@ -155,14 +173,28 @@ export const useDynamicMusic = ({
 
   /**
    * Create harmonic pad (chord tones that evolve with coherence)
-   * Each oscillator gets its own panner for rich stereo field
+   * Now with rhythmic tremolo synchronized to the beat (60 BPM = 1 Hz)
    */
   const startPadLayer = useCallback(() => {
     if (!audioContext || !masterGain || padOscillatorsRef.current.length > 0) return;
 
     try {
+      // Create tremolo LFO for rhythmic pulsing (sync with 60 BPM beat)
+      padTremoloRef.current = audioContext.createOscillator();
+      padTremoloRef.current.type = 'sine';
+      padTremoloRef.current.frequency.value = BPM / 60; // 1 Hz for 60 BPM
+      
+      // Tremolo gain (modulates the main pad gain)
+      const tremoloGain = audioContext.createGain();
+      tremoloGain.gain.value = 0.25; // 25% modulation depth for rhythmic pulsing
+      
+      padTremoloRef.current.connect(tremoloGain);
+      
       padGainRef.current = audioContext.createGain();
-      padGainRef.current.gain.value = MUSIC_CONFIG.VOLUMES.PAD; // Start at full volume now (threshold is 0)
+      padGainRef.current.gain.value = MUSIC_CONFIG.VOLUMES.PAD;
+      
+      // Connect tremolo to modulate the gain
+      tremoloGain.connect(padGainRef.current.gain);
       padGainRef.current.connect(masterGain);
 
       // Create 3 oscillators for a chord with stereo panning
@@ -188,6 +220,8 @@ export const useDynamicMusic = ({
         osc.start();
         padOscillatorsRef.current.push(osc);
       }
+      
+      padTremoloRef.current.start();
     } catch (error) {
       console.warn('Error starting pad layer:', error);
     }
@@ -195,7 +229,7 @@ export const useDynamicMusic = ({
 
   /**
    * Create melody layer (arpeggiated pattern based on coherence)
-   * Pans slightly left-right to create bilateral movement
+   * Now with vibrato (frequency modulation) for organic, musical sound
    */
   const startMelodyLayer = useCallback(() => {
     if (!audioContext || !masterGain) return;
@@ -204,6 +238,18 @@ export const useDynamicMusic = ({
       melodyOscillatorRef.current = audioContext.createOscillator();
       melodyOscillatorRef.current.type = 'sine';
       melodyOscillatorRef.current.frequency.value = MUSIC_CONFIG.ROOT_FREQ * 4; // Two octaves up
+
+      // Create vibrato LFO (subtle frequency modulation)
+      melodyVibratoRef.current = audioContext.createOscillator();
+      melodyVibratoRef.current.type = 'sine';
+      melodyVibratoRef.current.frequency.value = 5; // 5 Hz vibrato (natural vocal vibrato speed)
+      
+      // Vibrato gain (modulates the oscillator frequency)
+      const vibratoGain = audioContext.createGain();
+      vibratoGain.gain.value = 8; // ±8 Hz vibrato depth (subtle, musical)
+      
+      melodyVibratoRef.current.connect(vibratoGain);
+      vibratoGain.connect(melodyOscillatorRef.current.frequency);
 
       melodyGainRef.current = audioContext.createGain();
       melodyGainRef.current.gain.value = 0; // Start silent, fade in at threshold
@@ -221,6 +267,7 @@ export const useDynamicMusic = ({
       }
 
       melodyOscillatorRef.current.start();
+      melodyVibratoRef.current.start();
     } catch (error) {
       console.warn('Error starting melody layer:', error);
     }
@@ -381,6 +428,13 @@ export const useDynamicMusic = ({
       } catch (e) { /* may already be stopped */ }
       bassOscillatorRef.current = null;
     }
+    if (bassTremoloRef.current) {
+      try {
+        bassTremoloRef.current.stop();
+        bassTremoloRef.current.disconnect();
+      } catch (e) { /* may already be stopped */ }
+      bassTremoloRef.current = null;
+    }
     if (bassGainRef.current) {
       bassGainRef.current.disconnect();
       bassGainRef.current = null;
@@ -400,6 +454,13 @@ export const useDynamicMusic = ({
       }
     });
     padOscillatorsRef.current = [];
+    if (padTremoloRef.current) {
+      try {
+        padTremoloRef.current.stop();
+        padTremoloRef.current.disconnect();
+      } catch (e) { /* may already be stopped */ }
+      padTremoloRef.current = null;
+    }
     padPannersRef.current.forEach(panner => {
       if (panner) {
         try {
@@ -420,6 +481,13 @@ export const useDynamicMusic = ({
         melodyOscillatorRef.current.disconnect();
       } catch (e) { /* may already be stopped */ }
       melodyOscillatorRef.current = null;
+    }
+    if (melodyVibratoRef.current) {
+      try {
+        melodyVibratoRef.current.stop();
+        melodyVibratoRef.current.disconnect();
+      } catch (e) { /* may already be stopped */ }
+      melodyVibratoRef.current = null;
     }
     if (melodyGainRef.current) {
       melodyGainRef.current.disconnect();
