@@ -133,6 +133,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Update score in stats whenever it changes
+   * 
+   * Note: Using useEffect to store the function reference prevents React warnings
+   * about updating parent component (App) during GameScreen render.
    */
   const updateScoreRef = useRef(null);
   
@@ -151,6 +154,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Monitor for breakthrough condition (100% coherence)
    * Update coherence tracking on every change for accurate statistics
+   * 
+   * Note: Using useEffect to store the function reference prevents React warnings
+   * about updating parent component (App) during GameScreen render.
    */
   const updateCoherenceRef = useRef(null);
   
