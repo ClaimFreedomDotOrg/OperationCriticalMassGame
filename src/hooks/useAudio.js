@@ -88,8 +88,10 @@ export const useAudio = () => {
       gainNode.gain.value = volume;
 
       // Apply fade out to prevent clicking
-      gainNode.gain.setValueAtTime(volume, now + duration - fadeOut);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      // Hold volume until fade out time, then ramp down
+      const fadeStartTime = now + duration - fadeOut;
+      gainNode.gain.setValueAtTime(volume, fadeStartTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, fadeStartTime + fadeOut);
 
       // Connect: oscillator -> gain -> master gain -> destination
       oscillator.connect(gainNode);

@@ -209,14 +209,23 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   });
 
   /**
+   * Initialize audio on user interaction (once)
+   */
+  const ensureAudioReady = useCallback(() => {
+    if (!isAudioInitialized) {
+      initAudioContext();
+    } else {
+      // Only resume if context is suspended
+      resumeAudioContext();
+    }
+  }, [isAudioInitialized, initAudioContext, resumeAudioContext]);
+
+  /**
    * Handle tap button press
    */
   const onTapButton = useCallback((side, event) => {
-    // Initialize audio context on first user interaction
-    if (!isAudioInitialized) {
-      initAudioContext();
-    }
-    resumeAudioContext();
+    // Ensure audio is ready on user interaction
+    ensureAudioReady();
 
     // Cannot tap while bubbles are blocking
     if (hasBlockingBubbles) {
@@ -281,7 +290,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         setSyncedButton(null);
       }, 300); // Show green for 300ms
     }
-  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, isAudioInitialized, initAudioContext, resumeAudioContext]);
+  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady]);
 
   /**
    * Handle bubble swipe dismissal
@@ -375,10 +384,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           {/* Audio Toggle Button */}
           <button
             onClick={() => {
-              if (!isAudioInitialized) {
-                initAudioContext();
-              }
-              resumeAudioContext();
+              ensureAudioReady();
               toggleAudio();
             }}
             className="absolute right-0 top-0 p-2 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200 z-50"
