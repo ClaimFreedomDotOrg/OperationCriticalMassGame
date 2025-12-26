@@ -390,7 +390,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             </span>
           </div>
 
-          <div className="w-full h-4 bg-gray-900 rounded-full overflow-hidden border border-gray-800 shadow-[0_0_15px_rgba(0,255,255,0.1)]">
+          <div className="w-full h-4 bg-gray-900 rounded-full overflow-hidden border border-gray-800 shadow-[0_0_15px_rgba(0,255,255,0.1)] mb-1">
             <div
               className={`h-full transition-all duration-300 ease-out relative overflow-hidden ${
                 coherence > 90
@@ -403,14 +403,8 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             </div>
           </div>
 
-          <div className="flex justify-between items-center mt-1 text-[10px] md:text-xs text-gray-400 font-bold">
-            <span className="flex items-center gap-1">
-              <UsersIcon size={12} /> {activePlayers.toLocaleString()} CELLS
-            </span>
-            <span className={hasBlockingBubbles ? "text-red-500 animate-pulse" : "text-amber-500"}>
-              YOU ARE: {hasBlockingBubbles ? "INFECTED (CLEAR IT!)" : "COHERENT"}
-            </span>
-            {/* Audio Toggle Button */}
+          {/* Audio Toggle Button - positioned below coherence bar */}
+          <div className="flex justify-end mb-1">
             <button
               onClick={() => {
                 ensureAudioReady();
@@ -421,6 +415,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             >
               {isAudioEnabled ? <VolumeIcon size={16} /> : <VolumeOffIcon size={16} />}
             </button>
+          </div>
+
+          <div className="flex justify-between items-center text-[10px] md:text-xs text-gray-400 font-bold">
+            <span className="flex items-center gap-1">
+              <UsersIcon size={12} /> {activePlayers.toLocaleString()} CELLS
+            </span>
+            <span className={hasBlockingBubbles ? "text-red-500 animate-pulse" : "text-amber-500"}>
+              YOU ARE: {hasBlockingBubbles ? "INFECTED (CLEAR IT!)" : "COHERENT"}
+            </span>
           </div>
         </div>
       </div>
