@@ -69,6 +69,8 @@ export const COLORS = {
   RED_GLOW: 'rgba(239, 68, 68, 0.8)',        // Red glow for errors/infections
   RED_GLOW_INFECTION: 'rgba(220, 38, 38, 0.6)', // Red glow for infection bubbles
   RED_GLOW_CONTAINER: 'rgba(220, 38, 38, 0.5)', // Red glow for infected container
+  RED_GLOW_SUBTLE: 'rgba(220, 38, 38, 0.4)',  // Subtle red glow for bubble indicators
+  RED_GLOW_FAINT: 'rgba(220, 38, 38, 0.3)',   // Faint red glow for small bubble dots
   PINK_GLOW: 'rgba(236, 72, 153, 0.8)',      // Pink glow for visual taps
   PINK_GLOW_INSET: 'rgba(236, 72, 153, 0.5)', // Pink inset glow for visual taps
 };

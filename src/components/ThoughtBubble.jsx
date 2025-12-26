@@ -6,10 +6,16 @@
  * 
  * Design: Clean, minimal thought bubble with subtle indicator dots,
  * matching the bio-luminescent neuroscience aesthetic.
+ * 
+ * Positioning: Bubbles are spawned with pre-calculated safe positions (10-80% horizontal,
+ * 20-55% vertical) that account for bubble dimensions and viewport constraints. 
+ * Post-render boundary checking was intentionally removed as the spawn ranges provide
+ * sufficient margin to prevent offscreen rendering in normal use cases.
  */
 
 import React, { useState, useRef } from 'react';
 import { GAME_CONFIG } from '../constants/gameConfig';
+import COLORS from '../constants/colors';
 
 const { MIN_SWIPE_DISTANCE, MAX_SWIPE_TIME, BUBBLE_DISMISS_DELAY, BUBBLE_FADE_DURATION } = GAME_CONFIG;
 
@@ -71,7 +77,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
 
   return (
     <div
-      className={`absolute z-40 cursor-pointer ${
+      className={`absolute z-40 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${
         bubble.isDismissing ? 'animate-bubble-dismiss' : ''
       }`}
       style={{
@@ -95,10 +101,14 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       onTouchEnd={handleEnd}
     >
       {/* Clean, minimal thought bubble design */}
-      <div className="relative inline-block max-w-xs">
-        {/* Main bubble - clean rounded rectangle */}
-        <div className="relative bg-red-950/90 border-2 border-red-500 rounded-2xl px-5 py-3
-                        shadow-[0_0_20px_rgba(220,38,38,0.5)] backdrop-blur-sm">
+      <div className="relative inline-block max-w-xs min-w-[11rem]">
+        {/* Main bubble - clean rounded rectangle with min 44x44px for accessibility */}
+        <div 
+          className="relative bg-red-950/90 border-2 border-red-500 rounded-2xl px-5 py-3 backdrop-blur-sm min-h-[2.75rem]"
+          style={{
+            boxShadow: `0 0 20px ${COLORS.RED_GLOW_INFECTION}`
+          }}
+        >
           {/* Thought bubble content */}
           <p className="text-red-100 text-sm md:text-base font-medium text-center leading-snug">
             {bubble.word}
@@ -107,10 +117,18 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
         
         {/* Minimal thought bubble indicator (two small dots) */}
         <div className="absolute -bottom-4 left-8">
-          <div className="absolute bottom-0 left-0 w-3 h-3 bg-red-950/90 border border-red-500 rounded-full
-                          shadow-[0_0_8px_rgba(220,38,38,0.4)]"></div>
-          <div className="absolute -bottom-2 -left-1 w-1.5 h-1.5 bg-red-950/90 border border-red-500 rounded-full
-                          shadow-[0_0_5px_rgba(220,38,38,0.3)]"></div>
+          <div 
+            className="absolute bottom-0 left-0 w-3 h-3 bg-red-950/90 border border-red-500 rounded-full"
+            style={{
+              boxShadow: `0 0 8px ${COLORS.RED_GLOW_SUBTLE}`
+            }}
+          ></div>
+          <div 
+            className="absolute -bottom-2 -left-1 w-1.5 h-1.5 bg-red-950/90 border border-red-500 rounded-full"
+            style={{
+              boxShadow: `0 0 5px ${COLORS.RED_GLOW_FAINT}`
+            }}
+          ></div>
         </div>
       </div>
     </div>
