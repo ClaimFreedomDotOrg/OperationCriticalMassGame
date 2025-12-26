@@ -109,10 +109,13 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
     if (!pannerRef.current || !audioContext) return;
 
     try {
+      const now = audioContext.currentTime;
+      const rampTime = 0.016; // ~60fps smoothing
+
       if (pannerRef.current.pan) {
         // Modern StereoPanner API
-        // Position ranges from -1 (left) to +1 (right)
-        pannerRef.current.pan.setValueAtTime(position, audioContext.currentTime);
+        // Use linearRamp for smooth transitions between position updates
+        pannerRef.current.pan.linearRampToValueAtTime(position, now + rampTime);
       } else if (pannerRef.current.setPosition) {
         // Fallback for older PannerNode API
         // Map position to 3D space (x-axis only)
@@ -124,7 +127,7 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
       if (gainNodeRef.current) {
         const distanceFromCenter = Math.abs(position);
         const volumeModulation = 0.3 + (0.1 * (1 - distanceFromCenter)); // 0.3 to 0.4
-        gainNodeRef.current.gain.setValueAtTime(volumeModulation, audioContext.currentTime);
+        gainNodeRef.current.gain.linearRampToValueAtTime(volumeModulation, now + rampTime);
       }
     } catch (error) {
       console.warn('Error updating panning:', error);

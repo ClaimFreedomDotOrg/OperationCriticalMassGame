@@ -171,22 +171,53 @@ export const useAudio = () => {
    * Triumphant ascending arpeggio
    */
   const playBreakthrough = useCallback(() => {
-    if (!isEnabled || !isInitialized) return;
+    if (!isEnabled || !isInitialized || !audioContextRef.current || !masterGainRef.current) {
+      return;
+    }
 
-    // C Major arpeggio: C5, E5, G5, C6
-    const notes = [
-      { freq: 523.25, delay: 0 },
-      { freq: 659.25, delay: 0.15 },
-      { freq: 783.99, delay: 0.3 },
-      { freq: 1046.50, delay: 0.45 },
-    ];
+    try {
+      const context = audioContextRef.current;
+      const now = context.currentTime;
 
-    notes.forEach(({ freq, delay }) => {
-      setTimeout(() => {
-        playTone(freq, 0.5, AUDIO.BREAKTHROUGH_VOLUME * 0.8, 'sine', 0.2);
-      }, delay * 1000);
-    });
-  }, [playTone, isEnabled, isInitialized]);
+      // C Major arpeggio: C5, E5, G5, C6
+      const notes = [
+        { freq: 523.25, delay: 0 },
+        { freq: 659.25, delay: 0.15 },
+        { freq: 783.99, delay: 0.3 },
+        { freq: 1046.50, delay: 0.45 },
+      ];
+
+      // Use Web Audio API scheduling for precise timing
+      notes.forEach(({ freq, delay }) => {
+        const oscillator = context.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = freq;
+
+        const gainNode = context.createGain();
+        gainNode.gain.value = AUDIO.BREAKTHROUGH_VOLUME * 0.8;
+
+        // Apply fade out
+        const duration = 0.5;
+        const fadeOut = 0.2;
+        gainNode.gain.setValueAtTime(AUDIO.BREAKTHROUGH_VOLUME * 0.8, now + delay + duration - fadeOut);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + delay + duration);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGainRef.current);
+
+        // Schedule precise start/stop times
+        oscillator.start(now + delay);
+        oscillator.stop(now + delay + duration);
+
+        oscillator.onended = () => {
+          gainNode.disconnect();
+          oscillator.disconnect();
+        };
+      });
+    } catch (error) {
+      console.warn('Error playing breakthrough sound:', error);
+    }
+  }, [isEnabled, isInitialized]);
 
   /**
    * Toggle audio on/off
