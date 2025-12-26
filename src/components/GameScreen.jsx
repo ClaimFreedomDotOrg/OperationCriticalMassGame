@@ -11,6 +11,7 @@ import useThoughtBubbles from '../hooks/useThoughtBubbles';
 import useFirebaseSync from '../hooks/useFirebaseSync';
 import useAudio from '../hooks/useAudio';
 import useBilateralAudio from '../hooks/useBilateralAudio';
+import useDynamicMusic from '../hooks/useDynamicMusic';
 import ThoughtBubble from './ThoughtBubble';
 import TapButton from './TapButton';
 import PlayerFeedback from './PlayerFeedback';
@@ -64,6 +65,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
   const scoreRef = useRef(0); // Track current score for accurate Firebase updates
+  const injectChaosRef = useRef(null); // Ref to chaos injection function for miss handling
 
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
@@ -131,11 +133,17 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Update score in stats whenever it changes
+   * 
+   * Note: Using useEffect to store the function reference prevents React warnings
+   * about updating parent component (App) during GameScreen render.
    */
   const updateScoreRef = useRef(null);
-  if (gameStats) {
-    updateScoreRef.current = gameStats.updateScore;
-  }
+  
+  useEffect(() => {
+    if (gameStats) {
+      updateScoreRef.current = gameStats.updateScore;
+    }
+  }, [gameStats]);
   
   useEffect(() => {
     if (updateScoreRef.current) {
@@ -146,11 +154,17 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Monitor for breakthrough condition (100% coherence)
    * Update coherence tracking on every change for accurate statistics
+   * 
+   * Note: Using useEffect to store the function reference prevents React warnings
+   * about updating parent component (App) during GameScreen render.
    */
   const updateCoherenceRef = useRef(null);
-  if (gameStats) {
-    updateCoherenceRef.current = gameStats.updateCoherence;
-  }
+  
+  useEffect(() => {
+    if (gameStats) {
+      updateCoherenceRef.current = gameStats.updateCoherence;
+    }
+  }, [gameStats]);
   
   useEffect(() => {
     if (coherence >= 100 && onBreakthrough) {
@@ -171,6 +185,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     // Play miss sound
     playTapMiss();
+
+    // Inject chaos into music (temporary dissonance)
+    if (injectChaosRef.current) {
+      injectChaosRef.current();
+    }
 
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
@@ -243,6 +262,20 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     masterGain,
     isEnabled: isAudioEnabled,
   });
+
+  // Dynamic music - correlates with coherence level (uses shared audio context)
+  const { injectChaos } = useDynamicMusic({
+    isActive: true,
+    coherence,
+    audioContext,
+    masterGain,
+    isEnabled: isAudioEnabled,
+  });
+
+  // Keep injectChaos ref updated for use in handleMiss callback
+  useEffect(() => {
+    injectChaosRef.current = injectChaos;
+  }, [injectChaos]);
 
   /**
    * Initialize audio on user interaction (once)

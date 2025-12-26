@@ -44,7 +44,7 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
 
       // Create gain node for volume control
       gainNodeRef.current = audioContext.createGain();
-      gainNodeRef.current.gain.value = 0.3; // Gentle volume
+      gainNodeRef.current.gain.value = 0.2; // Gentle volume (reduced to blend with music)
 
       // Create stereo panner for left-right positioning
       if (audioContext.createStereoPanner) {
@@ -124,7 +124,7 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
 
       // Set a stable gain level; panning alone provides the bilateral effect
       if (gainNodeRef.current) {
-        const baseGain = 0.35; // Stable volume
+        const baseGain = 0.25; // Stable volume (reduced to blend with music)
         gainNodeRef.current.gain.linearRampToValueAtTime(baseGain, now + rampTime);
       }
     } catch (error) {
@@ -165,7 +165,7 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
         }
 
         if (gainNodeRef.current) {
-          const baseGain = 0.35;
+          const baseGain = 0.25; // Stable volume (reduced to blend with music)
           gainNodeRef.current.gain.linearRampToValueAtTime(baseGain, now + rampTime);
         }
       } catch (error) {
