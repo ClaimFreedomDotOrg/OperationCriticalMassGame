@@ -43,7 +43,7 @@ export const GAME_CONFIG = {
     MASTER_VOLUME: 0.7,
     TAP_VOLUME: 0.5,
     MISS_VOLUME: 0.3,
-    BREAKTHROUGH_VOLUME: 1.0,
+    BREAKTHROUGH_VOLUME: 0.6,
   },
 
   // Z-Index Layers (Established Hierarchy)
