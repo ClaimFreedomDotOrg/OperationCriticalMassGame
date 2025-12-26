@@ -4,7 +4,7 @@
  * Represents intrusive thoughts (The Voice) that must be dismissed.
  * Implements swipe-to-dismiss gesture for dis-identification training.
  * 
- * Design: Classic thought bubble with circular puffs and connection dots,
+ * Design: Clean, minimal thought bubble with subtle indicator dots,
  * matching the bio-luminescent neuroscience aesthetic.
  */
 
@@ -91,34 +91,23 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       }}
       onTouchEnd={handleEnd}
     >
-      {/* Thought bubble with classic comic-style design */}
+      {/* Clean, minimal thought bubble design */}
       <div className="relative inline-block max-w-xs">
-        {/* Main bubble cloud */}
-        <div className="relative bg-red-950/95 border-2 border-red-500 rounded-3xl px-6 py-4
-                        shadow-[0_0_30px_rgba(220,38,38,0.7)] backdrop-blur-sm">
-          {/* Top decorative puffs */}
-          <div className="absolute -top-2 left-1/4 w-10 h-10 bg-red-950/95 border-2 border-red-500 rounded-full"></div>
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-12 bg-red-950/95 border-2 border-red-500 rounded-full"></div>
-          <div className="absolute -top-2 right-1/4 w-10 h-10 bg-red-950/95 border-2 border-red-500 rounded-full"></div>
-          
+        {/* Main bubble - clean rounded rectangle */}
+        <div className="relative bg-red-950/90 border-2 border-red-500 rounded-2xl px-5 py-3
+                        shadow-[0_0_20px_rgba(220,38,38,0.5)] backdrop-blur-sm">
           {/* Thought bubble content */}
-          <div className="relative z-10">
-            <p className="text-red-100 text-sm md:text-base font-semibold text-center leading-tight">
-              {bubble.word}
-            </p>
-          </div>
+          <p className="text-red-100 text-sm md:text-base font-medium text-center leading-snug">
+            {bubble.word}
+          </p>
         </div>
         
-        {/* Thought bubble tail (small connecting circles) */}
-        <div className="absolute -bottom-8 left-6">
-          <div className="relative">
-            <div className="absolute bottom-0 left-0 w-5 h-5 bg-red-950/95 border-2 border-red-500 rounded-full
-                            shadow-[0_0_15px_rgba(220,38,38,0.7)]"></div>
-            <div className="absolute -bottom-5 -left-2 w-3 h-3 bg-red-950/95 border-2 border-red-500 rounded-full
-                            shadow-[0_0_10px_rgba(220,38,38,0.6)]"></div>
-            <div className="absolute -bottom-8 -left-3 w-2 h-2 bg-red-950/95 border border-red-500 rounded-full
-                            shadow-[0_0_8px_rgba(220,38,38,0.5)]"></div>
-          </div>
+        {/* Minimal thought bubble indicator (two small dots) */}
+        <div className="absolute -bottom-4 left-8">
+          <div className="absolute bottom-0 left-0 w-3 h-3 bg-red-950/90 border border-red-500 rounded-full
+                          shadow-[0_0_8px_rgba(220,38,38,0.4)]"></div>
+          <div className="absolute -bottom-2 -left-1 w-1.5 h-1.5 bg-red-950/90 border border-red-500 rounded-full
+                          shadow-[0_0_5px_rgba(220,38,38,0.3)]"></div>
         </div>
       </div>
     </div>
