@@ -21,6 +21,79 @@ Operation: Critical Mass is an applied neuroscience intervention disguised as a 
 
 ---
 
+## Development Setup
+
+### Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server (http://localhost:5173)
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### Project Structure
+
+```
+/
+├── src/
+│   ├── components/       # React components
+│   ├── hooks/           # Custom React hooks
+│   ├── constants/       # Game configuration and colors
+│   ├── config/          # Firebase and other configs
+│   ├── App.jsx          # Root component
+│   └── main.jsx         # Entry point
+├── public/              # Static assets
+├── .github/             # GitHub configuration
+└── demos/              # Demo implementations
+```
+
+### Key Commands
+
+- `npm run dev` - Start Vite dev server with hot reload
+- `npm run build` - Build optimized production bundle
+- `npm run preview` - Preview production build locally
+
+### Firebase Configuration
+
+Firebase is optional for local development. The game works offline with simulated data. For multiplayer features, configure Firebase in `src/config/firebase.js`.
+
+### Common Development Workflows
+
+**Adding a New Component:**
+1. Create component file in `src/components/`
+2. Use functional component with hooks pattern
+3. Follow Tailwind CSS styling conventions
+4. Ensure accessibility (ARIA labels, min 44x44px tap targets)
+5. Add JSDoc comments for props
+
+**Creating a Custom Hook:**
+1. Create hook file in `src/hooks/` with `use` prefix
+2. Document neuroscience basis if applicable
+3. Include cleanup logic in `useEffect` returns
+4. Export as default or named export
+
+**Modifying Game Mechanics:**
+1. Update constants in `src/constants/gameConfig.js`
+2. Document neuroscience rationale in comments
+3. Test performance impact (60 FPS target)
+4. Verify accessibility isn't compromised
+
+**Styling Changes:**
+1. Use Tailwind utility classes (not custom CSS)
+2. Use colors from `src/constants/colors.js`
+3. Follow established z-index hierarchy
+4. Test on mobile viewport first
+
+---
+
 ## Code Style & Best Practices
 
 ### General Principles
