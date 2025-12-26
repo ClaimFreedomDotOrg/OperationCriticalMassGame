@@ -245,8 +245,14 @@ export const useAudio = () => {
     // This is handled by calling initAudioContext on first user action
     return () => {
       // Cleanup: close AudioContext on unmount
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
+      // Note: Don't close in development due to React StrictMode double-mounting
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        // Only close if we're truly unmounting (not in StrictMode)
+        // In production, this will properly cleanup
+        // In development StrictMode, we'll leave it open to avoid issues
+        if (process.env.NODE_ENV === 'production') {
+          audioContextRef.current.close();
+        }
       }
     };
   }, []);

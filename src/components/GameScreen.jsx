@@ -63,6 +63,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [localActivePlayers] = useState(1);
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
+  const scoreRef = useRef(0); // Track current score for accurate Firebase updates
 
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
@@ -75,6 +76,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const activePlayers = gameMode === 'multi' ? (firebaseSync?.activePlayers || 0) : localActivePlayers;
   const updatePlayerState = gameMode === 'multi' ? firebaseSync?.updatePlayerState : () => {};
   const connectionStatus = gameMode === 'multi' ? (firebaseSync?.connectionStatus || 'connecting') : 'local';
+
+  /**
+   * Keep scoreRef in sync with score state
+   */
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
 
   // Audio hooks
   const {
@@ -89,6 +97,34 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     audioContext,
     masterGain,
   } = useAudio();
+
+  // Auto-initialize audio when game starts (prepare context)
+  useEffect(() => {
+    // Initialize audio context immediately when game screen mounts
+    // This prepares the audio system but browsers may suspend it until user interaction
+    if (!isAudioInitialized) {
+      initAudioContext();
+    }
+    
+    // Try to resume immediately in case browser allows it
+    resumeAudioContext();
+    
+    // Also add a click/touch listener to resume audio on any interaction
+    const handleUserInteraction = () => {
+      resumeAudioContext();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+    
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+    
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, [isAudioInitialized, initAudioContext, resumeAudioContext]);
 
   // Bilateral audio - synchronized with orb position
   // Note: position comes from useBilateralStimulation hook below
@@ -146,12 +182,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     updatePlayerState({
       isInSync: false,
-      score,
+      score: scoreRef.current,
       lastTap: Date.now(),
     });
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode, playTapMiss]);
+  }, [updatePlayerState, gameMode, playTapMiss]);
 
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
@@ -171,7 +207,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const handleSync = useCallback(() => {
     setIsInSync(true);
     setFeedback('HIT');
-    setScore(prev => prev + 10);
+    
+    // Calculate new score
+    const newScore = scoreRef.current + 10;
+    setScore(newScore);
 
     // Play success sound
     playTapSuccess();
@@ -184,13 +223,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     // Update Firebase with sync status in multiplayer
     updatePlayerState({
       isInSync: true,
-      score: score + 10,
+      score: newScore,
       lastTap: Date.now(),
     });
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [score, updatePlayerState, gameMode, playTapSuccess]);
+  }, [updatePlayerState, gameMode, playTapSuccess]);
 
   // Bilateral stimulation
   const { activeSide, handleTap, position } = useBilateralStimulation({
@@ -309,7 +348,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     }
 
     dismissBubble(bubbleId);
-    setScore(prev => prev + 5);
+    
+    // Calculate new score
+    const newScore = scoreRef.current + 5;
+    setScore(newScore);
     
     // Play thought dismissal sound
     playThoughtDismiss();
