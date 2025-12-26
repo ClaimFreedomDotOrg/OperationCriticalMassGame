@@ -362,37 +362,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady]);
 
   /**
-   * Handle bubble swipe dismissal
-   */
-  const onDismissBubble = useCallback((bubbleId, event) => {
-    // Get click position relative to viewport
-    if (event && triggerVisualTap) {
-      const clickX = event.clientX;
-      const clickY = event.clientY;
-
-      // Convert to percentage of screen
-      const tapX = (clickX / window.innerWidth) * 100;
-      const tapY = (clickY / window.innerHeight) * 100;
-
-      triggerVisualTap(tapX, tapY, 'CLEAR');
-    }
-
-    dismissBubble(bubbleId);
-    
-    // Calculate new score
-    const newScore = scoreRef.current + 5;
-    setScore(newScore);
-    
-    // Play thought dismissal sound
-    playThoughtDismiss();
-    
-    // Track dismissed thought bubble
-    if (gameStats) {
-      gameStats.recordThoughtDismissed();
-    }
-  }, [dismissBubble, triggerVisualTap, gameStats, playThoughtDismiss]);
-
-  /**
    * Determine container style based on state
    */
   const getContainerStyle = () => {
@@ -523,41 +492,25 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
         {/* Infections/Thought Bubbles */}
         {activeBubbles.map(bubble => (
-          <div
+          <ThoughtBubble
             key={bubble.id}
-            data-bubble="true"
-            className={`absolute z-50 cursor-pointer max-w-xs ${
-              bubble.isDismissing ? 'animate-bubble-dismiss pointer-events-none' : ''
-            }`}
-            style={{
-              left: `${bubble.position.x}%`,
-              top: `${bubble.position.y}%`,
-              animationDuration: bubble.isDismissing ? `${GAME_CONFIG.BUBBLE_DISMISS_DELAY + GAME_CONFIG.BUBBLE_FADE_DURATION}ms` : undefined,
+            bubble={bubble}
+            onDismiss={() => {
+              dismissBubble(bubble.id);
+              
+              // Calculate new score
+              const newScore = scoreRef.current + 5;
+              setScore(newScore);
+              
+              // Play thought dismissal sound
+              playThoughtDismiss();
+              
+              // Track dismissed thought bubble
+              if (gameStats) {
+                gameStats.recordThoughtDismissed();
+              }
             }}
-            onClick={(e) => {
-              if (bubble.isDismissing) return; // Prevent clicks during dismiss animation
-              e.stopPropagation();
-              onDismissBubble(bubble.id, e);
-            }}
-          >
-            {/* Cloud Shape */}
-            <div className="relative px-8 py-6 bg-red-950/90 border-2 border-red-500 text-red-100 backdrop-blur-sm animate-bounce shadow-[0_0_30px_rgba(220,38,38,0.6)]"
-              style={{
-                borderRadius: '50% 60% 70% 50% / 60% 50% 60% 50%',
-              }}
-            >
-              {/* Cloud Puffs */}
-              <div className="absolute -top-3 left-1/4 w-8 h-8 bg-red-950/90 border-2 border-red-500 rounded-full"></div>
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-red-950/90 border-2 border-red-500 rounded-full"></div>
-              <div className="absolute -top-3 right-1/4 w-8 h-8 bg-red-950/90 border-2 border-red-500 rounded-full"></div>
-
-              {/* Content */}
-              <div className="relative flex flex-col items-center">
-                <ShieldAlertIcon size={24} className="mb-2 text-red-400" />
-                <span className="font-bold text-sm uppercase tracking-wider text-center">{bubble.word}</span>
-              </div>
-            </div>
-          </div>
+          />
         ))}
       </div>
 
