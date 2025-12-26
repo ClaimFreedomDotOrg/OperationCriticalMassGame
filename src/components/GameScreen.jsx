@@ -145,9 +145,8 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Monitor for breakthrough condition (100% coherence)
-   * Update coherence tracking periodically (every second)
+   * Update coherence tracking on every change for accurate statistics
    */
-  const lastCoherenceUpdateRef = useRef(0);
   const updateCoherenceRef = useRef(null);
   if (gameStats) {
     updateCoherenceRef.current = gameStats.updateCoherence;
@@ -157,11 +156,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     if (coherence >= 100 && onBreakthrough) {
       onBreakthrough();
     }
-    // Update coherence tracking in stats (throttled to once per second)
-    const now = Date.now();
-    if (updateCoherenceRef.current && (now - lastCoherenceUpdateRef.current) >= 1000) {
+    // Update coherence tracking in stats on every change
+    if (updateCoherenceRef.current) {
       updateCoherenceRef.current(coherence);
-      lastCoherenceUpdateRef.current = now;
     }
   }, [coherence, onBreakthrough]);
 

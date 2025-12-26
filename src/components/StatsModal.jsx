@@ -146,37 +146,6 @@ const StatsModal = ({ stats, isOpen, onClose, getTapAccuracy, getThoughtBubbleSu
             </div>
           </section>
 
-          {/* Timing Statistics */}
-          {stats.averageResponseTime > 0 && (
-            <section className="bg-white/50 rounded-xl p-4 border-2 border-purple-200">
-              <h3 className="text-xl font-bold text-purple-800 mb-3 flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                Response Timing
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Average</span>
-                  <span className="font-bold text-gray-900">{stats.averageResponseTime}ms</span>
-                </div>
-                {stats.fastestTap && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Fastest</span>
-                    <span className="font-bold text-green-600">{stats.fastestTap}ms</span>
-                  </div>
-                )}
-                {stats.slowestTap && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Slowest</span>
-                    <span className="font-bold text-amber-600">{stats.slowestTap}ms</span>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
           {/* Coherence Statistics */}
           <section className="bg-white/50 rounded-xl p-4 border-2 border-amber-200">
             <h3 className="text-xl font-bold text-amber-800 mb-3 flex items-center gap-2">

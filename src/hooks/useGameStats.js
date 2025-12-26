@@ -9,8 +9,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 export const useGameStats = () => {
   const sessionStartTime = useRef(null);
-  const lastTapTime = useRef(null);
-  const responseTimes = useRef([]);
   const coherenceHistory = useRef([]);
   
   const [stats, setStats] = useState({
@@ -28,9 +26,6 @@ export const useGameStats = () => {
     
     // Timing Metrics
     sessionDuration: 0,
-    averageResponseTime: 0,
-    fastestTap: null,
-    slowestTap: null,
     
     // Coherence Metrics
     peakCoherence: 0,
@@ -54,15 +49,6 @@ export const useGameStats = () => {
    * Record a tap event
    */
   const recordTap = useCallback(({ side, isSync }) => {
-    const currentTime = Date.now();
-    
-    // Calculate response time if there was a previous tap
-    if (lastTapTime.current) {
-      const responseTime = currentTime - lastTapTime.current;
-      responseTimes.current.push(responseTime);
-    }
-    lastTapTime.current = currentTime;
-
     setStats(prev => {
       const newStats = {
         ...prev,
@@ -75,14 +61,6 @@ export const useGameStats = () => {
         newStats.syncedTaps = prev.syncedTaps + 1;
       } else {
         newStats.missedTaps = prev.missedTaps + 1;
-      }
-
-      // Calculate average response time
-      if (responseTimes.current.length > 0) {
-        const sum = responseTimes.current.reduce((a, b) => a + b, 0);
-        newStats.averageResponseTime = Math.round(sum / responseTimes.current.length);
-        newStats.fastestTap = Math.min(...responseTimes.current);
-        newStats.slowestTap = Math.max(...responseTimes.current);
       }
 
       return newStats;
@@ -181,8 +159,6 @@ export const useGameStats = () => {
    */
   const resetStats = useCallback(() => {
     sessionStartTime.current = Date.now();
-    lastTapTime.current = null;
-    responseTimes.current = [];
     coherenceHistory.current = [];
     
     setStats({
@@ -195,9 +171,6 @@ export const useGameStats = () => {
       thoughtBubblesExpired: 0,
       totalThoughtBubbles: 0,
       sessionDuration: 0,
-      averageResponseTime: 0,
-      fastestTap: null,
-      slowestTap: null,
       peakCoherence: 0,
       averageCoherence: 0,
       timeAtMaxCoherence: 0,
