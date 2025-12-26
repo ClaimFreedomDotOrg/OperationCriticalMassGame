@@ -9,6 +9,8 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import useBilateralStimulation from '../hooks/useBilateralStimulation';
 import useThoughtBubbles from '../hooks/useThoughtBubbles';
 import useFirebaseSync from '../hooks/useFirebaseSync';
+import useAudio from '../hooks/useAudio';
+import useBilateralAudio from '../hooks/useBilateralAudio';
 import ThoughtBubble from './ThoughtBubble';
 import TapButton from './TapButton';
 import PlayerFeedback from './PlayerFeedback';
@@ -35,6 +37,21 @@ const ShieldAlertIcon = ({ size = 24 }) => (
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
     <line x1="12" y1="9" x2="12" y2="13"></line>
     <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  </svg>
+);
+
+const VolumeIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+  </svg>
+);
+
+const VolumeOffIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <line x1="23" y1="9" x2="17" y2="15"></line>
+    <line x1="17" y1="9" x2="23" y2="15"></line>
   </svg>
 );
 
@@ -66,6 +83,51 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   useEffect(() => {
     scoreRef.current = score;
   }, [score]);
+
+  // Audio hooks
+  const {
+    isEnabled: isAudioEnabled,
+    isInitialized: isAudioInitialized,
+    initAudioContext,
+    resumeAudioContext,
+    playTapSuccess,
+    playTapMiss,
+    playThoughtDismiss,
+    toggleAudio,
+    audioContext,
+    masterGain,
+  } = useAudio();
+
+  // Auto-initialize audio when game starts (prepare context)
+  useEffect(() => {
+    // Initialize audio context immediately when game screen mounts
+    // This prepares the audio system but browsers may suspend it until user interaction
+    if (!isAudioInitialized) {
+      initAudioContext();
+    }
+    
+    // Try to resume immediately in case browser allows it
+    resumeAudioContext();
+    
+    // Also add a click/touch listener to resume audio on any interaction
+    const handleUserInteraction = () => {
+      resumeAudioContext();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+    
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+    
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, [isAudioInitialized, initAudioContext, resumeAudioContext]);
+
+  // Bilateral audio - synchronized with orb position
+  // Note: position comes from useBilateralStimulation hook below
 
   /**
    * Update score in stats whenever it changes
@@ -107,6 +169,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setIsInSync(false);
     setFeedback('MISS');
 
+    // Play miss sound
+    playTapMiss();
+
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
@@ -119,7 +184,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     });
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [updatePlayerState, gameMode]);
+  }, [updatePlayerState, gameMode, playTapMiss]);
 
   // Thought bubbles (The Voice)
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
@@ -144,6 +209,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     const newScore = scoreRef.current + 10;
     setScore(newScore);
 
+    // Play success sound
+    playTapSuccess();
+
     // Update local coherence in single-player mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.min(100, prev + 2)); // Increase by 2% per hit
@@ -158,7 +226,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
-  }, [updatePlayerState, gameMode]);
+  }, [updatePlayerState, gameMode, playTapSuccess]);
 
   // Bilateral stimulation
   const { activeSide, handleTap, position } = useBilateralStimulation({
@@ -167,10 +235,34 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     onMiss: handleMiss,
   });
 
+  // Bilateral audio - synchronized with orb position (uses shared audio context)
+  useBilateralAudio({
+    isActive: true,
+    position,
+    audioContext,
+    masterGain,
+    isEnabled: isAudioEnabled,
+  });
+
+  /**
+   * Initialize audio on user interaction (once)
+   */
+  const ensureAudioReady = useCallback(() => {
+    if (!isAudioInitialized) {
+      initAudioContext();
+    } else {
+      // Only resume if context is suspended
+      resumeAudioContext();
+    }
+  }, [isAudioInitialized, initAudioContext, resumeAudioContext]);
+
   /**
    * Handle tap button press
    */
   const onTapButton = useCallback((side, event) => {
+    // Ensure audio is ready on user interaction
+    ensureAudioReady();
+
     // Cannot tap while bubbles are blocking
     if (hasBlockingBubbles) {
       handleMiss();
@@ -234,7 +326,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         setSyncedButton(null);
       }, 300); // Show green for 300ms
     }
-  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats]);
+  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady]);
 
   /**
    * Handle bubble swipe dismissal
@@ -258,11 +350,14 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     const newScore = scoreRef.current + 5;
     setScore(newScore);
     
+    // Play thought dismissal sound
+    playThoughtDismiss();
+    
     // Track dismissed thought bubble
     if (gameStats) {
       gameStats.recordThoughtDismissed();
     }
-  }, [dismissBubble, triggerVisualTap, gameStats]);
+  }, [dismissBubble, triggerVisualTap, gameStats, playThoughtDismiss]);
 
   /**
    * Determine container style based on state
@@ -324,7 +419,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* 1. TOP HUD (Global Metrics) */}
       <div className="w-full p-2 md:p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px] flex-shrink-0">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto relative">
           <div className="flex justify-between items-end mb-1 text-xs uppercase tracking-widest">
             <span className="text-cyan-500 flex items-center gap-2">
               <ActivityIcon size={14} /> Global Body Status
@@ -347,13 +442,27 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             </div>
           </div>
 
-          <div className="flex justify-between mt-1 text-[10px] md:text-xs text-gray-400 font-bold">
+          <div className="flex justify-between items-center mt-1 text-[10px] md:text-xs text-gray-400 font-bold">
             <span className="flex items-center gap-1">
               <UsersIcon size={12} /> {activePlayers.toLocaleString()} CELLS
             </span>
             <span className={hasBlockingBubbles ? "text-red-500 animate-pulse" : "text-amber-500"}>
               YOU ARE: {hasBlockingBubbles ? "INFECTED (CLEAR IT!)" : "COHERENT"}
             </span>
+          </div>
+
+          {/* Audio Toggle Button - positioned below player status line */}
+          <div className="flex justify-end mt-1">
+            <button
+              onClick={() => {
+                ensureAudioReady();
+                toggleAudio();
+              }}
+              className="p-1.5 rounded-lg bg-gray-900/80 border border-gray-700 hover:border-cyan-500 transition-colors duration-200"
+              aria-label={isAudioEnabled ? 'Mute audio' : 'Unmute audio'}
+            >
+              {isAudioEnabled ? <VolumeIcon size={16} /> : <VolumeOffIcon size={16} />}
+            </button>
           </div>
         </div>
       </div>

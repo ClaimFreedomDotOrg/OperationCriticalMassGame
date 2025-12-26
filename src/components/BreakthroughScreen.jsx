@@ -5,11 +5,18 @@
  * Displays the moment of collective transformation
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StatsModal from './StatsModal';
 
-const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap, gameStats }) => {
+const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap, gameStats, playBreakthrough }) => {
   const [showStatsModal, setShowStatsModal] = useState(false);
+
+  // Play breakthrough sound when screen mounts (audio context owned by parent)
+  useEffect(() => {
+    if (typeof playBreakthrough === 'function') {
+      playBreakthrough();
+    }
+  }, [playBreakthrough]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-full h-full bg-amber-50 text-amber-900 font-serif p-3 md:p-6 text-center select-none animate-in fade-in duration-1000 relative overflow-y-auto overflow-x-hidden">

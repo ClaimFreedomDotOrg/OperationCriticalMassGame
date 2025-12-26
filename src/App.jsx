@@ -7,6 +7,7 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import useGameState from './hooks/useGameState';
 import useGameStats from './hooks/useGameStats';
+import useAudio from './hooks/useAudio';
 import IdleScreen from './components/IdleScreen';
 import GameScreen from './components/GameScreen';
 import BreakthroughScreen from './components/BreakthroughScreen';
@@ -33,6 +34,9 @@ function App() {
 
   // Game statistics tracking
   const gameStats = useGameStats();
+
+  // Audio management (centralized at App level for single AudioContext)
+  const { playBreakthrough } = useAudio();
 
   /**
    * Generate body cells for visualization
@@ -168,6 +172,7 @@ function App() {
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
           gameStats={gameStats}
+          playBreakthrough={playBreakthrough}
         />
       )}
     </div>
