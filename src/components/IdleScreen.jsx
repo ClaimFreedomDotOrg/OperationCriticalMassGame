@@ -53,7 +53,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
     setGameId('');
   };
   return (
-    <div className="w-full max-w-full h-screen bg-black text-cyan-400 font-mono text-center overflow-hidden relative">
+    <div className="flex flex-col items-center justify-start md:justify-center w-full max-w-full min-h-screen bg-black text-cyan-400 font-mono pt-2 px-3 pb-3 md:p-6 text-center overflow-y-auto overflow-x-hidden relative" style={{ WebkitOverflowScrolling: 'touch' }}>
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
         <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
@@ -70,12 +70,6 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
           ))}
         </div>
       )}
-
-      {/* Scrollable Content Container */}
-      <div 
-        className="h-full overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start md:justify-center pt-2 px-3 pb-3 md:p-6"
-        style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}
-      >
 
       {/* Promotional Banner */}
       <a
@@ -221,9 +215,8 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-gray-600 text-xs">
+      <div className="absolute bottom-4 text-gray-600 text-xs">
         The Body is One
-      </div>
       </div>
     </div>
   );
