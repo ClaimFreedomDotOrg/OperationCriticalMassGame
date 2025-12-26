@@ -126,6 +126,8 @@ function App() {
 
   /**
    * Calculate session stats on breakthrough
+   * Note: Only depends on isBreakthrough and sessionStartTime to ensure
+   * duration is captured exactly once when breakthrough is achieved
    */
   useEffect(() => {
     if (isBreakthrough && sessionStartTime) {
@@ -140,7 +142,8 @@ function App() {
         gameStats.updateDuration();
       }
     }
-  }, [isBreakthrough, sessionStartTime, gameStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBreakthrough, sessionStartTime]);
 
   return (
     <div className="App w-full max-w-full h-full overflow-hidden">
