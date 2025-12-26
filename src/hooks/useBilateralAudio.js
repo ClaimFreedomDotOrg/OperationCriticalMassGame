@@ -122,12 +122,10 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
         pannerRef.current.setPosition(position, 0, 0);
       }
 
-      // Optional: Modulate volume based on distance from center
-      // Creates a subtle "pulse" effect as orb passes through center
+      // Set a stable gain level; panning alone provides the bilateral effect
       if (gainNodeRef.current) {
-        const distanceFromCenter = Math.abs(position);
-        const volumeModulation = 0.3 + (0.1 * (1 - distanceFromCenter)); // 0.3 to 0.4
-        gainNodeRef.current.gain.linearRampToValueAtTime(volumeModulation, now + rampTime);
+        const baseGain = 0.35; // Stable volume
+        gainNodeRef.current.gain.linearRampToValueAtTime(baseGain, now + rampTime);
       }
     } catch (error) {
       console.warn('Error updating panning:', error);
@@ -136,6 +134,7 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
 
   /**
    * Effect: Start/stop bilateral audio based on isActive and isEnabled
+   * Depends on primitive values to avoid unnecessary restarts
    */
   useEffect(() => {
     if (isActive && isEnabled && audioContext && masterGain) {
@@ -147,19 +146,36 @@ export const useBilateralAudio = ({ isActive, position, audioContext, masterGain
     return () => {
       stopBilateralAudio();
     };
-  }, [isActive, isEnabled, audioContext, masterGain, startBilateralAudio, stopBilateralAudio]);
+  }, [isActive, isEnabled, audioContext, masterGain]);
 
   /**
    * Effect: Update panning continuously based on orb position
+   * Calls updatePanning directly inline to avoid circular dependency
    */
   useEffect(() => {
-    if (isPlayingRef.current && pannerRef.current) {
-      updatePanning();
+    if (isPlayingRef.current && pannerRef.current && audioContext) {
+      const now = audioContext.currentTime;
+      const rampTime = 0.016;
+
+      try {
+        if (pannerRef.current.pan) {
+          pannerRef.current.pan.linearRampToValueAtTime(position, now + rampTime);
+        } else if (pannerRef.current.setPosition) {
+          pannerRef.current.setPosition(position, 0, 0);
+        }
+
+        if (gainNodeRef.current) {
+          const baseGain = 0.35;
+          gainNodeRef.current.gain.linearRampToValueAtTime(baseGain, now + rampTime);
+        }
+      } catch (error) {
+        console.warn('Error updating panning:', error);
+      }
     }
-  }, [position, updatePanning]);
+  }, [position, audioContext]);
 
   return {
-    isPlaying: isPlayingRef.current,
+    isPlaying: isPlayingRef.current, // Note: This is not reactive; returns current ref value
   };
 };
 
