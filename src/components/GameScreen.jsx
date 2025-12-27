@@ -401,7 +401,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             <div className="text-cyan-100/80 text-sm md:text-base">
               Establishing connection...
             </div>
-            <div className="flex gap-2 justify-center mt-4" aria-label="Loading indicator">
+            <div className="flex gap-2 justify-center mt-4">
               <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '0ms' }} aria-hidden="true"></div>
               <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }} aria-hidden="true"></div>
               <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }} aria-hidden="true"></div>
