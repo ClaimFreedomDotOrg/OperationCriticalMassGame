@@ -19,11 +19,11 @@ function App() {
   // Check if this is the livestream view based on URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   const isLivestreamView = urlParams.get('view') === 'livestream';
-  const livestreamSessionId = urlParams.get('session');
+  const urlSessionId = urlParams.get('session');
 
   // If this is livestream view, render only that
   if (isLivestreamView) {
-    return <LivestreamView sessionId={livestreamSessionId} />;
+    return <LivestreamView sessionId={urlSessionId} />;
   }
   const {
     gameState,
@@ -137,6 +137,18 @@ function App() {
     gameStats.resetStats(); // Reset stats for new game
     startGame(newSessionId, newPlayerId);
   }, [startGame, gameStats]);
+
+  /**
+   * Auto-join multiplayer game if session ID is in URL
+   */
+  useEffect(() => {
+    if (urlSessionId && !isLivestreamView && isIdle && !sessionId) {
+      // Automatically start multiplayer game with URL session ID (convert to uppercase for consistency)
+      const normalizedSessionId = urlSessionId.trim().toUpperCase();
+      console.log('🔗 Auto-joining multiplayer session from URL:', normalizedSessionId);
+      handleStart({ mode: 'multi', gameId: normalizedSessionId });
+    }
+  }, [urlSessionId, isLivestreamView, isIdle, sessionId, handleStart]);
 
   /**
    * Handle game reset
