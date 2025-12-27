@@ -971,9 +971,9 @@ if (!firebaseConnected) {
 
 ### Project-Specific Docs
 
-- [DEVELOPMENT_GUIDE.md](../DEVELOPMENT_GUIDE.md) - Setup, architecture, and technical implementation
+- [DEVELOPMENT_GUIDE.md](../docs/DEVELOPMENT_GUIDE.md) - Setup, architecture, and technical implementation
 - [SCIENTIFIC_BASIS.md](../SCIENTIFIC_BASIS.md) - Comprehensive neuroscience foundation
-- [GAME_OVERVIEW.md](../GAME_OVERVIEW.md) - Complete game concept and mechanics
+- [GAME_OVERVIEW.md](../docs/GAME_OVERVIEW.md) - Complete game concept and mechanics
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - How to contribute to the project
 
 ---

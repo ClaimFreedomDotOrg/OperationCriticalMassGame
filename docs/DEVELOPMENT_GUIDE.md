@@ -355,7 +355,7 @@ Every mechanic maps to peer-reviewed neuroscience:
 | **Musical Dissonance** | Koelsch et al. (2006) | Threat detection → Corrective motivation |
 | **Audio-Based Neurofeedback** | Egner & Gruzelier (2004) | Operant conditioning → Learned brain state control |
 
-Full citations in [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md)
+Full citations in [SCIENTIFIC_BASIS.md](../SCIENTIFIC_BASIS.md)
 
 ---
 
@@ -403,8 +403,8 @@ Full citations in [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md)
 ### Project Documentation
 
 - **Game Overview**: [GAME_OVERVIEW.md](GAME_OVERVIEW.md)
-- **Scientific Basis**: [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md)
-- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Scientific Basis**: [SCIENTIFIC_BASIS.md](../SCIENTIFIC_BASIS.md)
+- **Contributing**: [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **GitHub Copilot Instructions**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
 
 ### External Documentation

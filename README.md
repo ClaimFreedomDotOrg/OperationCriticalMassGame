@@ -218,8 +218,8 @@ In an age of doomscrolling and isolation:
 
 ### Core Documentation
 
-- **[Development Guide](DEVELOPMENT_GUIDE.md)** - Setup, architecture, and technical implementation
-- **[Game Overview](GAME_OVERVIEW.md)** - Complete game concept and mechanics
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup, architecture, and technical implementation
+- **[Game Overview](docs/GAME_OVERVIEW.md)** - Complete game concept and mechanics
 - **[Scientific Basis](SCIENTIFIC_BASIS.md)** - Neuroscience foundation and research
 - **[Contributing](CONTRIBUTING.md)** - How to contribute to the project
 
@@ -233,7 +233,7 @@ Check out the [non-interactive demo](demos/non-interactive-demo.html) to see a v
 
 ## Getting Started
 
-See the [Development Guide](DEVELOPMENT_GUIDE.md) for complete setup instructions, architecture overview, and implementation details.
+See the [Development Guide](docs/DEVELOPMENT_GUIDE.md) for complete setup instructions, architecture overview, and implementation details.
 
 Quick start:
 
