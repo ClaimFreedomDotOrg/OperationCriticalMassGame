@@ -767,14 +767,34 @@ const LivestreamView = ({ sessionId }) => {
           </h2>
 
           <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-800">
+            {/* Background Energy Field - scales with coherence */}
+            <div
+              className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+              style={{
+                background: coherenceMetrics.coherencePercent >= 60
+                  ? `radial-gradient(circle at center, ${COLORS.AMBER_400}${Math.round(coherenceMetrics.coherencePercent * 0.15).toString(16).padStart(2, '0')} 0%, transparent 70%)`
+                  : coherenceMetrics.coherencePercent >= 30
+                  ? `radial-gradient(circle at center, ${COLORS.CYAN_400}${Math.round(coherenceMetrics.coherencePercent * 0.12).toString(16).padStart(2, '0')} 0%, transparent 60%)`
+                  : `radial-gradient(circle at center, ${COLORS.RED_500}${Math.round(coherenceMetrics.coherencePercent * 0.08).toString(16).padStart(2, '0')} 0%, transparent 50%)`,
+              }}
+            />
+
             {/* Cells */}
-            {cellPositions.map(({ playerId, x, y }) => {
+            {cellPositions.map(({ playerId, x, y }, index) => {
               const player = players[playerId];
               const isInSync = player?.isInSync || false;
               const cellColor = isInSync ? COLORS.AMBER_400 : COLORS.RED_900;
               const glowColor = isInSync
                 ? 'rgba(251, 191, 36, 0.8)'
                 : 'rgba(127, 29, 29, 0.6)';
+
+              // Calculate animation based on coherence level
+              const baseGlow = isInSync ? 20 : 10;
+              const coherenceBoost = Math.floor(coherenceMetrics.coherencePercent / 20); // 0-5 boost
+              const glowSize = baseGlow + coherenceBoost * 3;
+
+              // Staggered animation delay based on position
+              const animDelay = (index % 10) * 0.1;
 
               return (
                 <div
@@ -786,16 +806,76 @@ const LivestreamView = ({ sessionId }) => {
                     width: '12px',
                     height: '12px',
                     backgroundColor: cellColor,
-                    boxShadow: `0 0 ${isInSync ? '20px' : '10px'} ${glowColor}`,
+                    boxShadow: `0 0 ${glowSize}px ${glowColor}`,
                     transform: 'translate(-50%, -50%)',
-                    animation: isInSync ? 'pulse 2s infinite' : 'none',
+                    animation: isInSync
+                      ? `pulse ${2 - coherenceMetrics.coherencePercent * 0.01}s infinite ${animDelay}s`
+                      : `flicker ${1.5 + Math.random()}s infinite ${animDelay}s`,
                   }}
                 />
               );
             })}
 
-            {/* Sacred Geometry Overlay at High Coherence */}
-            {coherenceMetrics.coherencePercent >= 80 && (
+            {/* Chaotic State Effect (0-29%) - Red static interference */}
+            {coherenceMetrics.coherencePercent < 30 && coherenceMetrics.activePlayers > 0 && (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div
+                  className="absolute inset-0 opacity-20"
+                  style={{
+                    backgroundImage: `repeating-linear-gradient(
+                      0deg,
+                      transparent,
+                      transparent 2px,
+                      ${COLORS.RED_500}20 2px,
+                      ${COLORS.RED_500}20 4px
+                    )`,
+                    animation: 'scanlines 0.1s linear infinite',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Low Coherence Effect (30-59%) - Cyan energy building */}
+            {coherenceMetrics.coherencePercent >= 30 && coherenceMetrics.coherencePercent < 60 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div
+                  className="rounded-full border border-cyan-500/30"
+                  style={{
+                    width: '30%',
+                    height: '30%',
+                    boxShadow: `0 0 20px ${COLORS.CYAN_GLOW}`,
+                    animation: 'pulse 3s infinite',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Medium Coherence Effect (60-79%) - Growing sacred geometry */}
+            {coherenceMetrics.coherencePercent >= 60 && coherenceMetrics.coherencePercent < 80 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div
+                  className="rounded-full border-2 border-cyan-400/50 animate-spin-slow"
+                  style={{
+                    width: '35%',
+                    height: '35%',
+                    boxShadow: `0 0 25px ${COLORS.CYAN_GLOW}`,
+                    animationDuration: '25s',
+                  }}
+                />
+                <div
+                  className="absolute rounded-full border border-amber-400/30"
+                  style={{
+                    width: '50%',
+                    height: '50%',
+                    boxShadow: `0 0 15px ${COLORS.AMBER_GLOW}`,
+                    animation: 'pulse 2.5s infinite',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* High Coherence Effect (80-94%) - Full sacred geometry */}
+            {coherenceMetrics.coherencePercent >= 80 && coherenceMetrics.coherencePercent < 95 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div
                   className="rounded-full border-2 animate-spin-slow"
@@ -821,9 +901,44 @@ const LivestreamView = ({ sessionId }) => {
               </div>
             )}
 
-            {/* Perfect Coherence Effect */}
+            {/* Perfect Coherence Effect (95%+) - Transcendent state */}
             {coherenceMetrics.coherencePercent >= 95 && (
-              <div className="absolute inset-0 bg-gradient-radial from-amber-500/10 via-transparent to-transparent animate-pulse" />
+              <>
+                <div className="absolute inset-0 bg-gradient-radial from-amber-500/20 via-amber-500/5 to-transparent animate-pulse" />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div
+                    className="rounded-full border-4 animate-spin-slow"
+                    style={{
+                      width: '45%',
+                      height: '45%',
+                      borderColor: COLORS.AMBER_400,
+                      boxShadow: `0 0 60px ${COLORS.AMBER_GLOW}, inset 0 0 30px ${COLORS.AMBER_GLOW}`,
+                      animationDuration: '15s',
+                    }}
+                  />
+                  <div
+                    className="absolute rounded-full border-3 animate-spin-slow"
+                    style={{
+                      width: '65%',
+                      height: '65%',
+                      borderColor: COLORS.CYAN_400,
+                      boxShadow: `0 0 50px ${COLORS.CYAN_GLOW}`,
+                      animationDuration: '25s',
+                      animationDirection: 'reverse',
+                    }}
+                  />
+                  <div
+                    className="absolute rounded-full border-2 animate-spin-slow"
+                    style={{
+                      width: '80%',
+                      height: '80%',
+                      borderColor: COLORS.AMBER_400,
+                      boxShadow: `0 0 40px ${COLORS.AMBER_GLOW}`,
+                      animationDuration: '35s',
+                    }}
+                  />
+                </div>
+              </>
             )}
           </div>
 
