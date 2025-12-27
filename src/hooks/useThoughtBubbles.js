@@ -86,17 +86,18 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
       }
       
       // Fallback: If no valid position found after max attempts,
-      // use a position anyway but space it vertically from others
+      // use a position anyway but space it vertically from others to minimize overlap
       if (!position) {
+        const VERTICAL_STAGGER_OFFSET = 12; // % offset between staggered bubbles
+        const MAX_VERTICAL_RANGE = 35; // Max vertical range (55% - 20%)
+        const MIN_VERTICAL_POSITION = 20; // Min Y position (top margin)
+        
         position = {
-          x: Math.random() * 70 + 10,
-          y: (prev.length * 12 + 20) % 35 + 20, // Stagger vertically based on count
+          x: Math.random() * 70 + 10, // Random horizontal position
+          y: (prev.length * VERTICAL_STAGGER_OFFSET + MIN_VERTICAL_POSITION) % MAX_VERTICAL_RANGE + MIN_VERTICAL_POSITION,
         };
       }
 
-      // Calculate safe spawn area accounting for bubble dimensions
-      // Horizontal: 10-80% (leaving ~10% margin on each side for bubble width)
-      // Vertical: 20-55% (avoiding HUD at top 15%, controls at bottom 30%, with margins)
       const newBubble = {
         id: bubbleId,
         word: randomWord,
