@@ -14,7 +14,7 @@ import { GAME_CONFIG, WORDS_OF_THE_VOICE } from '../constants/gameConfig';
 
 const { INFECTION_SPAWN_INTERVAL, INFECTION_DURATION, BUBBLE_DISMISS_DELAY, BUBBLE_FADE_DURATION } = GAME_CONFIG;
 
-export const useThoughtBubbles = ({ isActive, isPaused = false, onBubbleExpired }) => {
+export const useThoughtBubbles = ({ isActive, isPaused = false, onBubbleExpired, spawnInterval = INFECTION_SPAWN_INTERVAL }) => {
   const [activeBubbles, setActiveBubbles] = useState([]);
   const spawnIntervalRef = useRef(null);
   const bubbleIdCounter = useRef(0);
@@ -112,14 +112,14 @@ export const useThoughtBubbles = ({ isActive, isPaused = false, onBubbleExpired 
       if (!isPausedRef.current) {
         spawnBubble();
       }
-    }, INFECTION_SPAWN_INTERVAL);
+    }, spawnInterval);
 
     // Regular spawning
     spawnIntervalRef.current = setInterval(() => {
       if (!isPausedRef.current) {
         spawnBubble();
       }
-    }, INFECTION_SPAWN_INTERVAL);
+    }, spawnInterval);
 
     return () => {
       clearTimeout(firstBubbleTimeout);

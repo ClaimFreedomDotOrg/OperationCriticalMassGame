@@ -61,10 +61,12 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [score, setScore] = useState(0);
   const [isInSync, setIsInSync] = useState(false);
   const [localCoherence, setLocalCoherence] = useState(0);
+  const [playerCoherence, setPlayerCoherence] = useState(0); // Individual player's coherence in multiplayer
   const [localActivePlayers] = useState(1);
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
   const scoreRef = useRef(0); // Track current score for accurate Firebase updates
+  const playerCoherenceRef = useRef(0); // Track player coherence for accurate Firebase updates
   const injectChaosRef = useRef(null); // Ref to chaos injection function for miss handling
 
   // Firebase sync (only in multiplayer mode)
@@ -85,6 +87,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   useEffect(() => {
     scoreRef.current = score;
   }, [score]);
+
+  // NOTE: We do NOT sync playerCoherenceRef from state via useEffect anymore
+  // because we update the ref manually in handleMiss/handleSync to avoid race conditions
+  // The old useEffect was overwriting our immediate ref updates with stale state values
 
   // Audio hooks
   const {
@@ -180,6 +186,8 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
    * Handle missed tap
    */
   const handleMiss = useCallback(() => {
+    console.log('🔴 handleMiss called - gameMode:', gameMode, 'playerCoherenceRef:', playerCoherenceRef.current);
+
     setIsInSync(false);
     setFeedback('MISS');
 
@@ -191,16 +199,31 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       injectChaosRef.current();
     }
 
-    // Update local coherence in single-player mode
+    // Update coherence based on game mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
-    }
+      updatePlayerState({
+        isInSync: false,
+        score: scoreRef.current,
+        lastTap: Date.now(),
+      });
+    } else if (gameMode === 'multi') {
+      // In multiplayer, decrease individual player's coherence
+      const oldCoherence = playerCoherenceRef.current;
+      const newCoherence = Math.max(0, playerCoherenceRef.current - 1); // Decrease by 1% per miss
+      playerCoherenceRef.current = newCoherence; // Update ref immediately
+      setPlayerCoherence(newCoherence);
 
-    updatePlayerState({
-      isInSync: false,
-      score: scoreRef.current,
-      lastTap: Date.now(),
-    });
+      console.log('🔴 MISS - Coherence:', oldCoherence, '→', newCoherence);
+
+      // Update Firebase with new coherence
+      updatePlayerState({
+        isInSync: false,
+        playerCoherence: newCoherence,
+        score: scoreRef.current,
+        lastTap: Date.now(),
+      });
+    }
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [updatePlayerState, gameMode, playTapMiss]);
@@ -209,9 +232,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const isPaused = gameMode === 'multi' && connectionStatus === 'connecting';
 
   // Thought bubbles (The Voice) - pause when game is paused
+  // In multiplayer, spawn bubbles less frequently (10s vs 5s) since difficulty compounds
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
     isActive: true,
     isPaused,
+    spawnInterval: gameMode === 'multi' ? 10000 : 5000, // 10s for multiplayer, 5s for single player
     onBubbleExpired: (bubbleId) => {
       handleMiss();
       // Track expired thought bubble
@@ -225,6 +250,8 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
    * Handle successful sync
    */
   const handleSync = useCallback(() => {
+    console.log('🟢 handleSync called - gameMode:', gameMode, 'playerCoherenceRef:', playerCoherenceRef.current);
+
     setIsInSync(true);
     setFeedback('HIT');
 
@@ -235,17 +262,31 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     // Play success sound
     playTapSuccess();
 
-    // Update local coherence in single-player mode
+    // Update coherence based on game mode
     if (gameMode === 'single') {
       setLocalCoherence(prev => Math.min(100, prev + 2)); // Increase by 2% per hit
-    }
+      updatePlayerState({
+        isInSync: true,
+        score: newScore,
+        lastTap: Date.now(),
+      });
+    } else if (gameMode === 'multi') {
+      // In multiplayer, increase individual player's coherence
+      const oldCoherence = playerCoherenceRef.current;
+      const newCoherence = Math.min(100, playerCoherenceRef.current + 2); // Increase by 2% per hit
+      playerCoherenceRef.current = newCoherence; // Update ref immediately
+      setPlayerCoherence(newCoherence);
 
-    // Update Firebase with sync status in multiplayer
-    updatePlayerState({
-      isInSync: true,
-      score: newScore,
-      lastTap: Date.now(),
-    });
+      console.log('🟢 HIT - Coherence:', oldCoherence, '→', newCoherence);
+
+      // Update Firebase with new coherence
+      updatePlayerState({
+        isInSync: true,
+        playerCoherence: newCoherence,
+        score: newScore,
+        lastTap: Date.now(),
+      });
+    }
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
