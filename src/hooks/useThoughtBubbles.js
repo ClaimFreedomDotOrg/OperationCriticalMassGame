@@ -220,8 +220,10 @@ export const useThoughtBubbles = ({ isActive, isPaused = false, onBubbleExpired,
 
   /**
    * Check if any bubbles are blocking the player
+   * Bubbles that are currently dismissing (fading out) should NOT block taps
+   * to prevent the race condition where players miss because of a fading bubble
    */
-  const hasBlockingBubbles = activeBubbles.length > 0;
+  const hasBlockingBubbles = activeBubbles.some(bubble => !bubble.isDismissing);
 
   return {
     activeBubbles,
