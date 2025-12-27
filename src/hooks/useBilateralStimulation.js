@@ -17,15 +17,17 @@ import { GAME_CONFIG } from '../constants/gameConfig';
 const { BPM } = GAME_CONFIG;
 const OSCILLATION_PERIOD = (60000 / BPM) * 2; // Full left-right-left cycle time
 
-export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
+export const useBilateralStimulation = ({ isActive, isPaused = false, onSync, onMiss }) => {
   const [position, setPosition] = useState(0); // -1 (left) to 1 (right), 0 is center
   const animationFrameRef = useRef(null);
   const startTimeRef = useRef(null);
+  const pausedTimeRef = useRef(0); // Track how long we've been paused
+  const pauseStartRef = useRef(null); // When pause started
   const lastTappedSideRef = useRef(null); // Track which side was last successfully tapped
   const previousSideRef = useRef(null); // Track the previous oscillation side
 
   /**
-   * Start the smooth oscillation animation
+   * Start the smooth oscillation animation (pauses when isPaused is true)
    */
   useEffect(() => {
     if (!isActive) {
@@ -37,9 +39,24 @@ export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
     }
 
     startTimeRef.current = Date.now();
+    pausedTimeRef.current = 0;
 
     const animate = () => {
-      const elapsed = Date.now() - startTimeRef.current;
+      // Handle pause state
+      if (isPaused) {
+        if (!pauseStartRef.current) {
+          pauseStartRef.current = Date.now();
+        }
+        // Keep position frozen while paused
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      } else if (pauseStartRef.current) {
+        // Resuming from pause - add paused duration to total paused time
+        pausedTimeRef.current += Date.now() - pauseStartRef.current;
+        pauseStartRef.current = null;
+      }
+
+      const elapsed = Date.now() - startTimeRef.current - pausedTimeRef.current;
       // Sine wave oscillation: -1 to 1
       const newPosition = Math.sin((elapsed / OSCILLATION_PERIOD) * Math.PI * 2);
       setPosition(newPosition);
@@ -61,8 +78,10 @@ export const useBilateralStimulation = ({ isActive, onSync, onMiss }) => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      pauseStartRef.current = null;
+      pausedTimeRef.current = 0;
     };
-  }, [isActive]);
+  }, [isActive, isPaused]);
 
   /**
    * Handle player tap

@@ -56,22 +56,44 @@ const VolumeOffIcon = ({ size = 20 }) => (
   </svg>
 );
 
-const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, gameStats }) => {
+const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, onBack, gameStats }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
   const [isInSync, setIsInSync] = useState(false);
   const [localCoherence, setLocalCoherence] = useState(0);
+  const [playerCoherence, setPlayerCoherence] = useState(0); // Individual player's coherence in multiplayer
   const [localActivePlayers] = useState(1);
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
   const touchInProgressRef = useRef(false);
   const scoreRef = useRef(0); // Track current score for accurate Firebase updates
+  const playerCoherenceRef = useRef(0); // Track player coherence for accurate Firebase updates
   const injectChaosRef = useRef(null); // Ref to chaos injection function for miss handling
+
+  // Track stats for Firebase
+  const statsRef = useRef({
+    totalTaps: 0,
+    successfulTaps: 0,
+    infectionsCleaned: 0,
+  });
+
+  // Reset statsRef when sessionId or playerId changes (new game session)
+  useEffect(() => {
+    console.log('🔄 Resetting stats for new session:', { sessionId, playerId });
+    statsRef.current = {
+      totalTaps: 0,
+      successfulTaps: 0,
+      infectionsCleaned: 0,
+    };
+  }, [sessionId, playerId]);
 
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
     sessionId,
     playerId,
   }) : null;
+
+  // Check if there's an active livestream managing coherence
+  const hasLivestream = gameMode === 'multi' ? (firebaseSync?.hasLivestream || false) : false;
 
   // Use Firebase data in multiplayer, local state in single player
   const coherence = gameMode === 'multi' ? (firebaseSync?.coherence || 0) : localCoherence;
@@ -85,6 +107,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   useEffect(() => {
     scoreRef.current = score;
   }, [score]);
+
+  // NOTE: We do NOT sync playerCoherenceRef from state via useEffect anymore
+  // because we update the ref manually in handleMiss/handleSync to avoid race conditions
+  // The old useEffect was overwriting our immediate ref updates with stale state values
 
   // Audio hooks
   const {
@@ -107,10 +133,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     if (!isAudioInitialized) {
       initAudioContext();
     }
-    
+
     // Try to resume immediately in case browser allows it
     resumeAudioContext();
-    
+
     // Also add a click/touch listener to resume audio on any interaction
     const handleUserInteraction = () => {
       resumeAudioContext();
@@ -118,10 +144,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
     };
-    
+
     document.addEventListener('click', handleUserInteraction);
     document.addEventListener('touchstart', handleUserInteraction);
-    
+
     return () => {
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
@@ -133,18 +159,18 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Update score in stats whenever it changes
-   * 
+   *
    * Note: Using useEffect to store the function reference prevents React warnings
    * about updating parent component (App) during GameScreen render.
    */
   const updateScoreRef = useRef(null);
-  
+
   useEffect(() => {
     if (gameStats) {
       updateScoreRef.current = gameStats.updateScore;
     }
   }, [gameStats]);
-  
+
   useEffect(() => {
     if (updateScoreRef.current) {
       updateScoreRef.current(score);
@@ -154,18 +180,18 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Monitor for breakthrough condition (100% coherence)
    * Update coherence tracking on every change for accurate statistics
-   * 
+   *
    * Note: Using useEffect to store the function reference prevents React warnings
    * about updating parent component (App) during GameScreen render.
    */
   const updateCoherenceRef = useRef(null);
-  
+
   useEffect(() => {
     if (gameStats) {
       updateCoherenceRef.current = gameStats.updateCoherence;
     }
   }, [gameStats]);
-  
+
   useEffect(() => {
     if (coherence >= 100 && onBreakthrough) {
       onBreakthrough();
@@ -180,8 +206,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
    * Handle missed tap
    */
   const handleMiss = useCallback(() => {
+    console.log('🔴 handleMiss called - gameMode:', gameMode, 'playerCoherenceRef:', playerCoherenceRef.current);
+
     setIsInSync(false);
     setFeedback('MISS');
+
+    // Track tap stats
+    statsRef.current.totalTaps++;
 
     // Play miss sound
     playTapMiss();
@@ -191,23 +222,51 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       injectChaosRef.current();
     }
 
-    // Update local coherence in single-player mode
-    if (gameMode === 'single') {
+    // Update coherence based on game mode
+    if (gameMode === 'single' && !hasLivestream) {
+      // Only update local coherence if there's no active livestream
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
-    }
+      updatePlayerState({
+        isInSync: false,
+        score: scoreRef.current,
+        lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
+      });
+    } else if (gameMode === 'multi') {
+      // In multiplayer, decrease individual player's coherence
+      const oldCoherence = playerCoherenceRef.current;
+      const newCoherence = Math.max(0, playerCoherenceRef.current - 1); // Decrease by 1% per miss
+      playerCoherenceRef.current = newCoherence; // Update ref immediately
+      setPlayerCoherence(newCoherence);
 
-    updatePlayerState({
-      isInSync: false,
-      score: scoreRef.current,
-      lastTap: Date.now(),
-    });
+      console.log('🔴 MISS - Coherence:', oldCoherence, '→', newCoherence);
+
+      // Update Firebase with new coherence and stats
+      updatePlayerState({
+        isInSync: false,
+        playerCoherence: newCoherence,
+        score: scoreRef.current,
+        lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
+      });
+    }
 
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [updatePlayerState, gameMode, playTapMiss]);
 
-  // Thought bubbles (The Voice)
+  // Bilateral stimulation (pause when connecting in multiplayer)
+  const isPaused = gameMode === 'multi' && connectionStatus === 'connecting';
+
+  // Thought bubbles (The Voice) - pause when game is paused
+  // In multiplayer, spawn bubbles less frequently (10s vs 5s) since difficulty compounds
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
     isActive: true,
+    isPaused,
+    spawnInterval: gameMode === 'multi' ? 10000 : 5000, // 10s for multiplayer, 5s for single player
     onBubbleExpired: (bubbleId) => {
       handleMiss();
       // Track expired thought bubble
@@ -221,9 +280,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
    * Handle successful sync
    */
   const handleSync = useCallback(() => {
+    console.log('🟢 handleSync called - gameMode:', gameMode, 'playerCoherenceRef:', playerCoherenceRef.current);
+
     setIsInSync(true);
     setFeedback('HIT');
-    
+
+    // Track tap stats
+    statsRef.current.totalTaps++;
+    statsRef.current.successfulTaps++;
+
     // Calculate new score
     const newScore = scoreRef.current + 10;
     setScore(newScore);
@@ -231,32 +296,53 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     // Play success sound
     playTapSuccess();
 
-    // Update local coherence in single-player mode
-    if (gameMode === 'single') {
+    // Update coherence based on game mode
+    if (gameMode === 'single' && !hasLivestream) {
+      // Only update local coherence if there's no active livestream
       setLocalCoherence(prev => Math.min(100, prev + 2)); // Increase by 2% per hit
-    }
+      updatePlayerState({
+        isInSync: true,
+        score: newScore,
+        lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
+      });
+    } else if (gameMode === 'multi') {
+      // In multiplayer, increase individual player's coherence
+      const oldCoherence = playerCoherenceRef.current;
+      const newCoherence = Math.min(100, playerCoherenceRef.current + 2); // Increase by 2% per hit
+      playerCoherenceRef.current = newCoherence; // Update ref immediately
+      setPlayerCoherence(newCoherence);
 
-    // Update Firebase with sync status in multiplayer
-    updatePlayerState({
-      isInSync: true,
-      score: newScore,
-      lastTap: Date.now(),
-    });
+      console.log('🟢 HIT - Coherence:', oldCoherence, '→', newCoherence);
+
+      // Update Firebase with new coherence and stats
+      updatePlayerState({
+        isInSync: true,
+        playerCoherence: newCoherence,
+        score: newScore,
+        lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
+      });
+    }
 
     // Clear feedback after duration
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [updatePlayerState, gameMode, playTapSuccess]);
 
-  // Bilateral stimulation
   const { activeSide, handleTap, position } = useBilateralStimulation({
     isActive: true,
+    isPaused,
     onSync: handleSync,
     onMiss: handleMiss,
   });
 
   // Bilateral audio - synchronized with orb position (uses shared audio context)
   useBilateralAudio({
-    isActive: true,
+    isActive: !isPaused,
     position,
     audioContext,
     masterGain,
@@ -265,7 +351,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   // Dynamic music - correlates with coherence level (uses shared audio context)
   const { injectChaos } = useDynamicMusic({
-    isActive: true,
+    isActive: !isPaused,
     coherence,
     audioContext,
     masterGain,
@@ -295,6 +381,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const onTapButton = useCallback((side, event) => {
     // Ensure audio is ready on user interaction
     ensureAudioReady();
+
+    // Cannot tap while game is paused (connecting/reconnecting)
+    if (isPaused) {
+      return;
+    }
 
     // Cannot tap while bubbles are blocking
     if (hasBlockingBubbles) {
@@ -359,7 +450,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         setSyncedButton(null);
       }, 300); // Show green for 300ms
     }
-  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady]);
+  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady, isPaused]);
 
   /**
    * Determine container style based on state
@@ -384,6 +475,30 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         }
       }}
     >
+      {/* Pause/Connecting Overlay - Covers entire GameScreen */}
+      {isPaused && (
+        <div 
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+          aria-label="Connecting to multiplayer session"
+        >
+          <div className="text-center">
+            <div className="text-cyan-400 text-2xl md:text-4xl font-bold mb-2 animate-pulse">
+              CONNECTING
+            </div>
+            <div className="text-cyan-100/80 text-sm md:text-base">
+              Establishing connection...
+            </div>
+            <div className="flex gap-2 justify-center mt-4">
+              <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '0ms' }} aria-hidden="true"></div>
+              <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }} aria-hidden="true"></div>
+              <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }} aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 0. BACKGROUND BODY (The Cells) */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center">
         {/* Body Container - Maintains aspect ratio */}
@@ -422,6 +537,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       {/* 1. TOP HUD (Global Metrics) */}
       <div className="w-full p-2 md:p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px] flex-shrink-0">
         <div className="max-w-2xl mx-auto relative">
+          {/* Session ID Display */}
+          <div className="text-center mb-2 text-[10px] md:text-xs font-bold tracking-wider">
+            {gameMode === 'multi' ? (
+              <span className="text-cyan-400">SESSION ID: <span className="text-cyan-300">{sessionId}</span></span>
+            ) : (
+              <span className="text-gray-500">SINGLE PLAYER</span>
+            )}
+          </div>
+
           <div className="flex justify-between items-end mb-1 text-xs uppercase tracking-widest">
             <span className="text-cyan-500 flex items-center gap-2">
               <ActivityIcon size={14} /> Global Body Status
@@ -471,6 +595,34 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* 2. CENTER STAGE (Pulse Visualizer) */}
       <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center overflow-hidden">
+        {/* Pause/Connecting Overlay */}
+        {isPaused && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-cyan-400 text-2xl md:text-4xl font-bold mb-2 animate-pulse">
+                CONNECTING
+              </div>
+              <div className="text-cyan-100/80 text-sm md:text-base">
+                Establishing connection...
+              </div>
+              <div className="flex gap-2 justify-center mt-4">
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }}></div>
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }}></div>
+              </div>
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="mt-6 px-6 py-2 text-sm md:text-base font-bold text-cyan-400 hover:text-cyan-300 border border-cyan-400/50 hover:border-cyan-300 rounded-lg transition-colors duration-200"
+                  aria-label="Go back to start screen"
+                >
+                  ← BACK
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Pulse Orb */}
         <div className="relative w-full max-w-md h-24 z-10 flex items-center px-8">
           {/* Oscillation Line */}
@@ -497,18 +649,29 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             bubble={bubble}
             onDismiss={() => {
               dismissBubble(bubble.id);
-              
+
+              // Increment infections cleaned counter
+              statsRef.current.infectionsCleaned++;
+
               // Calculate new score
               const newScore = scoreRef.current + 5;
               setScore(newScore);
-              
+
               // Play thought dismissal sound
               playThoughtDismiss();
-              
+
               // Track dismissed thought bubble
               if (gameStats) {
                 gameStats.recordThoughtDismissed();
               }
+
+              // Update Firebase with new stats immediately
+              updatePlayerState({
+                infectionsCleaned: statsRef.current.infectionsCleaned,
+                score: newScore,
+                totalTaps: statsRef.current.totalTaps,
+                successfulTaps: statsRef.current.successfulTaps,
+              });
             }}
           />
         ))}
