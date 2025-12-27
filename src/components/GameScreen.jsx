@@ -386,6 +386,30 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         }
       }}
     >
+      {/* Pause/Connecting Overlay - Covers entire GameScreen */}
+      {isPaused && (
+        <div 
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+          aria-label="Connecting to multiplayer session"
+        >
+          <div className="text-center">
+            <div className="text-cyan-400 text-2xl md:text-4xl font-bold mb-2 animate-pulse">
+              CONNECTING
+            </div>
+            <div className="text-cyan-100/80 text-sm md:text-base">
+              Establishing connection...
+            </div>
+            <div className="flex gap-2 justify-center mt-4" aria-label="Loading indicator">
+              <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '0ms' }} aria-hidden="true"></div>
+              <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }} aria-hidden="true"></div>
+              <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }} aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 0. BACKGROUND BODY (The Cells) */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center">
         {/* Body Container - Maintains aspect ratio */}
@@ -473,25 +497,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* 2. CENTER STAGE (Pulse Visualizer) */}
       <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center overflow-hidden">
-        {/* Pause/Connecting Overlay */}
-        {isPaused && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="text-cyan-400 text-2xl md:text-4xl font-bold mb-2 animate-pulse">
-                CONNECTING
-              </div>
-              <div className="text-cyan-100/80 text-sm md:text-base">
-                Establishing connection...
-              </div>
-              <div className="flex gap-2 justify-center mt-4">
-                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }}></div>
-                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }}></div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Pulse Orb */}
         <div className="relative w-full max-w-md h-24 z-10 flex items-center px-8">
           {/* Oscillation Line */}
