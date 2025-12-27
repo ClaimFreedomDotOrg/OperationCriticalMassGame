@@ -8,7 +8,7 @@
  * Aesthetic: Bio-digital bioluminescence with sacred geometry
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { db } from '../config/firebase';
 import COLORS from '../constants/colors';
 import QRCode from 'qrcode';
@@ -21,6 +21,8 @@ const LivestreamView = ({ sessionId }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationTriggered, setCelebrationTriggered] = useState(false);
+  // Ref to track the last known valid startTime (persists across renders/resets)
+  const lastValidStartTimeRef = useRef(null);
   // Captured stats at moment of breakthrough (before reset)
   const [breakthroughStats, setBreakthroughStats] = useState({
     activePlayers: 0,
@@ -219,6 +221,8 @@ const LivestreamView = ({ sessionId }) => {
       return;
     }
 
+    // Store the valid startTime in ref for breakthrough capture
+    lastValidStartTimeRef.current = startTime;
     console.log('⏱️ Starting session timer with startTime:', new Date(startTime).toISOString());
 
     // Set initial duration immediately
@@ -347,8 +351,8 @@ const LivestreamView = ({ sessionId }) => {
   // Trigger celebration when coherence reaches 100%
   useEffect(() => {
     if (coherenceMetrics.coherencePercent >= 100 && !celebrationTriggered) {
-      // Calculate session duration directly from startTime to avoid race conditions
-      const startTime = sessionData?.startTime;
+      // Use ref for startTime as it persists even after sessionData is reset
+      const startTime = lastValidStartTimeRef.current || sessionData?.startTime;
       const calculatedDuration = (startTime && typeof startTime === 'number')
         ? Math.floor((Date.now() - startTime) / 1000)
         : stats.sessionDuration;
@@ -361,7 +365,9 @@ const LivestreamView = ({ sessionId }) => {
         playerCount: playerCount,
         coherenceMetricsActivePlayers: coherenceMetrics.activePlayers,
         sessionDuration: calculatedDuration,
-        startTime: startTime,
+        startTimeFromRef: lastValidStartTimeRef.current,
+        startTimeFromSessionData: sessionData?.startTime,
+        statsSessionDuration: stats.sessionDuration,
         totalTaps: stats.totalTaps,
         successfulTaps: stats.successfulTaps,
         avgAccuracy: stats.avgAccuracy,
