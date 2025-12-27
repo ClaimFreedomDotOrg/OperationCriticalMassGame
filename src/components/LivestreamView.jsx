@@ -816,8 +816,8 @@ const LivestreamView = ({ sessionId }) => {
               );
             })}
 
-            {/* Chaotic State Effect (0-29%) - Multiple chaotic patterns */}
-            {coherenceMetrics.coherencePercent < 30 && coherenceMetrics.activePlayers > 0 && (
+            {/* Chaotic State Effect (0-29% coherence OR no players) - Multiple chaotic patterns */}
+            {(coherenceMetrics.coherencePercent < 30 || coherenceMetrics.activePlayers === 0) && (
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {/* Scanlines */}
                 <div
