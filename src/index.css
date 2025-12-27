@@ -286,18 +286,19 @@ a {
   animation: float 6s ease-in-out infinite;
 }
 
-/* Scrolling ticker animation for livestream info */
+/* Scrolling ticker animation for livestream info - true carousel */
 @keyframes ticker {
   0% {
-    transform: translateX(0);
+    transform: translateX(100%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
 .animate-ticker {
-  animation: ticker 20s linear infinite;
+  display: inline-block;
+  animation: ticker 45s linear infinite;
 }
 
 /* Accessibility: Respect reduced motion preferences */

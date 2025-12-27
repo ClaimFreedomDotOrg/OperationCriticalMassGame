@@ -843,37 +843,6 @@ const LivestreamView = ({ sessionId }) => {
             <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-white px-8">
               🎮 Play together. Heal together. THE BODY IS ONE. 🎮
             </span>
-            {/* Duplicate for seamless loop - when first set scrolls off-screen, second set continues seamlessly */}
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-cyan-300 px-8">
-              🧠 THIS GAME IS MEDICINE FOR YOUR BRAIN! 🧠
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-amber-300 px-8">
-              📚 Based on cutting-edge neuroscience — backed by 100+ peer-reviewed studies 📚
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-white px-8">
-              🔬 Validated by real-world brain scans and clinical results 🔬
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-cyan-300 px-8">
-              ✨ Proven to help with ADD/ADHD, Anxiety & Depression ✨
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-amber-300 px-8">
-              🎯 Strengthens your Salience Network (your brain's control panel) 🎯
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-white px-8">
-              🔇 Tames the Default Mode Network (negative thoughts, rumination, suffering) 🔇
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-cyan-300 px-8">
-              ⚡ Activates Task-Positive Network to unlock FLOW STATE ⚡
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-amber-300 px-8">
-              💡 Trains you to dismiss intrusive thoughts as mere distractions 💡
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-white px-8">
-              🌟 Rewire your nervous system through bilateral stimulation (same as EMDR therapy) 🌟
-            </span>
-            <span className="inline-block text-2xl md:text-3xl lg:text-4xl font-bold text-cyan-300 px-8">
-              🎮 Play together. Heal together. THE BODY IS ONE. 🎮
-            </span>
           </div>
         </div>
 
