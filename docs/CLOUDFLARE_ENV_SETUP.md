@@ -1,5 +1,15 @@
 # Cloudflare Pages Environment Variables Setup
 
+## ⚠️ Critical: Build-Time Variables
+
+**Cloudflare Pages environment variables are injected at BUILD TIME, not runtime.**
+
+This means:
+
+1. You **must set all variables BEFORE triggering a build**
+2. After adding/changing variables, you **must trigger a new deployment**
+3. Variables are baked into the JavaScript bundle during the build process
+
 ## Step-by-Step Instructions
 
 ### 1. Navigate to Your Cloudflare Pages Project
@@ -158,6 +168,31 @@ Make sure you've set up your database rules in Firebase Console:
 ---
 
 ## Troubleshooting
+
+### "Firebase FATAL ERROR: Can't determine Firebase Database URL"
+
+This error means the environment variables were not available during the build. To fix:
+
+1. **Verify variables are set in Cloudflare Pages Dashboard:**
+   - Go to Pages → Your Project → Settings → Environment variables
+   - Ensure ALL variables are set for **Production** (not just Preview)
+   - Double-check `VITE_FIREBASE_DATABASE_URL` specifically
+
+2. **Trigger a NEW build after setting variables:**
+   - Go to Deployments tab
+   - Click "Retry deployment" on the latest deployment, OR
+   - Push a new commit to trigger automatic rebuild
+   - **The build must happen AFTER variables are set**
+
+3. **Check the build logs:**
+   - In Deployments, click on your latest deployment
+   - Check the build output for any errors
+   - Verify `vite build` completed successfully
+
+4. **Verify in browser console:**
+   - Open DevTools (F12) on your deployed site
+   - Look for "Firebase config check:" log message
+   - All values should show `true` - if any show `false`, that variable is missing
 
 ### "Firebase not initialized" error
 
