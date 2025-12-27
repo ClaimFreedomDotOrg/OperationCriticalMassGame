@@ -32,6 +32,9 @@ I've built the foundational code structure for Operation: Critical Mass - a neur
 - [src/hooks/useBilateralStimulation.js](src/hooks/useBilateralStimulation.js) - EMDR-based left-right tapping with timing validation
 - [src/hooks/useThoughtBubbles.js](src/hooks/useThoughtBubbles.js) - Intrusive thought spawning and dismissal
 - [src/hooks/useFirebaseSync.js](src/hooks/useFirebaseSync.js) - Real-time multiplayer synchronization
+- [src/hooks/useDynamicMusic.js](src/hooks/useDynamicMusic.js) - Audio-based neurofeedback system
+- [src/hooks/useBilateralAudio.js](src/hooks/useBilateralAudio.js) - Left-right audio panning (EMDR-inspired)
+- [src/hooks/useAudio.js](src/hooks/useAudio.js) - Sound effects and audio management
 
 #### React Components (UI)
 
@@ -106,7 +109,40 @@ const { coherence, activePlayers, updatePlayerState } = useFirebaseSync({
 - Demonstrates cellular responsibility
 - Triggers oxytocin release through cooperation
 
-### 4. State Machine Architecture
+### 4. Dynamic Music System (Audio-Based Neurofeedback)
+
+**Neuroscience Foundation**: Neurofeedback training through operant conditioning (Egner & Gruzelier, 2004)
+
+```javascript
+// Music evolves from dissonant to consonant based on coherence
+// Real-time auditory feedback guides players toward optimal brain states
+const { injectChaos } = useDynamicMusic({
+  isActive: true,
+  coherence,
+  audioContext,
+  masterGain,
+  isEnabled: isAudioEnabled
+});
+```
+
+**What This Does**:
+
+- **Consonant music** (high coherence) → Activates reward circuits (nucleus accumbens) → Dopamine release
+- **Dissonant music** (low coherence) → Activates threat detection (amygdala) → Motivation to improve
+- **Rhythmic entrainment** (60 BPM) → Synchronizes neural oscillations → Flow state induction
+- **Operant conditioning** → Brain learns to associate focused state with pleasant sounds
+- **Chaos injection on miss** → Immediate corrective feedback through harsh tritone burst
+
+**Musical Progression:**
+
+- 0-29% Coherence: Chaotic (tritones, minor 2nds) - Anxiety-inducing
+- 30-59% Coherence: Transitional (minor pentatonic) - Building momentum
+- 60-89% Coherence: Harmonious (major pentatonic) - Flow state
+- 90-100% Coherence: Perfect (major triads) - Breakthrough transcendence
+
+See [docs/DYNAMIC_MUSIC.md](docs/DYNAMIC_MUSIC.md) for complete technical documentation.
+
+### 5. State Machine Architecture
 
 ```markdown
 IDLE → [Tap "Become a Cell"] → PLAYING → [100% Coherence] → BREAKTHROUGH → [Reset] → IDLE
@@ -284,7 +320,10 @@ OperationCriticalMassGame/
 │   │   ├── useGameState.js         # State machine
 │   │   ├── useBilateralStimulation.js  # EMDR tapping
 │   │   ├── useThoughtBubbles.js    # Thought spawning
-│   │   └── useFirebaseSync.js      # Multiplayer sync
+│   │   ├── useFirebaseSync.js      # Multiplayer sync
+│   │   ├── useDynamicMusic.js      # Audio-based neurofeedback
+│   │   ├── useBilateralAudio.js    # EMDR audio panning
+│   │   └── useAudio.js             # Sound effects
 │   ├── constants/
 │   │   ├── colors.js               # Color palette
 │   │   └── gameConfig.js           # Game constants
@@ -312,6 +351,9 @@ Every mechanic maps to peer-reviewed neuroscience:
 | **Rhythmic Entrainment** | Zatorre et al. (2007) | Cerebellar activation → Flow state |
 | **Thought Dismissal** | Farb et al. (2007) | Metacognitive awareness → Dis-identification |
 | **Collective Sync** | Xygalatas et al. (2011) | Increased oxytocin → Social bonding |
+| **Musical Consonance** | Blood & Zatorre (2001) | Reward circuit activation → Dopamine release |
+| **Musical Dissonance** | Koelsch et al. (2006) | Threat detection → Corrective motivation |
+| **Audio-Based Neurofeedback** | Egner & Gruzelier (2004) | Operant conditioning → Learned brain state control |
 
 Full citations in [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md)
 

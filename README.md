@@ -69,11 +69,12 @@ A massive **Coherence Meter** on the livestream shows each player as a dot (red 
 
 - ✨ **Zero Installation**: Instant browser-based gameplay via QR code or link
 - 🧠 **Neuroscience-Based**: Bilateral stimulation, working memory taxation, network switching
+- � **Audio-Based Neurofeedback**: Dynamic music system that trains optimal brain states through operant conditioning
 - 🌐 **Massive Scale**: Designed for thousands of simultaneous players
 - 📊 **Real-Time Collective Feedback**: See your contribution to the global coherence meter
 - 🎯 **Mindfulness Training**: Practical dis-identification and present-moment awareness
 - 🎨 **Bio-Digital Aesthetic**: Bioluminescent visuals with sacred geometry and cymatics
-- 🔊 **Harmonic Audio**: Binaural beats, rhythmic pulses, and harmonic resolution
+- 🔊 **Harmonic Audio**: Binaural beats, rhythmic pulses, and harmonic resolution evolving with coherence
 
 ## Technology Stack
 
@@ -106,12 +107,18 @@ A massive **Coherence Meter** on the livestream shows each player as a dot (red 
    - Creating psychological distance from thoughts
    - Core mechanism in Mindfulness-Based Cognitive Therapy
 
-3. **Collective Coherence** (McCraty et al., 1998; HeartMath Institute)
+3. **Audio-Based Neurofeedback** (Egner & Gruzelier, 2004; Blood & Zatorre, 2001)
+   - Dynamic music system guides brain toward optimal states through operant conditioning
+   - Consonant music activates reward circuits (nucleus accumbens) → dopamine release
+   - Dissonant music activates threat detection (amygdala) → corrective motivation
+   - Musical feedback is faster than visual (8-10ms vs. 20-40ms), enabling rapid learning
+
+4. **Collective Coherence** (McCraty et al., 1998; HeartMath Institute)
    - Groups can synchronize heart rate variability
    - Shared intention creates measurable field effects
    - Collective biofeedback enhances group coordination
 
-4. **Flow State Induction** (Dietrich, 2004; Zatorre et al., 2007)
+5. **Flow State Induction** (Dietrich, 2004; Zatorre et al., 2007)
    - Rhythmic entrainment activates cerebellum
    - Reduces self-consciousness, enhances focus
    - Generates dopamine through predictive timing

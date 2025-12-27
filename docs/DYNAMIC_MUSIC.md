@@ -4,17 +4,39 @@
 
 The dynamic music system in Operation: Critical Mass creates a living, breathing soundscape that evolves with the player's coherence level. Music transitions from chaotic and dissonant at 0% coherence to harmonious and triumphant at 100%, creating a powerful neurophysiological feedback loop.
 
-## Neuroscience Foundation
+**This is not just background music—it is an implementation of audio-based neurofeedback**, using musical parameters as real-time feedback to guide players toward optimal brain states through operant conditioning.
+
+## Neurofeedback Foundation
+
+### What is Neurofeedback?
+
+Neurofeedback (also called EEG biofeedback or neurotherapy) uses real-time displays of brain activity to teach self-regulation of brain function. Traditional neurofeedback requires expensive EEG equipment, but Operation: Critical Mass implements **implicit neurofeedback** using coherence level as a behavioral proxy for mental state.
+
+**The Learning Loop:**
+
+1. Player's coherence level reflects their focus and synchronization (proxy for brain state)
+2. Music dynamically changes based on coherence (auditory feedback)
+3. Pleasant consonance rewards high coherence → dopamine release
+4. Harsh dissonance punishes low coherence/errors → correction motivation
+5. Brain learns to associate focused state with pleasant sounds (operant conditioning)
+
+## Musical Neuroscience
 
 ### Musical Consonance & Dissonance
 
+**Blood & Zatorre (2001)** demonstrated using PET imaging that pleasurable music activates the same reward circuits (nucleus accumbens, ventral tegmental area) as food, sex, and social bonding. Musical consonance is processed as a **primary reward** by the brain.
+
+**Koelsch et al. (2006)** showed that dissonant music activates threat detection circuits (amygdala, hippocampus) and increases physiological arousal. This is not learned—**Trainor & Heinmiller (1998)** proved even 4-month-old infants prefer consonance, suggesting an evolutionarily conserved response.
+
 **Consonant intervals** (major thirds, perfect fifths, octaves):
+
 - Activate reward centers (nucleus accumbens)
 - Release dopamine
 - Create feelings of resolution and pleasure
 - Support parasympathetic nervous system activation
 
 **Dissonant intervals** (minor seconds, tritones):
+
 - Activate threat detection (amygdala)
 - Increase arousal and attention
 - Create tension and stress
@@ -30,6 +52,7 @@ The dynamic music system in Operation: Critical Mass creates a living, breathing
 ### Flow State Induction
 
 Progressive harmonic resolution creates optimal challenge/skill balance:
+
 1. Initial dissonance creates challenge (arousal)
 2. Gradual harmonic improvement provides feedback (progress)
 3. Final resolution triggers flow state (complete immersion)
@@ -40,7 +63,7 @@ Progressive harmonic resolution creates optimal challenge/skill balance:
 
 All frequencies are carefully chosen to complement the bilateral audio system:
 
-```
+```markdown
 Root Frequency: 110 Hz (A2)
 ├── Bass Layer: 110 Hz (A2) - grounding drone
 ├── Pad Layer: 220-330 Hz (A3-E4) - harmonic chords
@@ -49,6 +72,7 @@ Root Frequency: 110 Hz (A2)
 ```
 
 **Why A minor/major?**
+
 - A is universally recognized as a reference pitch (A440)
 - Minor → Major transition represents emotional journey
 - Octave relationships create natural harmony
@@ -57,6 +81,7 @@ Root Frequency: 110 Hz (A2)
 ### Layer System
 
 #### 1. Bass Layer (Always Active)
+
 ```javascript
 Frequency: 110 Hz (A2)
 Waveform: Sine
@@ -70,6 +95,7 @@ Behavior:
 **Neuroscience**: Low frequencies activate body-level awareness (interoception)
 
 #### 2. Pad Layer (Active 30%+)
+
 ```javascript
 Frequency: 220-330 Hz (chord tones)
 Waveform: Triangle (soft, pad-like)
@@ -84,6 +110,7 @@ Scales:
 **Neuroscience**: Mid-range harmonies activate auditory cortex pattern recognition
 
 #### 3. Melody Layer (Active 60%+)
+
 ```javascript
 Frequency: 440-660 Hz (arpeggiated)
 Waveform: Sine (pure tone)
@@ -96,7 +123,7 @@ Pattern: Steps through scale every 2 beats
 ### Coherence-Based Scales
 
 | Coherence | Scale | Intervals | Emotional Quality |
-|-----------|-------|-----------|-------------------|
+| ----------- | ------- | ----------- | ------------------- |
 | 0-29% | Chaotic | Root, m2, tritone, m6 | Anxiety, chaos, fragmentation |
 | 30-59% | Transitional | Root, m3, P4, P5, m7 | Searching, building, tension |
 | 60-89% | Harmonious | Root, M2, M3, P5, M6 | Optimism, flow, coherence |
@@ -114,6 +141,7 @@ Volume: 0.12
 ```
 
 **Neuroscience Effect**:
+
 - Amygdala activation (threat detection)
 - Cortisol micro-spike (stress hormone)
 - Increased arousal and attention
@@ -126,19 +154,22 @@ Volume: 0.12
 The bilateral audio (220 Hz sine wave panning left-right) is **complementary**, not competing:
 
 ### Harmonic Relationship
-```
+
+```markdown
 Bilateral: 220 Hz (A3)
 Music Root: 110 Hz (A2)
 Relationship: Perfect octave (2:1 ratio)
 ```
 
 ### Volume Balance
+
 - Bilateral reduced from 0.3 to 0.2-0.25
 - Music layers total ~0.29 at full coherence
 - Combined audio remains below 0.7 master volume
 - No frequency masking or interference
 
 ### Spatial Design
+
 - Bilateral: Panning stereo (left-right movement)
 - Music: Centered mono (grounding presence)
 - Creates 3D soundscape without confusion
@@ -147,7 +178,7 @@ Relationship: Perfect octave (2:1 ratio)
 
 ### Web Audio API Architecture
 
-```
+```markdown
 AudioContext (shared)
     ├── Bass Oscillator → Bass Gain → Master Gain → Destination
     ├── Pad Oscillators (3) → Pad Gain → Master Gain → Destination
@@ -159,16 +190,19 @@ AudioContext (shared)
 ### Performance Optimization
 
 **Update Loop**: 100ms intervals (10 Hz)
+
 - Fast enough for responsive transitions
 - Slow enough to avoid CPU overhead
 - Aligns with human perception threshold (~50ms)
 
 **Smooth Transitions**: 1 second ramps
+
 - Prevents jarring frequency jumps
 - Uses `linearRampToValueAtTime()` for volume
 - Uses `linearRampToValueAtTime()` for frequency
 
 **Memory Management**:
+
 - Reuses oscillators (no constant creation/destruction)
 - Cleans up temporary chaos oscillators
 - Single AudioContext shared across all systems
@@ -209,6 +243,7 @@ if (playerMissedTap) {
 ### Browser Console
 
 Check for these messages:
+
 ```javascript
 // No errors should appear:
 "Error starting bass layer"
@@ -245,8 +280,21 @@ console.log(audioContext.state);
    - Represents collective growth
 
 5. **Player Count Sonification**
-   - Volume increases with more players
-   - Creates sense of collective power
+   - Volume increases with more players**neurofeedback training tool**. By mapping harmonic consonance to coherence percentage, we create a direct feedback loop between player behavior and brain reward circuits.
+
+This approach parallels clinical neurofeedback protocols (alpha-theta training, SMR training, beta training) but uses **auditory feedback instead of EEG sensors**, making it scalable to thousands of simultaneous players. The music teaches the brain to access and maintain optimal states through operant conditioning—the same mechanism that makes traditional neurofeedback effective.
+
+**Advantages Over Traditional Neurofeedback:**
+
+- No expensive equipment required (works on any device with audio)
+- Pre-attentive processing (doesn't require focused attention on feedback)
+- Implicit learning (brain learns unconsciously)
+- Ecologically valid (music is part of daily life)
+- Massively scalable (thousands can train simultaneously)
+
+This is **sonic neuroscience** in action—accessible, scalable, and scientifically grounded brain training through the universal language of music
+
+- Creates sense of collective power
 
 ## Scientific References
 
