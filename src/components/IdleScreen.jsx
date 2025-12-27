@@ -211,7 +211,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
 
           {/* Livestream View Button */}
           <a
-            href={sessionId.trim() ? `/livestream?session=${encodeURIComponent(sessionId.trim().toUpperCase())}` : '#'}
+            href={sessionId.trim() ? `/?view=livestream&session=${encodeURIComponent(sessionId.trim().toUpperCase())}` : '#'}
             onClick={(e) => !sessionId.trim() && e.preventDefault()}
             className={`group relative px-4 py-3 md:px-8 md:py-4 bg-purple-900/30 border-2 border-purple-500 hover:bg-purple-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] active:scale-95 w-full select-none text-center ${!sessionId.trim() ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
           >
