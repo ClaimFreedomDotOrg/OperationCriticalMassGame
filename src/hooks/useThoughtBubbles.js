@@ -33,9 +33,8 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
    * - Bottom controls: ~30% of viewport height  
    * - Horizontal margins: ~10% on each side
    * 
-   * Bubbles are centered on their spawn coordinates (via CSS transform),
-   * so these percentage ranges represent the bubble's center point.
-   * This ensures full visibility within the viewport.
+   * Bubbles use dynamic max-width constraints (via CSS calc) to prevent
+   * overflow on the right edge, ensuring full visibility across all viewports.
    */
   const spawnBubble = useCallback(() => {
     const randomWord = WORDS_OF_THE_VOICE[Math.floor(Math.random() * WORDS_OF_THE_VOICE.length)];

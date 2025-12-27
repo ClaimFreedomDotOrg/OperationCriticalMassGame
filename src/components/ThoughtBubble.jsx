@@ -7,10 +7,9 @@
  * Design: Clean, minimal thought bubble with subtle indicator dots,
  * matching the bio-luminescent neuroscience aesthetic.
  * 
- * Positioning: Bubbles are centered on their spawn coordinates using translate(-50%, -50%).
- * This ensures that bubbles spawned within safe zones (10-80% horizontal, 20-55% vertical)
- * remain fully visible within the viewport, as their center point (not top-left corner)
- * is positioned at the specified coordinates.
+ * Positioning: Bubbles use responsive max-width constraints to prevent overflow.
+ * The combination of percentage-based positioning and max-width ensures bubbles
+ * remain fully visible across all viewport sizes without transform-based centering.
  */
 
 import React, { useState, useRef } from 'react';
@@ -75,11 +74,6 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
   // Calculate total dismiss animation duration
   const dismissDuration = BUBBLE_DISMISS_DELAY + BUBBLE_FADE_DURATION;
 
-  // Calculate transform: center bubble on spawn coordinates, plus any drag offset
-  const bubbleTransform = bubble.isDismissing 
-    ? 'translate(-50%, -50%)' 
-    : `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px))`;
-
   return (
     <div
       data-bubble="true"
@@ -89,8 +83,10 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       style={{
         left: `${bubble.position.x}%`,
         top: `${bubble.position.y}%`,
-        transform: bubbleTransform,
+        transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
+        // Constrain width to prevent overflow: max-width is distance from left edge to right viewport edge
+        maxWidth: `calc(100vw - ${bubble.position.x}% - 1rem)`, // 1rem margin from edge
       }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
