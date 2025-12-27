@@ -297,7 +297,7 @@ a {
 }
 
 .animate-ticker {
-  animation: ticker 60s linear infinite;
+  animation: ticker 20s linear infinite;
 }
 
 /* Accessibility: Respect reduced motion preferences */
