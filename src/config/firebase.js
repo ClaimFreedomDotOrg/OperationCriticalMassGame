@@ -1,74 +1,36 @@
 /**
  * Firebase Configuration and Initialization
  *
- * IMPORTANT: Replace these values with your actual Firebase project credentials
- * Get these from: Firebase Console > Project Settings > General > Your apps
+ * Environment variables must be set at build time with VITE_ prefix.
+ * For Cloudflare Pages: Set variables in dashboard under Settings > Environment variables
+ * For local development: Create a .env file with VITE_FIREBASE_* variables
  */
 
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, update, remove } from 'firebase/database';
 
+// Firebase configuration using build-time environment variables
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+};
+
 // Initialize Firebase
 let app = null;
 let database = null;
-let initPromise = null;
 
-// Function to initialize Firebase with runtime config from Cloudflare Pages Function
-async function initializeFirebaseAsync() {
-  try {
-    // Try to fetch config from Cloudflare Pages Function (production)
-    console.log('Fetching Firebase config from /api/config...');
-    const response = await fetch('/api/config');
-    if (response.ok) {
-      const firebaseConfig = await response.json();
-      console.log('Firebase config received:', {
-        hasApiKey: !!firebaseConfig.apiKey,
-        hasAuthDomain: !!firebaseConfig.authDomain,
-        hasDatabaseURL: !!firebaseConfig.databaseURL,
-        hasProjectId: !!firebaseConfig.projectId,
-        hasAppId: !!firebaseConfig.appId,
-      });
-
-      if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.databaseURL) {
-        console.log('✅ Loaded Firebase config from Cloudflare Pages Function');
-        app = initializeApp(firebaseConfig);
-        database = getDatabase(app);
-        return;
-      } else {
-        console.warn('⚠️ Config from /api/config is incomplete, falling back to env vars');
-      }
-    } else {
-      console.log(`/api/config responded with status ${response.status}`);
-    }
-  } catch (error) {
-    console.log('ℹ️ Cloudflare Pages Function not available:', error.message);
-  }
-
-  // Fallback to build-time environment variables (local development)
-  const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
-  };
-
-  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-    throw new Error('Firebase configuration missing. Check environment variables.');
-  }
-
-  console.log('✅ Loaded Firebase config from build-time environment variables');
+try {
   app = initializeApp(firebaseConfig);
   database = getDatabase(app);
-}
-
-// Start initialization immediately
-initPromise = initializeFirebaseAsync().catch(error => {
+} catch (error) {
   console.error('Firebase initialization error:', error);
-});
+}
 
 /**
  * Generate anonymous player ID
@@ -95,15 +57,8 @@ export const db = {
   onValue,
   update,
   remove,
-  get database() {
-    return database;
-  },
+  database,
 };
-
-/**
- * Wait for Firebase to be initialized
- */
-export const waitForFirebase = () => initPromise;
 
 /**
  * Firebase Connection Status Hook
