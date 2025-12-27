@@ -3,14 +3,13 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load .env file variables for local development
+  // Load all env vars including VITE_ prefixed ones
   const env = loadEnv(mode, process.cwd(), '');
-  
-  // Build the define object for environment variables
-  // Priority: process.env (Cloudflare Pages) > .env file (local dev)
+
+  // Environment variables to inject
   const envVars = [
     'VITE_FIREBASE_API_KEY',
-    'VITE_FIREBASE_AUTH_DOMAIN', 
+    'VITE_FIREBASE_AUTH_DOMAIN',
     'VITE_FIREBASE_DATABASE_URL',
     'VITE_FIREBASE_PROJECT_ID',
     'VITE_FIREBASE_STORAGE_BUCKET',
@@ -18,14 +17,18 @@ export default defineConfig(({ mode }) => {
     'VITE_FIREBASE_APP_ID',
     'VITE_FIREBASE_MEASUREMENT_ID',
   ];
-  
+
+  // Build define object - always inject, using process.env (Cloudflare) or loadEnv (local)
   const define = {};
   envVars.forEach(key => {
-    // Use process.env first (Cloudflare Pages), then fall back to loadEnv (local .env)
-    const value = process.env[key] || env[key] || '';
-    if (value) {
-      define[`import.meta.env.${key}`] = JSON.stringify(value);
-    }
+    const value = process.env[key] ?? env[key] ?? '';
+    define[`import.meta.env.${key}`] = JSON.stringify(value);
+  });
+
+  // Debug: log what we're injecting during build
+  console.log('Vite build - Environment variables status:');
+  envVars.forEach(key => {
+    console.log(`  ${key}: ${process.env[key] ? 'from process.env' : env[key] ? 'from .env' : 'MISSING'}`);
   });
 
   return {
