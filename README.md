@@ -221,6 +221,7 @@ In an age of doomscrolling and isolation:
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup, architecture, and technical implementation
 - **[Game Overview](docs/GAME_OVERVIEW.md)** - Complete game concept and mechanics
 - **[Scientific Basis](SCIENTIFIC_BASIS.md)** - Neuroscience foundation and research
+- **[Livestream View Guide](docs/LIVESTREAM_VIEW.md)** - How to use the livestream host display
 - **[Contributing](CONTRIBUTING.md)** - How to contribute to the project
 
 ### Additional Resources

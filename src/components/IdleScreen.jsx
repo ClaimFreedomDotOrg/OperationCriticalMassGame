@@ -34,7 +34,7 @@ const UsersIcon = ({ size = 24 }) => (
 
 const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
   const [mode, setMode] = useState(null); // null, 'single', 'multi'
-  const [gameId, setGameId] = useState('');
+  const [sessionId, setSessionId] = useState('');
 
   const handleModeSelect = (selectedMode) => {
     setMode(selectedMode);
@@ -43,14 +43,14 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
   const handleStartGame = () => {
     if (mode === 'single') {
       onStart({ mode: 'single', gameId: null });
-    } else if (mode === 'multi' && gameId.trim()) {
-      onStart({ mode: 'multi', gameId: gameId.trim() });
+    } else if (mode === 'multi' && sessionId.trim()) {
+      onStart({ mode: 'multi', gameId: sessionId.trim().toUpperCase() });
     }
   };
 
   const handleBack = () => {
     setMode(null);
-    setGameId('');
+    setSessionId('');
   };
   return (
     <div className="w-full max-w-full h-screen bg-black text-cyan-400 font-mono text-center overflow-y-auto overflow-x-hidden" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
@@ -177,22 +177,22 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
         <div className="flex flex-col gap-4 relative z-20 w-full max-w-md">
           {/* Multiplayer Game ID Input */}
           <div className="flex flex-col gap-2">
-            <label className="text-amber-400 text-sm font-bold tracking-wider">ENTER GAME ID</label>
+            <label className="text-amber-400 text-sm font-bold tracking-wider">ENTER SESSION ID</label>
             <input
               type="text"
-              value={gameId}
-              onChange={(e) => setGameId(e.target.value)}
+              value={sessionId}
+              onChange={(e) => setSessionId(e.target.value)}
               placeholder="e.g., CRITICAL-MASS-2024"
               className="px-4 py-3 bg-gray-900/50 border-2 border-amber-500/50 rounded-lg text-amber-100 placeholder-gray-600 focus:outline-none focus:border-amber-400 focus:shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all"
-              onKeyPress={(e) => e.key === 'Enter' && gameId.trim() && handleStartGame()}
+              onKeyPress={(e) => e.key === 'Enter' && sessionId.trim() && handleStartGame()}
             />
             <p className="text-xs text-amber-300/70 text-left">
-              Enter an existing game ID to join, or create a new game with any unique ID
+              Enter an existing session ID to join, or create a new session with any unique ID
             </p>
           </div>
           <button
             onClick={handleStartGame}
-            disabled={!gameId.trim()}
+            disabled={!sessionId.trim()}
             className="group relative px-4 py-3 md:px-8 md:py-4 bg-amber-900/30 border-2 border-amber-500 hover:bg-amber-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900/30 w-full select-none"
           >
             <div className="absolute inset-0 bg-amber-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>

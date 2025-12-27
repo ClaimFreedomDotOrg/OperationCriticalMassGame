@@ -16,6 +16,7 @@ export const useFirebaseSync = ({ sessionId, playerId } = {}) => {
   const [coherence, setCoherence] = useState(0);
   const [activePlayers, setActivePlayers] = useState(0);
   const [error, setError] = useState(null);
+  const [hasLivestream, setHasLivestream] = useState(false);
 
   const throttleTimerRef = useRef(null);
   const pendingUpdateRef = useRef(null);
@@ -79,7 +80,15 @@ export const useFirebaseSync = ({ sessionId, playerId } = {}) => {
 
         // Increment active players count
         const updatedCount = (sessionData.activePlayers || 0) + 1;
-        await db.update(sessionRef, { activePlayers: updatedCount });
+        const updates = { activePlayers: updatedCount };
+
+        // If startTime is null (session was reset), set it to now
+        if (!sessionData.startTime) {
+          updates.startTime = Date.now();
+          console.log('Starting timer - first player joined after reset');
+        }
+
+        await db.update(sessionRef, updates);
 
         console.log(`Player ${playerId} joined session ${sessionId} (${updatedCount} active players)`);
       }
@@ -124,6 +133,17 @@ export const useFirebaseSync = ({ sessionId, playerId } = {}) => {
             setCoherence(data.coherence || 0);
             setActivePlayers(data.activePlayers || 0);
             setConnectionStatus('connected');
+
+            // Check if livestream is active (heartbeat within last 30 seconds)
+            const livestreamActive = data.livestreamActive &&
+              data.livestreamHeartbeat &&
+              (Date.now() - data.livestreamHeartbeat) < 30000;
+
+            setHasLivestream(livestreamActive);
+
+            if (livestreamActive) {
+              console.log('📺 LivestreamView detected - using centralized coherence');
+            }
           }
         }, (err) => {
           console.error('Firebase session error:', err);
@@ -314,6 +334,7 @@ export const useFirebaseSync = ({ sessionId, playerId } = {}) => {
     updatePlayerState,
     isConnected: connectionStatus === 'connected',
     isDegraded: connectionStatus === 'degraded',
+    hasLivestream, // Indicates if LivestreamView is actively managing the session
   };
 };
 

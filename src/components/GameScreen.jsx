@@ -69,11 +69,31 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const playerCoherenceRef = useRef(0); // Track player coherence for accurate Firebase updates
   const injectChaosRef = useRef(null); // Ref to chaos injection function for miss handling
 
+  // Track stats for Firebase
+  const statsRef = useRef({
+    totalTaps: 0,
+    successfulTaps: 0,
+    infectionsCleaned: 0,
+  });
+
+  // Reset statsRef when sessionId or playerId changes (new game session)
+  useEffect(() => {
+    console.log('🔄 Resetting stats for new session:', { sessionId, playerId });
+    statsRef.current = {
+      totalTaps: 0,
+      successfulTaps: 0,
+      infectionsCleaned: 0,
+    };
+  }, [sessionId, playerId]);
+
   // Firebase sync (only in multiplayer mode)
   const firebaseSync = gameMode === 'multi' ? useFirebaseSync({
     sessionId,
     playerId,
   }) : null;
+
+  // Check if there's an active livestream managing coherence
+  const hasLivestream = gameMode === 'multi' ? (firebaseSync?.hasLivestream || false) : false;
 
   // Use Firebase data in multiplayer, local state in single player
   const coherence = gameMode === 'multi' ? (firebaseSync?.coherence || 0) : localCoherence;
@@ -191,6 +211,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setIsInSync(false);
     setFeedback('MISS');
 
+    // Track tap stats
+    statsRef.current.totalTaps++;
+
     // Play miss sound
     playTapMiss();
 
@@ -200,12 +223,16 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     }
 
     // Update coherence based on game mode
-    if (gameMode === 'single') {
+    if (gameMode === 'single' && !hasLivestream) {
+      // Only update local coherence if there's no active livestream
       setLocalCoherence(prev => Math.max(0, prev - 1)); // Decrease by 1% per miss
       updatePlayerState({
         isInSync: false,
         score: scoreRef.current,
         lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
       });
     } else if (gameMode === 'multi') {
       // In multiplayer, decrease individual player's coherence
@@ -216,12 +243,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       console.log('🔴 MISS - Coherence:', oldCoherence, '→', newCoherence);
 
-      // Update Firebase with new coherence
+      // Update Firebase with new coherence and stats
       updatePlayerState({
         isInSync: false,
         playerCoherence: newCoherence,
         score: scoreRef.current,
         lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
       });
     }
 
@@ -255,6 +285,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setIsInSync(true);
     setFeedback('HIT');
 
+    // Track tap stats
+    statsRef.current.totalTaps++;
+    statsRef.current.successfulTaps++;
+
     // Calculate new score
     const newScore = scoreRef.current + 10;
     setScore(newScore);
@@ -263,12 +297,16 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     playTapSuccess();
 
     // Update coherence based on game mode
-    if (gameMode === 'single') {
+    if (gameMode === 'single' && !hasLivestream) {
+      // Only update local coherence if there's no active livestream
       setLocalCoherence(prev => Math.min(100, prev + 2)); // Increase by 2% per hit
       updatePlayerState({
         isInSync: true,
         score: newScore,
         lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
       });
     } else if (gameMode === 'multi') {
       // In multiplayer, increase individual player's coherence
@@ -279,12 +317,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       console.log('🟢 HIT - Coherence:', oldCoherence, '→', newCoherence);
 
-      // Update Firebase with new coherence
+      // Update Firebase with new coherence and stats
       updatePlayerState({
         isInSync: true,
         playerCoherence: newCoherence,
         score: newScore,
         lastTap: Date.now(),
+        totalTaps: statsRef.current.totalTaps,
+        successfulTaps: statsRef.current.successfulTaps,
+        infectionsCleaned: statsRef.current.infectionsCleaned,
       });
     }
 
@@ -472,6 +513,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       {/* 1. TOP HUD (Global Metrics) */}
       <div className="w-full p-2 md:p-4 z-30 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px] flex-shrink-0">
         <div className="max-w-2xl mx-auto relative">
+          {/* Session ID Display */}
+          <div className="text-center mb-2 text-[10px] md:text-xs font-bold tracking-wider">
+            {gameMode === 'multi' ? (
+              <span className="text-cyan-400">SESSION ID: <span className="text-cyan-300">{sessionId}</span></span>
+            ) : (
+              <span className="text-gray-500">SINGLE PLAYER</span>
+            )}
+          </div>
+
           <div className="flex justify-between items-end mb-1 text-xs uppercase tracking-widest">
             <span className="text-cyan-500 flex items-center gap-2">
               <ActivityIcon size={14} /> Global Body Status
@@ -576,6 +626,9 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             onDismiss={() => {
               dismissBubble(bubble.id);
 
+              // Increment infections cleaned counter
+              statsRef.current.infectionsCleaned++;
+
               // Calculate new score
               const newScore = scoreRef.current + 5;
               setScore(newScore);
@@ -587,6 +640,14 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
               if (gameStats) {
                 gameStats.recordThoughtDismissed();
               }
+
+              // Update Firebase with new stats immediately
+              updatePlayerState({
+                infectionsCleaned: statsRef.current.infectionsCleaned,
+                score: newScore,
+                totalTaps: statsRef.current.totalTaps,
+                successfulTaps: statsRef.current.successfulTaps,
+              });
             }}
           />
         ))}

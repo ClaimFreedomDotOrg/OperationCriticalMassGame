@@ -11,10 +11,20 @@ import useAudio from './hooks/useAudio';
 import IdleScreen from './components/IdleScreen';
 import GameScreen from './components/GameScreen';
 import BreakthroughScreen from './components/BreakthroughScreen';
+import LivestreamView from './components/LivestreamView';
 import { generatePlayerId, generateSessionId } from './config/firebase';
 import { GAME_CONFIG } from './constants/gameConfig';
 
 function App() {
+  // Check if this is the livestream view based on URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const isLivestreamView = urlParams.get('view') === 'livestream';
+  const livestreamSessionId = urlParams.get('session');
+
+  // If this is livestream view, render only that
+  if (isLivestreamView) {
+    return <LivestreamView sessionId={livestreamSessionId} />;
+  }
   const {
     gameState,
     sessionId,
