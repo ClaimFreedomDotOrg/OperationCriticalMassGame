@@ -1,15 +1,15 @@
 /**
  * Firebase Configuration and Initialization
  *
- * IMPORTANT: Replace these values with your actual Firebase project credentials
- * Get these from: Firebase Console > Project Settings > General > Your apps
+ * Environment variables must be set at build time with VITE_ prefix.
+ * For Cloudflare Pages: Set variables in dashboard under Settings > Environment variables
+ * For local development: Create a .env file with VITE_FIREBASE_* variables
  */
 
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, update, remove } from 'firebase/database';
 
-// Firebase configuration using environment variables
-// These are safe to expose in client-side code (Firebase's security model relies on database rules)
+// Firebase configuration using build-time environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -20,6 +20,20 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Debug: Log which config values are present (not the actual values for security)
+if (import.meta.env.DEV || !firebaseConfig.databaseURL) {
+  console.log('Firebase config check:', {
+    hasApiKey: !!firebaseConfig.apiKey,
+    hasAuthDomain: !!firebaseConfig.authDomain,
+    hasDatabaseURL: !!firebaseConfig.databaseURL,
+    hasProjectId: !!firebaseConfig.projectId,
+    hasStorageBucket: !!firebaseConfig.storageBucket,
+    hasMessagingSenderId: !!firebaseConfig.messagingSenderId,
+    hasAppId: !!firebaseConfig.appId,
+    hasMeasurementId: !!firebaseConfig.measurementId
+  });
+}
 
 // Initialize Firebase
 let app = null;
