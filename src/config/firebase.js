@@ -17,16 +17,31 @@ let initPromise = null;
 async function initializeFirebaseAsync() {
   try {
     // Try to fetch config from Cloudflare Pages Function (production)
+    console.log('Fetching Firebase config from /api/config...');
     const response = await fetch('/api/config');
     if (response.ok) {
       const firebaseConfig = await response.json();
-      console.log('✅ Loaded Firebase config from Cloudflare Pages Function');
-      app = initializeApp(firebaseConfig);
-      database = getDatabase(app);
-      return;
+      console.log('Firebase config received:', {
+        hasApiKey: !!firebaseConfig.apiKey,
+        hasAuthDomain: !!firebaseConfig.authDomain,
+        hasDatabaseURL: !!firebaseConfig.databaseURL,
+        hasProjectId: !!firebaseConfig.projectId,
+        hasAppId: !!firebaseConfig.appId,
+      });
+
+      if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.databaseURL) {
+        console.log('✅ Loaded Firebase config from Cloudflare Pages Function');
+        app = initializeApp(firebaseConfig);
+        database = getDatabase(app);
+        return;
+      } else {
+        console.warn('⚠️ Config from /api/config is incomplete, falling back to env vars');
+      }
+    } else {
+      console.log(`/api/config responded with status ${response.status}`);
     }
   } catch (error) {
-    console.log('ℹ️ Cloudflare Pages Function not available, using build-time env vars');
+    console.log('ℹ️ Cloudflare Pages Function not available:', error.message);
   }
 
   // Fallback to build-time environment variables (local development)

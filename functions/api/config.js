@@ -2,6 +2,9 @@
 // This makes environment variables available at runtime instead of build time
 
 export async function onRequest(context) {
+  // Debug: Log what's available
+  console.log('Available env keys:', Object.keys(context.env || {}));
+
   const config = {
     apiKey: context.env.VITE_FIREBASE_API_KEY,
     authDomain: context.env.VITE_FIREBASE_AUTH_DOMAIN,
