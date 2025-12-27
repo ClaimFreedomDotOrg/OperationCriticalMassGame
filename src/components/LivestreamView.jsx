@@ -353,9 +353,13 @@ const LivestreamView = ({ sessionId }) => {
         ? Math.floor((Date.now() - startTime) / 1000)
         : stats.sessionDuration;
 
+      // Get player count directly from players object to ensure accuracy
+      const playerCount = Object.keys(players).length;
+
       console.log('🎉 CRITICAL MASS ACHIEVED - Triggering celebration!');
       console.log('📊 Capturing breakthrough stats:', {
-        activePlayers: coherenceMetrics.activePlayers,
+        playerCount: playerCount,
+        coherenceMetricsActivePlayers: coherenceMetrics.activePlayers,
         sessionDuration: calculatedDuration,
         startTime: startTime,
         totalTaps: stats.totalTaps,
@@ -364,8 +368,9 @@ const LivestreamView = ({ sessionId }) => {
       });
 
       // Capture current stats BEFORE they get reset
+      // Use playerCount directly from players object for accuracy
       setBreakthroughStats({
-        activePlayers: coherenceMetrics.activePlayers,
+        activePlayers: playerCount,
         sessionDuration: calculatedDuration,
         totalTaps: stats.totalTaps,
         successfulTaps: stats.successfulTaps,
@@ -377,7 +382,7 @@ const LivestreamView = ({ sessionId }) => {
       setShowCelebration(true);
       setCelebrationTriggered(true);
     }
-  }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats, sessionData?.startTime, celebrationTriggered]);
+  }, [coherenceMetrics.coherencePercent, players, stats, sessionData?.startTime, celebrationTriggered]);
 
   // Auto-hide celebration after 30 seconds (separate effect to avoid timer being cleared by dependency changes)
   useEffect(() => {
@@ -595,30 +600,30 @@ const LivestreamView = ({ sessionId }) => {
             </p>
 
             {/* Stats Display */}
-            <div className="mt-8 flex flex-wrap justify-center gap-6 md:gap-8 max-w-6xl mx-auto px-4">
-              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
-                <div className="text-5xl md:text-7xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
-                <div className="text-lg md:text-xl text-gray-600 mt-2">Synchronized Cells</div>
+            <div className="mt-8 flex flex-wrap justify-center gap-6 md:gap-10 max-w-7xl mx-auto px-4">
+              <div className="bg-white/90 rounded-2xl px-10 py-8 md:px-16 md:py-10 shadow-2xl">
+                <div className="text-6xl md:text-8xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
+                <div className="text-xl md:text-2xl text-gray-600 mt-2 font-medium">Synchronized Cells</div>
               </div>
-              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
-                <div className="text-5xl md:text-7xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
-                <div className="text-lg md:text-xl text-gray-600 mt-2">Session Time</div>
+              <div className="bg-white/90 rounded-2xl px-10 py-8 md:px-16 md:py-10 shadow-2xl">
+                <div className="text-6xl md:text-8xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
+                <div className="text-xl md:text-2xl text-gray-600 mt-2 font-medium">Session Time</div>
               </div>
-              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
-                <div className="text-5xl md:text-7xl font-bold text-cyan-600">{breakthroughStats.totalTaps.toLocaleString()}</div>
-                <div className="text-lg md:text-xl text-gray-600 mt-2">Total Taps</div>
+              <div className="bg-white/90 rounded-2xl px-10 py-8 md:px-16 md:py-10 shadow-2xl">
+                <div className="text-6xl md:text-8xl font-bold text-cyan-600">{breakthroughStats.totalTaps.toLocaleString()}</div>
+                <div className="text-xl md:text-2xl text-gray-600 mt-2 font-medium">Total Taps</div>
               </div>
-              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
-                <div className="text-5xl md:text-7xl font-bold text-green-600">{breakthroughStats.successfulTaps.toLocaleString()}</div>
-                <div className="text-lg md:text-xl text-gray-600 mt-2">Successful Taps</div>
+              <div className="bg-white/90 rounded-2xl px-10 py-8 md:px-16 md:py-10 shadow-2xl">
+                <div className="text-6xl md:text-8xl font-bold text-green-600">{breakthroughStats.successfulTaps.toLocaleString()}</div>
+                <div className="text-xl md:text-2xl text-gray-600 mt-2 font-medium">Successful Taps</div>
               </div>
-              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
-                <div className="text-5xl md:text-7xl font-bold text-cyan-600">{breakthroughStats.avgAccuracy.toFixed(1)}%</div>
-                <div className="text-lg md:text-xl text-gray-600 mt-2">Accuracy</div>
+              <div className="bg-white/90 rounded-2xl px-10 py-8 md:px-16 md:py-10 shadow-2xl">
+                <div className="text-6xl md:text-8xl font-bold text-cyan-600">{breakthroughStats.avgAccuracy.toFixed(1)}%</div>
+                <div className="text-xl md:text-2xl text-gray-600 mt-2 font-medium">Accuracy</div>
               </div>
-              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
-                <div className="text-5xl md:text-7xl font-bold text-red-500">{breakthroughStats.infectionsCleared}</div>
-                <div className="text-lg md:text-xl text-gray-600 mt-2">Infections Cleared</div>
+              <div className="bg-white/90 rounded-2xl px-10 py-8 md:px-16 md:py-10 shadow-2xl">
+                <div className="text-6xl md:text-8xl font-bold text-red-500">{breakthroughStats.infectionsCleared}</div>
+                <div className="text-xl md:text-2xl text-gray-600 mt-2 font-medium">Infections Cleared</div>
               </div>
             </div>
           </div>
