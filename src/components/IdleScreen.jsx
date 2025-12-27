@@ -186,6 +186,9 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
               className="px-4 py-3 bg-gray-900/50 border-2 border-amber-500/50 rounded-lg text-amber-100 placeholder-gray-600 focus:outline-none focus:border-amber-400 focus:shadow-[0_0_20px_rgba(251,191,36,0.3)] transition-all"
               onKeyPress={(e) => e.key === 'Enter' && gameId.trim() && handleStartGame()}
             />
+            <p className="text-xs text-amber-300/70 text-left">
+              Enter an existing game ID to join, or create a new game with any unique ID
+            </p>
           </div>
           <button
             onClick={handleStartGame}
