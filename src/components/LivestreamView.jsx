@@ -681,8 +681,8 @@ const LivestreamView = ({ sessionId }) => {
                       {window.location.origin}
                     </p>
                   </div>
-                  <p className="text-cyan-100/60 text-xs md:text-sm">
-                    Scan QR code or visit URL • Tap Multiplayer • Enter Session ID
+                  <p className="text-cyan-100 text-sm md:text-base font-medium">
+                    1. Scan QR or visit URL → 2. Tap "Multiplayer" → 3. Enter Session ID
                   </p>
                 </div>
 
