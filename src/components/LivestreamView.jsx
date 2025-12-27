@@ -25,6 +25,11 @@ const LivestreamView = ({ sessionId }) => {
   const [breakthroughStats, setBreakthroughStats] = useState({
     activePlayers: 0,
     sessionDuration: 0,
+    totalTaps: 0,
+    successfulTaps: 0,
+    missedTaps: 0,
+    infectionsCleared: 0,
+    avgAccuracy: 0,
   });
   const [stats, setStats] = useState({
     totalTaps: 0,
@@ -343,17 +348,29 @@ const LivestreamView = ({ sessionId }) => {
   useEffect(() => {
     if (coherenceMetrics.coherencePercent >= 100 && !celebrationTriggered) {
       console.log('🎉 CRITICAL MASS ACHIEVED - Triggering celebration!');
+      console.log('📊 Capturing breakthrough stats:', {
+        activePlayers: coherenceMetrics.activePlayers,
+        sessionDuration: stats.sessionDuration,
+        totalTaps: stats.totalTaps,
+        successfulTaps: stats.successfulTaps,
+        avgAccuracy: stats.avgAccuracy,
+      });
 
       // Capture current stats BEFORE they get reset
       setBreakthroughStats({
         activePlayers: coherenceMetrics.activePlayers,
         sessionDuration: stats.sessionDuration,
+        totalTaps: stats.totalTaps,
+        successfulTaps: stats.successfulTaps,
+        missedTaps: stats.missedTaps,
+        infectionsCleared: stats.infectionsCleared,
+        avgAccuracy: stats.avgAccuracy,
       });
 
       setShowCelebration(true);
       setCelebrationTriggered(true);
     }
-  }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats.sessionDuration, celebrationTriggered]);
+  }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats, celebrationTriggered]);
 
   // Auto-hide celebration after 10 seconds (separate effect to avoid timer being cleared by dependency changes)
   useEffect(() => {
@@ -571,14 +588,30 @@ const LivestreamView = ({ sessionId }) => {
             </p>
 
             {/* Stats Display */}
-            <div className="mt-8 flex justify-center gap-8">
-              <div className="bg-white/80 rounded-lg px-6 py-4 shadow-lg">
-                <div className="text-4xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
-                <div className="text-sm text-gray-600">Synchronized Cells</div>
+            <div className="mt-8 flex flex-wrap justify-center gap-4 md:gap-6 max-w-4xl mx-auto px-4">
+              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
+                <div className="text-xs md:text-sm text-gray-600">Synchronized Cells</div>
               </div>
-              <div className="bg-white/80 rounded-lg px-6 py-4 shadow-lg">
-                <div className="text-4xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
-                <div className="text-sm text-gray-600">Session Time</div>
+              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
+                <div className="text-xs md:text-sm text-gray-600">Session Time</div>
+              </div>
+              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-cyan-600">{breakthroughStats.totalTaps.toLocaleString()}</div>
+                <div className="text-xs md:text-sm text-gray-600">Total Taps</div>
+              </div>
+              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-green-600">{breakthroughStats.successfulTaps.toLocaleString()}</div>
+                <div className="text-xs md:text-sm text-gray-600">Successful Taps</div>
+              </div>
+              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-cyan-600">{breakthroughStats.avgAccuracy.toFixed(1)}%</div>
+                <div className="text-xs md:text-sm text-gray-600">Accuracy</div>
+              </div>
+              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-red-500">{breakthroughStats.infectionsCleared}</div>
+                <div className="text-xs md:text-sm text-gray-600">Infections Cleared</div>
               </div>
             </div>
           </div>
