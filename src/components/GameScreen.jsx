@@ -547,7 +547,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* Instructions - Above Controls (Hidden at 10% coherence or higher) */}
       {coherence < 10 && (
-        <div className="w-full text-center py-3 z-20 px-4 bg-black/80 backdrop-blur-sm flex-shrink-0 border-t-2 border-cyan-900/50">
+        <div className="absolute left-0 right-0 z-20 w-full text-center py-3 px-4 bg-black/80 backdrop-blur-sm border-t-2 border-cyan-900/50 pointer-events-none" style={{ bottom: '240px' }}>
           {hasBlockingBubbles ? (
             <div className="flex flex-col items-center gap-2">
               <div className="text-red-400 text-lg md:text-xl font-bold animate-pulse tracking-wide">
