@@ -477,7 +477,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     >
       {/* Pause/Connecting Overlay - Covers entire GameScreen */}
       {isPaused && (
-        <div 
+        <div
           className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           role="status"
           aria-live="polite"
@@ -710,23 +710,23 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* Instructions - Above Controls (Hidden at 10% coherence or higher) */}
       {coherence < 10 && (
-        <div className="absolute left-0 right-0 z-20 w-full text-center py-3 px-4 bg-black/80 backdrop-blur-sm border-t-2 border-cyan-900/50 pointer-events-none" style={{ bottom: '240px' }}>
+        <div className="absolute left-0 right-0 z-20 w-full text-center py-2 px-4 bg-black/70 backdrop-blur-sm border-t border-cyan-900/30 pointer-events-none" style={{ bottom: '240px' }}>
           {hasBlockingBubbles ? (
-            <div className="flex flex-col items-center gap-2">
-              <div className="text-red-400 text-lg md:text-xl font-bold animate-pulse tracking-wide">
-                ⚠️ TAP THE THOUGHT BUBBLE TO CLEAR IT
+            <div className="flex flex-col items-center gap-1">
+              <div className="text-red-400 text-sm md:text-base font-semibold animate-pulse">
+                ⚠️ Tap the thought bubble to clear it
               </div>
-              <div className="text-red-300/70 text-xs md:text-sm">
-                Click or tap the red bubble above to dismiss the intrusive thought
+              <div className="text-red-300/60 text-xs">
+                Dismiss the intrusive thought to continue
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-cyan-300 text-base md:text-lg font-bold tracking-wide">
-                👆 TAP THE <span className="text-cyan-400 animate-pulse">GLOWING</span> SIDE IN RHYTHM
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="text-cyan-300 text-sm md:text-base font-semibold">
+                Tap the <span className="text-cyan-400 animate-pulse">glowing</span> side in rhythm
               </div>
-              <div className="text-cyan-400/60 text-xs md:text-sm">
-                Match the beat timing for better coherence
+              <div className="text-cyan-400/50 text-xs">
+                Match the beat for better coherence
               </div>
             </div>
           )}
