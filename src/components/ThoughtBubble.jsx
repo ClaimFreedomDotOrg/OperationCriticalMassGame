@@ -81,14 +81,13 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
         bubble.isDismissing ? 'animate-bubble-dismiss' : ''
       }`}
       style={{
-        left: `max(0.75rem, ${bubble.position.x}%)`, // Ensure minimum left margin
+        left: `clamp(0.75rem, ${bubble.position.x}%, calc(100vw - 12rem))`, // Clamp between min margin and max position
         top: `${bubble.position.y}%`,
         transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
-        // Constrain width to prevent overflow on both edges
-        // Account for left position and ensure right margin
+        // Constrain width to never exceed viewport with margins
         // This overrides the max-w-xs (20rem) Tailwind class when needed, while min-w-[11rem] ensures readability
-        maxWidth: `calc(100vw - max(0.75rem, ${bubble.position.x}%) - 0.75rem)`,
+        maxWidth: `min(20rem, calc(100vw - ${bubble.position.x}% - 1.5rem))`,
       }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
