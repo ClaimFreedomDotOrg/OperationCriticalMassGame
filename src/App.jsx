@@ -53,7 +53,7 @@ function App() {
         initAudioContext();
       }
       resumeAudioContext();
-      
+
       // Note: Listeners remain active throughout the app lifecycle because browsers
       // may suspend audio context during screen transitions or user inactivity.
       // This ensures breakthrough sound plays even after extended gameplay.
@@ -161,7 +161,7 @@ function App() {
    * Calculate session stats on breakthrough
    * Note: Only depends on isBreakthrough and sessionStartTime to ensure
    * duration is captured exactly once when breakthrough is achieved.
-   * 
+   *
    * The gameStats.updateDuration() call is safe here even though gameStats
    * is not a dependency - the updateDuration function is memoized with useCallback
    * and remains stable. We intentionally exclude gameStats from dependencies to
@@ -202,6 +202,7 @@ function App() {
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
           onBreakthrough={triggerBreakthrough}
+          onBack={resetGame}
           gameStats={gameStats}
         />
       )}

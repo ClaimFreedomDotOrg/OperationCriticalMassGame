@@ -56,7 +56,7 @@ const VolumeOffIcon = ({ size = 20 }) => (
   </svg>
 );
 
-const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, gameStats }) => {
+const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, onBack, gameStats }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
   const [isInSync, setIsInSync] = useState(false);
@@ -495,6 +495,15 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
                 <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }}></div>
                 <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }}></div>
               </div>
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="mt-6 px-6 py-2 text-sm md:text-base font-bold text-cyan-400 hover:text-cyan-300 border border-cyan-400/50 hover:border-cyan-300 rounded-lg transition-colors duration-200"
+                  aria-label="Go back to start screen"
+                >
+                  ← BACK
+                </button>
+              )}
             </div>
           </div>
         )}
