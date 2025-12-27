@@ -19,10 +19,11 @@ const BreakthroughScreen = ({ onReset, onRestartGame, sessionStats, visualTaps =
   }, [playBreakthrough]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-full h-full bg-amber-50 text-amber-900 font-serif p-3 md:p-6 text-center select-none animate-in fade-in duration-1000 relative overflow-y-auto overflow-x-hidden">
+    <div className="w-full max-w-full h-screen bg-amber-50 overflow-y-auto overflow-x-hidden" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+      <div className="flex flex-col items-center justify-start md:justify-center min-h-full text-amber-900 font-serif p-3 md:p-6 text-center select-none animate-in fade-in duration-1000 relative">
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
-        <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
           {visualTaps.map(tap => (
             <div
               key={tap.id}
@@ -38,7 +39,7 @@ const BreakthroughScreen = ({ onReset, onRestartGame, sessionStats, visualTaps =
       )}
 
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-amber-100 to-white opacity-50"></div>
+      <div className="fixed inset-0 bg-gradient-to-b from-amber-100 to-white opacity-50 pointer-events-none"></div>
 
       {/* Sacred Geometry - Toroid visualization */}
       <div className="mb-4 md:mb-8 relative w-48 h-48 md:w-64 md:h-64 z-20 flex-shrink-0">
@@ -135,6 +136,7 @@ const BreakthroughScreen = ({ onReset, onRestartGame, sessionStats, visualTaps =
           getThoughtBubbleSuccessRate={gameStats.getThoughtBubbleSuccessRate}
         />
       )}
+      </div>
     </div>
   );
 };
