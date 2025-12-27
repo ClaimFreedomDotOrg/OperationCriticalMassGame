@@ -347,10 +347,17 @@ const LivestreamView = ({ sessionId }) => {
   // Trigger celebration when coherence reaches 100%
   useEffect(() => {
     if (coherenceMetrics.coherencePercent >= 100 && !celebrationTriggered) {
+      // Calculate session duration directly from startTime to avoid race conditions
+      const startTime = sessionData?.startTime;
+      const calculatedDuration = (startTime && typeof startTime === 'number')
+        ? Math.floor((Date.now() - startTime) / 1000)
+        : stats.sessionDuration;
+
       console.log('🎉 CRITICAL MASS ACHIEVED - Triggering celebration!');
       console.log('📊 Capturing breakthrough stats:', {
         activePlayers: coherenceMetrics.activePlayers,
-        sessionDuration: stats.sessionDuration,
+        sessionDuration: calculatedDuration,
+        startTime: startTime,
         totalTaps: stats.totalTaps,
         successfulTaps: stats.successfulTaps,
         avgAccuracy: stats.avgAccuracy,
@@ -359,7 +366,7 @@ const LivestreamView = ({ sessionId }) => {
       // Capture current stats BEFORE they get reset
       setBreakthroughStats({
         activePlayers: coherenceMetrics.activePlayers,
-        sessionDuration: stats.sessionDuration,
+        sessionDuration: calculatedDuration,
         totalTaps: stats.totalTaps,
         successfulTaps: stats.successfulTaps,
         missedTaps: stats.missedTaps,
@@ -370,18 +377,18 @@ const LivestreamView = ({ sessionId }) => {
       setShowCelebration(true);
       setCelebrationTriggered(true);
     }
-  }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats, celebrationTriggered]);
+  }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats, sessionData?.startTime, celebrationTriggered]);
 
-  // Auto-hide celebration after 10 seconds (separate effect to avoid timer being cleared by dependency changes)
+  // Auto-hide celebration after 30 seconds (separate effect to avoid timer being cleared by dependency changes)
   useEffect(() => {
     if (!showCelebration) return;
 
-    console.log('⏱️ Starting 10-second celebration timer');
+    console.log('⏱️ Starting 30-second celebration timer');
     const timer = setTimeout(() => {
       console.log('⏱️ Celebration timer complete - hiding breakthrough screen');
       setShowCelebration(false);
       setCelebrationTriggered(false); // Allow new breakthrough to trigger
-    }, 10000);
+    }, 30000);
 
     return () => clearTimeout(timer);
   }, [showCelebration]);
