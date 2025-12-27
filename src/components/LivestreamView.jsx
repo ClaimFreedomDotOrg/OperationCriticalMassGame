@@ -21,6 +21,11 @@ const LivestreamView = ({ sessionId }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationTriggered, setCelebrationTriggered] = useState(false);
+  // Captured stats at moment of breakthrough (before reset)
+  const [breakthroughStats, setBreakthroughStats] = useState({
+    activePlayers: 0,
+    sessionDuration: 0,
+  });
   const [stats, setStats] = useState({
     totalTaps: 0,
     successfulTaps: 0,
@@ -338,17 +343,25 @@ const LivestreamView = ({ sessionId }) => {
   useEffect(() => {
     if (coherenceMetrics.coherencePercent >= 100 && !celebrationTriggered) {
       console.log('🎉 CRITICAL MASS ACHIEVED - Triggering celebration!');
+
+      // Capture current stats BEFORE they get reset
+      setBreakthroughStats({
+        activePlayers: coherenceMetrics.activePlayers,
+        sessionDuration: stats.sessionDuration,
+      });
+
       setShowCelebration(true);
       setCelebrationTriggered(true);
 
-      // Hide celebration after 10 seconds
+      // Hide celebration after 10 seconds and allow new breakthrough
       const timer = setTimeout(() => {
         setShowCelebration(false);
+        setCelebrationTriggered(false); // Allow new breakthrough to trigger
       }, 10000);
 
       return () => clearTimeout(timer);
     }
-  }, [coherenceMetrics.coherencePercent, celebrationTriggered]);
+  }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats.sessionDuration, celebrationTriggered]);
 
   // Get color based on coherence
   const getCoherenceColor = () => {
@@ -554,11 +567,11 @@ const LivestreamView = ({ sessionId }) => {
             {/* Stats Display */}
             <div className="mt-8 flex justify-center gap-8">
               <div className="bg-white/80 rounded-lg px-6 py-4 shadow-lg">
-                <div className="text-4xl font-bold text-amber-600">{coherenceMetrics.activePlayers}</div>
+                <div className="text-4xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
                 <div className="text-sm text-gray-600">Synchronized Cells</div>
               </div>
               <div className="bg-white/80 rounded-lg px-6 py-4 shadow-lg">
-                <div className="text-4xl font-bold text-amber-600">{formatTime(stats.sessionDuration)}</div>
+                <div className="text-4xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
                 <div className="text-sm text-gray-600">Session Time</div>
               </div>
             </div>
