@@ -32,7 +32,9 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
    * - Top HUD: ~15% of viewport height
    * - Bottom controls: ~30% of viewport height  
    * - Horizontal margins: ~10% on each side
-   * - Bubble size: Approximately 200-350px wide, 100-150px tall
+   * 
+   * Bubbles use dynamic max-width constraints (via CSS calc) to prevent
+   * overflow on the right edge, ensuring full visibility across all viewports.
    */
   const spawnBubble = useCallback(() => {
     const randomWord = WORDS_OF_THE_VOICE[Math.floor(Math.random() * WORDS_OF_THE_VOICE.length)];

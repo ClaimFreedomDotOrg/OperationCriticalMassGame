@@ -7,10 +7,9 @@
  * Design: Clean, minimal thought bubble with subtle indicator dots,
  * matching the bio-luminescent neuroscience aesthetic.
  * 
- * Positioning: Bubbles are spawned with pre-calculated safe positions (10-80% horizontal,
- * 20-55% vertical) that account for bubble dimensions and viewport constraints. 
- * Post-render boundary checking was intentionally removed as the spawn ranges provide
- * sufficient margin to prevent offscreen rendering in normal use cases.
+ * Positioning: Bubbles use responsive max-width constraints to prevent overflow.
+ * The combination of percentage-based positioning and max-width ensures bubbles
+ * remain fully visible across all viewport sizes without transform-based centering.
  */
 
 import React, { useState, useRef } from 'react';
@@ -82,10 +81,13 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
         bubble.isDismissing ? 'animate-bubble-dismiss' : ''
       }`}
       style={{
-        left: `${bubble.position.x}%`,
+        left: `clamp(0.75rem, ${bubble.position.x}%, calc(100vw - 12rem))`, // Clamp between min margin and max position
         top: `${bubble.position.y}%`,
         transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
+        // Constrain width to never exceed viewport with margins
+        // This overrides the max-w-xs (20rem) Tailwind class when needed, while min-w-[11rem] ensures readability
+        maxWidth: `min(20rem, calc(100vw - ${bubble.position.x}% - 1.5rem))`,
       }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
