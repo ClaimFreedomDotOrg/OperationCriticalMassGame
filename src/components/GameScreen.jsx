@@ -107,10 +107,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     if (!isAudioInitialized) {
       initAudioContext();
     }
-    
+
     // Try to resume immediately in case browser allows it
     resumeAudioContext();
-    
+
     // Also add a click/touch listener to resume audio on any interaction
     const handleUserInteraction = () => {
       resumeAudioContext();
@@ -118,10 +118,10 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
     };
-    
+
     document.addEventListener('click', handleUserInteraction);
     document.addEventListener('touchstart', handleUserInteraction);
-    
+
     return () => {
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
@@ -133,18 +133,18 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   /**
    * Update score in stats whenever it changes
-   * 
+   *
    * Note: Using useEffect to store the function reference prevents React warnings
    * about updating parent component (App) during GameScreen render.
    */
   const updateScoreRef = useRef(null);
-  
+
   useEffect(() => {
     if (gameStats) {
       updateScoreRef.current = gameStats.updateScore;
     }
   }, [gameStats]);
-  
+
   useEffect(() => {
     if (updateScoreRef.current) {
       updateScoreRef.current(score);
@@ -154,18 +154,18 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   /**
    * Monitor for breakthrough condition (100% coherence)
    * Update coherence tracking on every change for accurate statistics
-   * 
+   *
    * Note: Using useEffect to store the function reference prevents React warnings
    * about updating parent component (App) during GameScreen render.
    */
   const updateCoherenceRef = useRef(null);
-  
+
   useEffect(() => {
     if (gameStats) {
       updateCoherenceRef.current = gameStats.updateCoherence;
     }
   }, [gameStats]);
-  
+
   useEffect(() => {
     if (coherence >= 100 && onBreakthrough) {
       onBreakthrough();
@@ -223,7 +223,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const handleSync = useCallback(() => {
     setIsInSync(true);
     setFeedback('HIT');
-    
+
     // Calculate new score
     const newScore = scoreRef.current + 10;
     setScore(newScore);
@@ -247,16 +247,18 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [updatePlayerState, gameMode, playTapSuccess]);
 
-  // Bilateral stimulation
+  // Bilateral stimulation (pause when connecting in multiplayer)
+  const isPaused = gameMode === 'multi' && connectionStatus === 'connecting';
   const { activeSide, handleTap, position } = useBilateralStimulation({
     isActive: true,
+    isPaused,
     onSync: handleSync,
     onMiss: handleMiss,
   });
 
   // Bilateral audio - synchronized with orb position (uses shared audio context)
   useBilateralAudio({
-    isActive: true,
+    isActive: !isPaused,
     position,
     audioContext,
     masterGain,
@@ -265,7 +267,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
   // Dynamic music - correlates with coherence level (uses shared audio context)
   const { injectChaos } = useDynamicMusic({
-    isActive: true,
+    isActive: !isPaused,
     coherence,
     audioContext,
     masterGain,
@@ -471,6 +473,25 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
 
       {/* 2. CENTER STAGE (Pulse Visualizer) */}
       <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center overflow-hidden">
+        {/* Pause/Connecting Overlay */}
+        {isPaused && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="text-cyan-400 text-2xl md:text-4xl font-bold mb-2 animate-pulse">
+                CONNECTING
+              </div>
+              <div className="text-cyan-100/80 text-sm md:text-base">
+                Establishing connection...
+              </div>
+              <div className="flex gap-2 justify-center mt-4">
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '200ms' }}></div>
+                <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Pulse Orb */}
         <div className="relative w-full max-w-md h-24 z-10 flex items-center px-8">
           {/* Oscillation Line */}
@@ -497,14 +518,14 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
             bubble={bubble}
             onDismiss={() => {
               dismissBubble(bubble.id);
-              
+
               // Calculate new score
               const newScore = scoreRef.current + 5;
               setScore(newScore);
-              
+
               // Play thought dismissal sound
               playThoughtDismiss();
-              
+
               // Track dismissed thought bubble
               if (gameStats) {
                 gameStats.recordThoughtDismissed();
