@@ -151,7 +151,7 @@ function App() {
   }, [urlSessionId, isLivestreamView, isIdle, sessionId, handleStart]);
 
   /**
-   * Handle game reset
+   * Handle game reset (return to idle screen)
    */
   const handleReset = useCallback(() => {
     setSessionStats(null);
@@ -160,6 +160,19 @@ function App() {
     gameStats.resetStats(); // Reset stats
     resetGame();
   }, [resetGame, gameStats]);
+
+  /**
+   * Handle restart game (begin again without going to idle screen)
+   * Preserves game mode and session ID for multiplayer
+   */
+  const handleRestartGame = useCallback(() => {
+    setSessionStats(null);
+    setSessionStartTime(Date.now());
+    gameStats.resetStats(); // Reset stats for new game
+    // Restart with same mode and session ID
+    const newPlayerId = generatePlayerId();
+    startGame(sessionId, newPlayerId);
+  }, [gameStats, startGame, sessionId]);
 
   /**
    * Monitor for breakthrough condition
@@ -232,11 +245,13 @@ function App() {
       {isBreakthrough && (
         <BreakthroughScreen
           onReset={handleReset}
+          onRestartGame={handleRestartGame}
           sessionStats={sessionStats}
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
           gameStats={gameStats}
           playBreakthrough={playBreakthrough}
+          gameMode={gameMode}
         />
       )}
     </div>

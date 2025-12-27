@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import StatsModal from './StatsModal';
 
-const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVisualTap, gameStats, playBreakthrough }) => {
+const BreakthroughScreen = ({ onReset, onRestartGame, sessionStats, visualTaps = [], triggerVisualTap, gameStats, playBreakthrough, gameMode }) => {
   const [showStatsModal, setShowStatsModal] = useState(false);
 
   // Play breakthrough sound when screen mounts (audio context owned by parent)
@@ -77,19 +77,30 @@ const BreakthroughScreen = ({ onReset, sessionStats, visualTaps = [], triggerVis
           </div>
         )}
 
-        {/* Reset Button */}
-        <button
-          onClick={onReset}
-          className="px-6 py-3 md:px-8 md:py-4 bg-amber-900/50 border-2 border-amber-900/30 text-amber-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-amber-900/60 active:scale-95 mb-4 md:mb-8 select-none"
-        >
-          Begin Again
-        </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-8">
+          {/* Begin Again Button - restarts game immediately */}
+          <button
+            onClick={onRestartGame}
+            className="px-6 py-3 md:px-8 md:py-4 bg-amber-600/80 border-2 border-amber-500 text-white rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-amber-600 active:scale-95 select-none shadow-lg"
+          >
+            {gameMode === 'multi' ? 'Rejoin Session' : 'Begin Again'}
+          </button>
+
+          {/* Return to Menu Button */}
+          <button
+            onClick={onReset}
+            className="px-6 py-3 md:px-8 md:py-4 bg-amber-900/50 border-2 border-amber-900/30 text-amber-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-amber-900/60 active:scale-95 select-none"
+          >
+            Return to Menu
+          </button>
+        </div>
 
         {/* View Stats Button */}
         {gameStats && (
           <button
             onClick={() => setShowStatsModal(true)}
-            className="px-6 py-3 md:px-8 md:py-4 bg-cyan-900/50 border-2 border-cyan-600/50 text-cyan-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-cyan-900/60 active:scale-95 mb-4 md:mb-8 flex items-center justify-center gap-2 mx-auto select-none"
+            className="px-6 py-3 md:px-8 md:py-4 bg-cyan-900/50 border-2 border-cyan-600/50 text-cyan-900 rounded-xl text-base md:text-lg font-semibold transition-all duration-300 hover:bg-cyan-900/60 active:scale-95 mb-4 md:mb-6 flex items-center justify-center gap-2 mx-auto select-none"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
