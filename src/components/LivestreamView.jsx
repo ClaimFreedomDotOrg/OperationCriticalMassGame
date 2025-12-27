@@ -352,16 +352,22 @@ const LivestreamView = ({ sessionId }) => {
 
       setShowCelebration(true);
       setCelebrationTriggered(true);
-
-      // Hide celebration after 10 seconds and allow new breakthrough
-      const timer = setTimeout(() => {
-        setShowCelebration(false);
-        setCelebrationTriggered(false); // Allow new breakthrough to trigger
-      }, 10000);
-
-      return () => clearTimeout(timer);
     }
   }, [coherenceMetrics.coherencePercent, coherenceMetrics.activePlayers, stats.sessionDuration, celebrationTriggered]);
+
+  // Auto-hide celebration after 10 seconds (separate effect to avoid timer being cleared by dependency changes)
+  useEffect(() => {
+    if (!showCelebration) return;
+
+    console.log('⏱️ Starting 10-second celebration timer');
+    const timer = setTimeout(() => {
+      console.log('⏱️ Celebration timer complete - hiding breakthrough screen');
+      setShowCelebration(false);
+      setCelebrationTriggered(false); // Allow new breakthrough to trigger
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [showCelebration]);
 
   // Get color based on coherence
   const getCoherenceColor = () => {
