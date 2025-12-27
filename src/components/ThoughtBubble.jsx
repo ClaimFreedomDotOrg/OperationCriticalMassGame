@@ -86,6 +86,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
         transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
         // Constrain width to prevent overflow: max-width is distance from left edge to right viewport edge
+        // This overrides the max-w-xs (20rem) Tailwind class when needed, while min-w-[11rem] ensures readability
         maxWidth: `calc(100vw - ${bubble.position.x}% - 1rem)`, // 1rem margin from edge
       }}
       onClick={(e) => e.stopPropagation()}
