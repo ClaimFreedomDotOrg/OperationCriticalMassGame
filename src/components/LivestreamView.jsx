@@ -816,9 +816,10 @@ const LivestreamView = ({ sessionId }) => {
               );
             })}
 
-            {/* Chaotic State Effect (0-29%) - Red static interference */}
+            {/* Chaotic State Effect (0-29%) - Multiple chaotic patterns */}
             {coherenceMetrics.coherencePercent < 30 && coherenceMetrics.activePlayers > 0 && (
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Scanlines */}
                 <div
                   className="absolute inset-0 opacity-20"
                   style={{
@@ -830,6 +831,90 @@ const LivestreamView = ({ sessionId }) => {
                       ${COLORS.RED_500}20 4px
                     )`,
                     animation: 'scanlines 0.1s linear infinite',
+                  }}
+                />
+
+                {/* Chaotic spinning fragments */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Broken ring 1 */}
+                  <div
+                    className="absolute rounded-full border-2 border-red-500/40"
+                    style={{
+                      width: '25%',
+                      height: '25%',
+                      borderStyle: 'dashed',
+                      animation: 'spin-chaotic 3s linear infinite',
+                    }}
+                  />
+                  {/* Broken ring 2 */}
+                  <div
+                    className="absolute rounded-full border-2 border-red-400/30"
+                    style={{
+                      width: '40%',
+                      height: '40%',
+                      borderStyle: 'dotted',
+                      animation: 'spin-chaotic 5s linear infinite reverse',
+                    }}
+                  />
+                  {/* Broken ring 3 */}
+                  <div
+                    className="absolute rounded-full border border-red-600/20"
+                    style={{
+                      width: '55%',
+                      height: '55%',
+                      borderStyle: 'dashed',
+                      animation: 'spin-chaotic 7s linear infinite',
+                    }}
+                  />
+                </div>
+
+                {/* Random glitch rectangles */}
+                <div
+                  className="absolute bg-red-500/10"
+                  style={{
+                    width: '30%',
+                    height: '5%',
+                    left: '10%',
+                    top: '20%',
+                    animation: 'glitch-h 0.3s steps(2) infinite',
+                  }}
+                />
+                <div
+                  className="absolute bg-red-500/10"
+                  style={{
+                    width: '25%',
+                    height: '3%',
+                    right: '15%',
+                    top: '60%',
+                    animation: 'glitch-h 0.5s steps(3) infinite 0.1s',
+                  }}
+                />
+                <div
+                  className="absolute bg-red-500/10"
+                  style={{
+                    width: '4%',
+                    height: '40%',
+                    left: '70%',
+                    top: '30%',
+                    animation: 'glitch-v 0.4s steps(2) infinite 0.2s',
+                  }}
+                />
+
+                {/* Noise overlay */}
+                <div
+                  className="absolute inset-0 opacity-5"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                    animation: 'noise 0.2s steps(5) infinite',
+                  }}
+                />
+
+                {/* Pulsing red glow from center */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: 'radial-gradient(circle at center, rgba(239, 68, 68, 0.15) 0%, transparent 50%)',
+                    animation: 'chaos-pulse 1.5s ease-in-out infinite',
                   }}
                 />
               </div>
