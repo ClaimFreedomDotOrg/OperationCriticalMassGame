@@ -595,30 +595,30 @@ const LivestreamView = ({ sessionId }) => {
             </p>
 
             {/* Stats Display */}
-            <div className="mt-8 flex flex-wrap justify-center gap-4 md:gap-6 max-w-4xl mx-auto px-4">
-              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
-                <div className="text-3xl md:text-4xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
-                <div className="text-xs md:text-sm text-gray-600">Synchronized Cells</div>
+            <div className="mt-8 flex flex-wrap justify-center gap-6 md:gap-8 max-w-6xl mx-auto px-4">
+              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
+                <div className="text-5xl md:text-7xl font-bold text-amber-600">{breakthroughStats.activePlayers}</div>
+                <div className="text-lg md:text-xl text-gray-600 mt-2">Synchronized Cells</div>
               </div>
-              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
-                <div className="text-3xl md:text-4xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
-                <div className="text-xs md:text-sm text-gray-600">Session Time</div>
+              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
+                <div className="text-5xl md:text-7xl font-bold text-amber-600">{formatTime(breakthroughStats.sessionDuration)}</div>
+                <div className="text-lg md:text-xl text-gray-600 mt-2">Session Time</div>
               </div>
-              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
-                <div className="text-3xl md:text-4xl font-bold text-cyan-600">{breakthroughStats.totalTaps.toLocaleString()}</div>
-                <div className="text-xs md:text-sm text-gray-600">Total Taps</div>
+              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
+                <div className="text-5xl md:text-7xl font-bold text-cyan-600">{breakthroughStats.totalTaps.toLocaleString()}</div>
+                <div className="text-lg md:text-xl text-gray-600 mt-2">Total Taps</div>
               </div>
-              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
-                <div className="text-3xl md:text-4xl font-bold text-green-600">{breakthroughStats.successfulTaps.toLocaleString()}</div>
-                <div className="text-xs md:text-sm text-gray-600">Successful Taps</div>
+              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
+                <div className="text-5xl md:text-7xl font-bold text-green-600">{breakthroughStats.successfulTaps.toLocaleString()}</div>
+                <div className="text-lg md:text-xl text-gray-600 mt-2">Successful Taps</div>
               </div>
-              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
-                <div className="text-3xl md:text-4xl font-bold text-cyan-600">{breakthroughStats.avgAccuracy.toFixed(1)}%</div>
-                <div className="text-xs md:text-sm text-gray-600">Accuracy</div>
+              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
+                <div className="text-5xl md:text-7xl font-bold text-cyan-600">{breakthroughStats.avgAccuracy.toFixed(1)}%</div>
+                <div className="text-lg md:text-xl text-gray-600 mt-2">Accuracy</div>
               </div>
-              <div className="bg-white/80 rounded-lg px-4 py-3 md:px-6 md:py-4 shadow-lg">
-                <div className="text-3xl md:text-4xl font-bold text-red-500">{breakthroughStats.infectionsCleared}</div>
-                <div className="text-xs md:text-sm text-gray-600">Infections Cleared</div>
+              <div className="bg-white/90 rounded-xl px-8 py-6 md:px-12 md:py-8 shadow-xl">
+                <div className="text-5xl md:text-7xl font-bold text-red-500">{breakthroughStats.infectionsCleared}</div>
+                <div className="text-lg md:text-xl text-gray-600 mt-2">Infections Cleared</div>
               </div>
             </div>
           </div>
