@@ -11,12 +11,14 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { db } from '../config/firebase';
 import COLORS from '../constants/colors';
+import QRCode from 'qrcode';
 
 const LivestreamView = ({ sessionId }) => {
   const [sessionData, setSessionData] = useState(null);
   const [players, setPlayers] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [stats, setStats] = useState({
     totalTaps: 0,
     successfulTaps: 0,
@@ -38,6 +40,28 @@ const LivestreamView = ({ sessionId }) => {
       sessionDuration: 0,
     });
     setPlayers({}); // Also reset players
+  }, [sessionId]);
+
+  // Generate QR code for join URL
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const joinUrl = `${window.location.origin}/?session=${sessionId}`;
+
+    QRCode.toDataURL(joinUrl, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: '#22d3ee', // cyan-400
+        light: '#000000', // black
+      },
+    })
+      .then(url => {
+        setQrCodeUrl(url);
+      })
+      .catch(err => {
+        console.error('Failed to generate QR code:', err);
+      });
   }, [sessionId]);
 
   // Register LivestreamView presence with heartbeat
@@ -557,22 +581,42 @@ const LivestreamView = ({ sessionId }) => {
               <h3 className="text-2xl md:text-3xl font-bold text-center mb-4 text-amber-400">
                 🎮 JOIN THE COLLECTIVE BODY
               </h3>
-              <div className="space-y-4">
-                <div className="bg-black/50 rounded-lg p-4">
-                  <p className="text-gray-400 text-xs md:text-sm mb-2">Session ID:</p>
-                  <p className="text-cyan-400 text-2xl md:text-3xl font-bold tracking-wider font-mono">
-                    {sessionId}
+              <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-6 items-center">
+                {/* Left Column - Text Info */}
+                <div className="space-y-4">
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <p className="text-gray-400 text-xs md:text-sm mb-2">Session ID:</p>
+                    <p className="text-cyan-400 text-2xl md:text-3xl font-bold tracking-wider font-mono">
+                      {sessionId}
+                    </p>
+                  </div>
+                  <div className="bg-black/50 rounded-lg p-4">
+                    <p className="text-gray-400 text-xs md:text-sm mb-2">Go to this URL on your phone:</p>
+                    <p className="text-amber-400 text-base md:text-xl font-bold break-all">
+                      {window.location.origin}/?session={sessionId}
+                    </p>
+                  </div>
+                  <p className="text-cyan-100/60 text-xs md:text-sm">
+                    Scan QR code or enter URL • No app required • Works in browser
                   </p>
                 </div>
-                <div className="bg-black/50 rounded-lg p-4">
-                  <p className="text-gray-400 text-xs md:text-sm mb-2">Go to this URL on your phone:</p>
-                  <p className="text-amber-400 text-base md:text-xl font-bold break-all">
-                    {window.location.origin}/?session={sessionId}
-                  </p>
+
+                {/* Right Column - QR Code */}
+                <div className="flex justify-center md:justify-end">
+                  <div className="bg-white p-3 rounded-lg shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+                    {qrCodeUrl ? (
+                      <img
+                        src={qrCodeUrl}
+                        alt="QR Code to join session"
+                        className="w-40 h-40 md:w-48 md:h-48"
+                      />
+                    ) : (
+                      <div className="w-40 h-40 md:w-48 md:h-48 flex items-center justify-center bg-gray-800 rounded">
+                        <span className="text-gray-400 text-sm">Generating...</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <p className="text-cyan-100/60 text-xs md:text-sm mt-4">
-                  Or scan QR code (coming soon) • No app required • Works in browser
-                </p>
               </div>
             </div>          </div>
 
