@@ -357,26 +357,18 @@ const LivestreamView = ({ sessionId }) => {
         ? Math.floor((Date.now() - startTime) / 1000)
         : stats.sessionDuration;
 
-      // Get player count directly from players object to ensure accuracy
-      const playerCount = Object.keys(players).length;
-
       console.log('🎉 CRITICAL MASS ACHIEVED - Triggering celebration!');
       console.log('📊 Capturing breakthrough stats:', {
-        playerCount: playerCount,
-        coherenceMetricsActivePlayers: coherenceMetrics.activePlayers,
+        activePlayers: coherenceMetrics.activePlayers,
         sessionDuration: calculatedDuration,
-        startTimeFromRef: lastValidStartTimeRef.current,
-        startTimeFromSessionData: sessionData?.startTime,
-        statsSessionDuration: stats.sessionDuration,
         totalTaps: stats.totalTaps,
         successfulTaps: stats.successfulTaps,
         avgAccuracy: stats.avgAccuracy,
       });
 
       // Capture current stats BEFORE they get reset
-      // Use playerCount directly from players object for accuracy
       setBreakthroughStats({
-        activePlayers: playerCount,
+        activePlayers: coherenceMetrics.activePlayers,
         sessionDuration: calculatedDuration,
         totalTaps: stats.totalTaps,
         successfulTaps: stats.successfulTaps,
