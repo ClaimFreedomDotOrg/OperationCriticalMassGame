@@ -32,6 +32,14 @@ const UsersIcon = ({ size = 24 }) => (
   </svg>
 );
 
+// TV/Monitor icon SVG for livestream
+const TvIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+    <polyline points="17 2 12 7 7 2"></polyline>
+  </svg>
+);
+
 const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
   const [mode, setMode] = useState(null); // null, 'single', 'multi'
   const [sessionId, setSessionId] = useState('');
@@ -200,6 +208,20 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
               <PlayIcon size={24} /> JOIN GAME
             </span>
           </button>
+
+          {/* Livestream View Button */}
+          <a
+            href={sessionId.trim() ? `/livestream?session=${encodeURIComponent(sessionId.trim().toUpperCase())}` : '#'}
+            onClick={(e) => !sessionId.trim() && e.preventDefault()}
+            className={`group relative px-4 py-3 md:px-8 md:py-4 bg-purple-900/30 border-2 border-purple-500 hover:bg-purple-500/20 transition-all rounded-xl overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] active:scale-95 w-full select-none text-center ${!sessionId.trim() ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+          >
+            <div className="absolute inset-0 bg-purple-400/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            <span className="relative flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold tracking-widest text-purple-400">
+              <TvIcon size={24} /> LIVESTREAM VIEW
+            </span>
+            <span className="relative block text-xs text-purple-300/60 mt-1">Watch collective progress</span>
+          </a>
+
           <button
             onClick={handleBack}
             className="text-amber-400/60 hover:text-amber-400 transition-colors text-sm select-none"
