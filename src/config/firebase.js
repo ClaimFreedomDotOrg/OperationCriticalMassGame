@@ -21,20 +21,6 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Debug: Log which config values are present (not the actual values for security)
-if (import.meta.env.DEV || !firebaseConfig.databaseURL) {
-  console.log('Firebase config check:', {
-    hasApiKey: !!firebaseConfig.apiKey,
-    hasAuthDomain: !!firebaseConfig.authDomain,
-    hasDatabaseURL: !!firebaseConfig.databaseURL,
-    hasProjectId: !!firebaseConfig.projectId,
-    hasStorageBucket: !!firebaseConfig.storageBucket,
-    hasMessagingSenderId: !!firebaseConfig.messagingSenderId,
-    hasAppId: !!firebaseConfig.appId,
-    hasMeasurementId: !!firebaseConfig.measurementId
-  });
-}
-
 // Initialize Firebase
 let app = null;
 let database = null;

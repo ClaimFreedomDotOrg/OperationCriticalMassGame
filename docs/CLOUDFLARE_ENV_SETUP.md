@@ -10,6 +10,17 @@ This means:
 2. After adding/changing variables, you **must trigger a new deployment**
 3. Variables are baked into the JavaScript bundle during the build process
 
+## ⚠️ Important: Do NOT Use wrangler.toml
+
+**Do not add a `wrangler.toml` file to this repository.**
+
+If a `wrangler.toml` file exists, Cloudflare Pages will read configuration from it and **ignore environment variables set in the dashboard**. This project is open source, so we cannot commit Firebase credentials to the repository.
+
+The Vite build configuration (`vite.config.js`) is set up to read environment variables from:
+
+1. `process.env` (Cloudflare Pages dashboard variables during build)
+2. `.env` file (local development)
+
 ## Step-by-Step Instructions
 
 ### 1. Navigate to Your Cloudflare Pages Project
@@ -205,6 +216,7 @@ This error means the environment variables were not available during the build. 
 - Verify environment variables are set for **Production** environment
 - Check Cloudflare Pages build log for errors
 - Ensure database URL includes `https://`
+- **Check that no `wrangler.toml` file exists** - if present, Cloudflare ignores dashboard env vars
 
 ### Coherence meter not updating
 

@@ -4,6 +4,8 @@
 
 This project is configured for automatic deployment to Cloudflare Pages at **tamethedemon.com**.
 
+> ⚠️ **Important**: Do NOT add a `wrangler.toml` file to this repository. Environment variables must be configured in the Cloudflare Pages dashboard. See [CLOUDFLARE_ENV_SETUP.md](CLOUDFLARE_ENV_SETUP.md) for details.
+
 ### Cloudflare Pages Configuration
 
 When connecting this repository to Cloudflare Pages, use these settings:
@@ -16,17 +18,23 @@ When connecting this repository to Cloudflare Pages, use these settings:
 - **Root directory**: `/` (leave default)
 
 **Environment Variables:**
-If using Firebase for multiplayer, add these in Cloudflare Pages settings:
+Firebase credentials must be set in the **Cloudflare Pages dashboard** (not in code or wrangler.toml):
 
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_DATABASE_URL`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`
-- `VITE_FIREBASE_APP_ID`
+1. Go to Cloudflare Dashboard → Pages → Your Project → Settings → Environment variables
+2. Add these variables for **Production** (and optionally Preview):
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_DATABASE_URL`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
+   - `VITE_FIREBASE_MEASUREMENT_ID` (optional)
+3. Trigger a new deployment after setting variables
 
-Then update `src/config/firebase.js` to use these environment variables:
+See [CLOUDFLARE_ENV_SETUP.md](CLOUDFLARE_ENV_SETUP.md) for detailed instructions.
+
+The `src/config/firebase.js` is already configured to use these environment variables:
 
 ```javascript
 const firebaseConfig = {
@@ -91,7 +99,19 @@ Visit `http://localhost:4173` to verify the production build.
 - Check Node.js version is 18+
 - Verify all dependencies are in `package.json`
 - Check build logs in Cloudflare Pages dashboard
+- Ensure no `wrangler.toml` file exists in the repo
 
+**Environment variables not working:**
+
+- Variables must be set in Cloudflare Pages dashboard BEFORE building
+- Do NOT use `wrangler.toml` - it overrides dashboard settings
+- Check build logs for "Environment variables status" output
+- Trigger a new deployment after adding/changing variables
+**\"No routes found when building Functions directory\" warning:**
+
+- This warning can be ignored - the `functions/` folder contains Firebase Cloud Functions (server-side), not Cloudflare Workers
+- Cloudflare Pages will still deploy the static site correctly
+- The game uses Firebase for real-time features, not Cloudflare Workers
 **Blank page after deployment:**
 
 - Check browser console for errors
