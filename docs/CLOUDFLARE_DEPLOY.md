@@ -107,11 +107,11 @@ Visit `http://localhost:4173` to verify the production build.
 - Do NOT use `wrangler.toml` - it overrides dashboard settings
 - Check build logs for "Environment variables status" output
 - Trigger a new deployment after adding/changing variables
-**\"No routes found when building Functions directory\" warning:**
+**Firebase Cloud Functions:**
 
-- This warning can be ignored - the `functions/` folder contains Firebase Cloud Functions (server-side), not Cloudflare Workers
-- Cloudflare Pages will still deploy the static site correctly
-- The game uses Firebase for real-time features, not Cloudflare Workers
+- The `firebase-functions/` folder contains Firebase Cloud Functions for server-side coherence calculation
+- These are NOT Cloudflare Workers - they deploy separately via Firebase CLI
+- The game uses Firebase for real-time features
 **Blank page after deployment:**
 
 - Check browser console for errors

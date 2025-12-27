@@ -206,7 +206,7 @@ export const useFirebaseSync = ({ sessionId, playerId } = {}) => {
    * - With 10 players: all 10 must reach 100% (10x as hard as single player)
    *
    * SCALABILITY NOTE: This client-side approach works for small groups (< 50 players).
-   * For thousands of players, implement Firebase Cloud Functions (see functions/index.js)
+   * For thousands of players, implement Firebase Cloud Functions (see firebase-functions/index.js)
    */
   useEffect(() => {
     if (connectionStatus !== 'connected' || !sessionId || !db.database) {

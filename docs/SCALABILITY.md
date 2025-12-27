@@ -276,7 +276,7 @@ export default {
 ## Files in This Implementation
 
 ```markdown
-functions/
+firebase-functions/
 ├── index.js              # Cloud Functions code
 ├── package.json          # Dependencies
 └── .gitignore           # Ignore node_modules

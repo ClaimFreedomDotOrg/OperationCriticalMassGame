@@ -24,8 +24,8 @@ firebase init functions
 # - ESLint: No (optional)
 # - Install dependencies: Yes
 
-# 4. The functions/ folder already has the code, just install dependencies
-cd functions
+# 4. The firebase-functions/ folder already has the code, just install dependencies
+cd firebase-functions
 npm install
 
 # 5. Deploy to Firebase
