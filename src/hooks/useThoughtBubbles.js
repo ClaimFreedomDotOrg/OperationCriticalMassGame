@@ -26,12 +26,40 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
   }, [onBubbleExpired]);
 
   /**
+   * Calculate distance between two bubble positions
+   * Uses Euclidean distance formula accounting for viewport percentages
+   */
+  const calculateDistance = (pos1, pos2) => {
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  /**
+   * Check if a position overlaps with existing bubbles
+   * Minimum distance threshold is ~25% of viewport to ensure clear separation
+   * (accounts for bubble width of ~20rem max, which is roughly 15-20% of typical mobile viewport)
+   */
+  const isPositionValid = (newPos, existingBubbles) => {
+    const MIN_DISTANCE = 25; // Minimum distance in percentage units
+    
+    for (const bubble of existingBubbles) {
+      const distance = calculateDistance(newPos, bubble.position);
+      if (distance < MIN_DISTANCE) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  /**
    * Spawn new thought bubble
    * 
    * Position calculation accounts for:
    * - Top HUD: ~15% of viewport height
    * - Bottom controls: ~30% of viewport height  
    * - Horizontal margins: ~10% on each side
+   * - Collision detection: Ensures bubbles don't overlap
    * 
    * Bubbles use dynamic max-width constraints (via CSS calc) to prevent
    * overflow on the right edge, ensuring full visibility across all viewports.
@@ -40,20 +68,44 @@ export const useThoughtBubbles = ({ isActive, onBubbleExpired }) => {
     const randomWord = WORDS_OF_THE_VOICE[Math.floor(Math.random() * WORDS_OF_THE_VOICE.length)];
     const bubbleId = `bubble_${bubbleIdCounter.current++}`;
 
-    // Calculate safe spawn area accounting for bubble dimensions
-    // Horizontal: 10-80% (leaving ~10% margin on each side for bubble width)
-    // Vertical: 20-55% (avoiding HUD at top 15%, controls at bottom 30%, with margins)
-    const newBubble = {
-      id: bubbleId,
-      word: randomWord,
-      spawnTime: Date.now(),
-      position: {
-        x: Math.random() * 70 + 10, // 10-80% from left
-        y: Math.random() * 35 + 20, // 20-55% from top
-      },
-    };
+    setActiveBubbles(prev => {
+      // Try to find a non-overlapping position
+      let position = null;
+      const MAX_ATTEMPTS = 20; // Maximum attempts to find valid position
+      
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        const candidatePosition = {
+          x: Math.random() * 70 + 10, // 10-80% from left
+          y: Math.random() * 35 + 20, // 20-55% from top
+        };
+        
+        if (isPositionValid(candidatePosition, prev)) {
+          position = candidatePosition;
+          break;
+        }
+      }
+      
+      // Fallback: If no valid position found after max attempts,
+      // use a position anyway but space it vertically from others
+      if (!position) {
+        position = {
+          x: Math.random() * 70 + 10,
+          y: (prev.length * 12 + 20) % 35 + 20, // Stagger vertically based on count
+        };
+      }
 
-    setActiveBubbles(prev => [...prev, newBubble]);
+      // Calculate safe spawn area accounting for bubble dimensions
+      // Horizontal: 10-80% (leaving ~10% margin on each side for bubble width)
+      // Vertical: 20-55% (avoiding HUD at top 15%, controls at bottom 30%, with margins)
+      const newBubble = {
+        id: bubbleId,
+        word: randomWord,
+        spawnTime: Date.now(),
+        position,
+      };
+
+      return [...prev, newBubble];
+    });
 
     // Auto-remove after duration
     setTimeout(() => {
