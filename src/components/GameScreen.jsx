@@ -205,9 +205,13 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [updatePlayerState, gameMode, playTapMiss]);
 
-  // Thought bubbles (The Voice)
+  // Bilateral stimulation (pause when connecting in multiplayer)
+  const isPaused = gameMode === 'multi' && connectionStatus === 'connecting';
+
+  // Thought bubbles (The Voice) - pause when game is paused
   const { activeBubbles, dismissBubble, hasBlockingBubbles } = useThoughtBubbles({
     isActive: true,
+    isPaused,
     onBubbleExpired: (bubbleId) => {
       handleMiss();
       // Track expired thought bubble
@@ -247,8 +251,6 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
     setTimeout(() => setFeedback(null), GAME_CONFIG.FEEDBACK_DURATION);
   }, [updatePlayerState, gameMode, playTapSuccess]);
 
-  // Bilateral stimulation (pause when connecting in multiplayer)
-  const isPaused = gameMode === 'multi' && connectionStatus === 'connecting';
   const { activeSide, handleTap, position } = useBilateralStimulation({
     isActive: true,
     isPaused,
@@ -297,6 +299,11 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const onTapButton = useCallback((side, event) => {
     // Ensure audio is ready on user interaction
     ensureAudioReady();
+
+    // Cannot tap while game is paused (connecting/reconnecting)
+    if (isPaused) {
+      return;
+    }
 
     // Cannot tap while bubbles are blocking
     if (hasBlockingBubbles) {
@@ -361,7 +368,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         setSyncedButton(null);
       }, 300); // Show green for 300ms
     }
-  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady]);
+  }, [hasBlockingBubbles, handleTap, handleMiss, triggerVisualTap, gameStats, ensureAudioReady, isPaused]);
 
   /**
    * Determine container style based on state
