@@ -678,11 +678,11 @@ const LivestreamView = ({ sessionId }) => {
                   <div className="bg-black/50 rounded-lg p-4">
                     <p className="text-gray-400 text-xs md:text-sm mb-2">Go to this URL on your phone:</p>
                     <p className="text-amber-400 text-base md:text-xl font-bold break-all">
-                      {window.location.origin}/?session={sessionId}
+                      {window.location.origin}
                     </p>
                   </div>
                   <p className="text-cyan-100/60 text-xs md:text-sm">
-                    Scan QR code or enter URL • No app required • Works in browser
+                    Scan QR code or visit URL • Tap Multiplayer • Enter Session ID
                   </p>
                 </div>
 
@@ -740,10 +740,17 @@ const LivestreamView = ({ sessionId }) => {
           </div>
         </div>
 
+        {/* Call to Action */}
+        <div className="text-center mb-6">
+          <p className="text-3xl md:text-5xl font-bold">
+            <span className="text-amber-400">📱 Scan the QR Code to Play!</span>
+          </p>
+        </div>
+
         {/* Cell Visualization */}
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl border-2 border-cyan-900/50 p-6">
           <h2 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
-            THE BODY - {coherenceMetrics.activePlayers} CELLS
+            THE BODY - {coherenceMetrics.activePlayers} CELLS CONNECTED
           </h2>
 
           <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-800">
