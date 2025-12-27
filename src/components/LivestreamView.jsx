@@ -19,6 +19,8 @@ const LivestreamView = ({ sessionId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationTriggered, setCelebrationTriggered] = useState(false);
   const [stats, setStats] = useState({
     totalTaps: 0,
     successfulTaps: 0,
@@ -332,6 +334,22 @@ const LivestreamView = ({ sessionId }) => {
     };
   }, [players, getCoherenceLevel]);
 
+  // Trigger celebration when coherence reaches 100%
+  useEffect(() => {
+    if (coherenceMetrics.coherencePercent >= 100 && !celebrationTriggered) {
+      console.log('🎉 CRITICAL MASS ACHIEVED - Triggering celebration!');
+      setShowCelebration(true);
+      setCelebrationTriggered(true);
+
+      // Hide celebration after 10 seconds
+      const timer = setTimeout(() => {
+        setShowCelebration(false);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [coherenceMetrics.coherencePercent, celebrationTriggered]);
+
   // Get color based on coherence
   const getCoherenceColor = () => {
     const { coherenceLevel } = coherenceMetrics;
@@ -497,6 +515,73 @@ const LivestreamView = ({ sessionId }) => {
 
   return (
     <div className={`min-h-screen bg-black relative overflow-hidden transition-all duration-500 ${getBackgroundEffect()}`}>
+      {/* Celebration Overlay - CRITICAL MASS ACHIEVED */}
+      {showCelebration && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-amber-100/95 to-white/95 animate-in fade-in duration-1000 pointer-events-none">
+          {/* Sacred Geometry - Toroid visualization */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative w-64 h-64 md:w-96 md:h-96">
+              <div className="absolute inset-0 rounded-full border-4 border-amber-600 animate-pulse-glow opacity-70" />
+              <div
+                className="absolute inset-8 rounded-full border-4 border-amber-500 animate-pulse-glow opacity-50"
+                style={{ animationDelay: '0.5s' }}
+              />
+              <div
+                className="absolute inset-16 rounded-full border-4 border-amber-400 animate-pulse-glow opacity-30"
+                style={{ animationDelay: '1s' }}
+              />
+              {/* Spinning rings */}
+              <div className="absolute inset-0 rounded-full border-2 border-cyan-500 animate-spin-slow opacity-40" style={{ animationDuration: '10s' }} />
+              <div className="absolute inset-12 rounded-full border-2 border-amber-600 animate-spin-slow opacity-40" style={{ animationDuration: '15s', animationDirection: 'reverse' }} />
+            </div>
+          </div>
+
+          {/* Text Overlay */}
+          <div className="relative z-10 text-center">
+            <h1 className="text-6xl md:text-9xl font-bold text-amber-600 mb-4 tracking-tighter drop-shadow-lg animate-bounce font-serif">
+              BREAKTHROUGH
+            </h1>
+            <p className="text-3xl md:text-5xl text-amber-800/80 font-semibold mb-4">
+              CRITICAL MASS ACHIEVED
+            </p>
+            <p className="text-2xl md:text-4xl text-gray-700 font-bold">
+              100% COHERENCE
+            </p>
+            <p className="text-xl md:text-3xl text-gray-600 mt-4">
+              THE BODY IS ONE
+            </p>
+
+            {/* Stats Display */}
+            <div className="mt-8 flex justify-center gap-8">
+              <div className="bg-white/80 rounded-lg px-6 py-4 shadow-lg">
+                <div className="text-4xl font-bold text-amber-600">{coherenceMetrics.activePlayers}</div>
+                <div className="text-sm text-gray-600">Synchronized Cells</div>
+              </div>
+              <div className="bg-white/80 rounded-lg px-6 py-4 shadow-lg">
+                <div className="text-4xl font-bold text-amber-600">{formatTime(stats.sessionDuration)}</div>
+                <div className="text-sm text-gray-600">Session Time</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Particle Effects */}
+          <div className="absolute inset-0 overflow-hidden">
+            {Array.from({ length: 30 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-2 h-2 bg-amber-400 rounded-full animate-float opacity-60"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${3 + Math.random() * 4}s`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Animated Background Grid */}
       <div className="absolute inset-0 opacity-10">
         <div className="grid grid-cols-12 grid-rows-12 h-full w-full">
