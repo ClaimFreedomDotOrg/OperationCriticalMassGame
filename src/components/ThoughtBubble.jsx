@@ -7,10 +7,10 @@
  * Design: Clean, minimal thought bubble with subtle indicator dots,
  * matching the bio-luminescent neuroscience aesthetic.
  * 
- * Positioning: Bubbles are spawned with pre-calculated safe positions (10-80% horizontal,
- * 20-55% vertical) that account for bubble dimensions and viewport constraints. 
- * Post-render boundary checking was intentionally removed as the spawn ranges provide
- * sufficient margin to prevent offscreen rendering in normal use cases.
+ * Positioning: Bubbles are centered on their spawn coordinates using translate(-50%, -50%).
+ * This ensures that bubbles spawned within safe zones (10-80% horizontal, 20-55% vertical)
+ * remain fully visible within the viewport, as their center point (not top-left corner)
+ * is positioned at the specified coordinates.
  */
 
 import React, { useState, useRef } from 'react';
@@ -84,7 +84,9 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       style={{
         left: `${bubble.position.x}%`,
         top: `${bubble.position.y}%`,
-        transform: bubble.isDismissing ? undefined : `translate(${position.x}px, ${position.y}px)`,
+        transform: bubble.isDismissing 
+          ? 'translate(-50%, -50%)' 
+          : `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px))`,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
       }}
       onClick={(e) => e.stopPropagation()}
