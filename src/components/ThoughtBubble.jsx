@@ -75,6 +75,11 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
   // Calculate total dismiss animation duration
   const dismissDuration = BUBBLE_DISMISS_DELAY + BUBBLE_FADE_DURATION;
 
+  // Calculate transform: center bubble on spawn coordinates, plus any drag offset
+  const bubbleTransform = bubble.isDismissing 
+    ? 'translate(-50%, -50%)' 
+    : `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px))`;
+
   return (
     <div
       data-bubble="true"
@@ -84,9 +89,7 @@ const ThoughtBubble = ({ bubble, onDismiss }) => {
       style={{
         left: `${bubble.position.x}%`,
         top: `${bubble.position.y}%`,
-        transform: bubble.isDismissing 
-          ? 'translate(-50%, -50%)' 
-          : `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px))`,
+        transform: bubbleTransform,
         animationDuration: bubble.isDismissing ? `${dismissDuration}ms` : undefined,
       }}
       onClick={(e) => e.stopPropagation()}
