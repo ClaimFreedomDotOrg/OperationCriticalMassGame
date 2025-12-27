@@ -11,10 +11,20 @@ import useAudio from './hooks/useAudio';
 import IdleScreen from './components/IdleScreen';
 import GameScreen from './components/GameScreen';
 import BreakthroughScreen from './components/BreakthroughScreen';
+import LivestreamView from './components/LivestreamView';
 import { generatePlayerId, generateSessionId } from './config/firebase';
 import { GAME_CONFIG } from './constants/gameConfig';
 
 function App() {
+  // Check if this is the livestream view based on URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const isLivestreamView = urlParams.get('view') === 'livestream';
+  const urlSessionId = urlParams.get('session');
+
+  // If this is livestream view, render only that
+  if (isLivestreamView) {
+    return <LivestreamView sessionId={urlSessionId} />;
+  }
   const {
     gameState,
     sessionId,
@@ -53,7 +63,7 @@ function App() {
         initAudioContext();
       }
       resumeAudioContext();
-      
+
       // Note: Listeners remain active throughout the app lifecycle because browsers
       // may suspend audio context during screen transitions or user inactivity.
       // This ensures breakthrough sound plays even after extended gameplay.
@@ -129,6 +139,18 @@ function App() {
   }, [startGame, gameStats]);
 
   /**
+   * Auto-join multiplayer game if session ID is in URL
+   */
+  useEffect(() => {
+    if (urlSessionId && !isLivestreamView && isIdle && !sessionId) {
+      // Automatically start multiplayer game with URL session ID (convert to uppercase for consistency)
+      const normalizedSessionId = urlSessionId.trim().toUpperCase();
+      console.log('🔗 Auto-joining multiplayer session from URL:', normalizedSessionId);
+      handleStart({ mode: 'multi', gameId: normalizedSessionId });
+    }
+  }, [urlSessionId, isLivestreamView, isIdle, sessionId, handleStart]);
+
+  /**
    * Handle game reset
    */
   const handleReset = useCallback(() => {
@@ -161,7 +183,7 @@ function App() {
    * Calculate session stats on breakthrough
    * Note: Only depends on isBreakthrough and sessionStartTime to ensure
    * duration is captured exactly once when breakthrough is achieved.
-   * 
+   *
    * The gameStats.updateDuration() call is safe here even though gameStats
    * is not a dependency - the updateDuration function is memoized with useCallback
    * and remains stable. We intentionally exclude gameStats from dependencies to
@@ -202,6 +224,7 @@ function App() {
           visualTaps={visualTaps}
           triggerVisualTap={triggerVisualTap}
           onBreakthrough={triggerBreakthrough}
+          onBack={resetGame}
           gameStats={gameStats}
         />
       )}
