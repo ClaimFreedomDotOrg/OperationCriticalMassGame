@@ -53,10 +53,11 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
     setGameId('');
   };
   return (
-    <div className="flex flex-col items-center justify-start md:justify-center w-full max-w-full h-screen bg-black text-cyan-400 font-mono pt-2 px-3 pb-3 md:p-6 text-center overflow-y-auto overflow-x-hidden relative" style={{ WebkitOverflowScrolling: 'touch' }}>
+    <div className="w-full max-w-full h-screen bg-black text-cyan-400 font-mono text-center overflow-y-auto overflow-x-hidden" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+      <div className="flex flex-col items-center justify-start md:justify-center min-h-full pt-2 px-3 pb-3 md:p-6 relative">
       {/* Visual Taps Overlay */}
       {visualTaps && visualTaps.length > 0 && (
-        <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
           {visualTaps.map(tap => (
             <div
               key={tap.id}
@@ -206,7 +207,7 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
       )}
 
       {/* Scientific Note */}
-      <div className="mt-12 text-cyan-200/50 text-xs text-center max-w-lg">
+      <div className="mt-12 mb-16 text-cyan-200/50 text-xs text-center max-w-lg px-4">
         <p className="mb-2">
           This game uses bilateral stimulation based on EMDR research to promote
           hemispheric integration and present-moment awareness.
@@ -217,8 +218,9 @@ const IdleScreen = ({ onStart, visualTaps = [], triggerVisualTap }) => {
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-4 text-gray-600 text-xs">
+      <div className="mt-4 mb-4 text-gray-600 text-xs">
         The Body is One
+      </div>
       </div>
     </div>
   );
