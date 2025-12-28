@@ -669,19 +669,19 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
                   <CloseIcon size={16} />
                 </button>
               </div>
-              
+
               <div className="text-center space-y-2">
                 <p className="text-amber-400 text-sm md:text-base font-bold">
                   🎮 Play with me:
                 </p>
-                
+
                 {/* URL and Session ID combined */}
                 <div className="bg-black/40 rounded p-2">
                   <p className="text-cyan-400 text-xs md:text-sm font-semibold break-all">
                     {window.location.origin}
                   </p>
                   <p className="text-amber-400 text-base md:text-lg font-bold tracking-wider font-mono break-all mt-1">
-                    {sessionId}
+                    Session ID: {sessionId}
                   </p>
                 </div>
               </div>
