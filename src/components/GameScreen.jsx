@@ -56,6 +56,23 @@ const VolumeOffIcon = ({ size = 20 }) => (
   </svg>
 );
 
+const ShareIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3"></circle>
+    <circle cx="6" cy="12" r="3"></circle>
+    <circle cx="18" cy="19" r="3"></circle>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+  </svg>
+);
+
+const CloseIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
+
 const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visualTaps = [], triggerVisualTap, onBreakthrough, onBack, gameStats }) => {
   const [feedback, setFeedback] = useState(null); // 'HIT', 'MISS', or null
   const [score, setScore] = useState(0);
@@ -64,6 +81,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
   const [playerCoherence, setPlayerCoherence] = useState(0); // Individual player's coherence in multiplayer
   const [localActivePlayers] = useState(1);
   const [syncedButton, setSyncedButton] = useState(null); // Track which button was just synced ('LEFT', 'RIGHT', or null)
+  const [showJoinCTA, setShowJoinCTA] = useState(false); // Toggle for join CTA (hidden by default)
   const touchInProgressRef = useRef(false);
   const scoreRef = useRef(0); // Track current score for accurate Firebase updates
   const playerCoherenceRef = useRef(0); // Track player coherence for accurate Firebase updates
@@ -578,7 +596,21 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           </div>
 
           {/* Audio Toggle Button - positioned below player status line */}
-          <div className="flex justify-end mt-1">
+          <div className="flex justify-end gap-2 mt-1">
+            {/* Share/Join CTA Toggle - Only show in multiplayer mode */}
+            {gameMode === 'multi' && (
+              <button
+                onClick={() => setShowJoinCTA(!showJoinCTA)}
+                className={`p-1.5 rounded-lg border transition-colors duration-200 select-none ${
+                  showJoinCTA
+                    ? 'bg-cyan-900/80 border-cyan-500 text-cyan-400'
+                    : 'bg-gray-900/80 border-gray-700 hover:border-cyan-500 text-gray-400 hover:text-cyan-400'
+                }`}
+                aria-label={showJoinCTA ? 'Hide join instructions' : 'Show join instructions'}
+              >
+                <ShareIcon size={16} />
+              </button>
+            )}
             <button
               onClick={() => {
                 ensureAudioReady();
@@ -619,6 +651,40 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
                   ← BACK
                 </button>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Join CTA - Above Pulse Orb (Only in multiplayer mode) */}
+        {gameMode === 'multi' && showJoinCTA && (
+          <div className="relative z-20 w-full max-w-md px-4 mb-4 animate-in fade-in duration-300">
+            <div className="bg-gradient-to-br from-cyan-900/60 to-amber-900/60 rounded-lg p-3 md:p-4 border border-cyan-500/50 shadow-[0_0_20px_rgba(34,211,238,0.2)] backdrop-blur-sm">
+              {/* Close button */}
+              <div className="flex justify-end mb-1">
+                <button
+                  onClick={() => setShowJoinCTA(false)}
+                  className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+                  aria-label="Close join instructions"
+                >
+                  <CloseIcon size={16} />
+                </button>
+              </div>
+              
+              <div className="text-center space-y-2">
+                <p className="text-amber-400 text-sm md:text-base font-bold">
+                  🎮 Play with me:
+                </p>
+                
+                {/* URL and Session ID combined */}
+                <div className="bg-black/40 rounded p-2">
+                  <p className="text-cyan-400 text-xs md:text-sm font-semibold break-all">
+                    {window.location.origin}
+                  </p>
+                  <p className="text-amber-400 text-base md:text-lg font-bold tracking-wider font-mono break-all mt-1">
+                    {sessionId}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
