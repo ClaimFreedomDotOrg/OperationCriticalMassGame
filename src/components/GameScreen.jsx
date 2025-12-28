@@ -660,10 +660,7 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
           <div className="relative z-20 w-full max-w-md px-4 mb-4 animate-in fade-in duration-300">
             <div className="bg-gradient-to-br from-cyan-900/60 to-amber-900/60 rounded-lg p-3 md:p-4 border border-cyan-500/50 shadow-[0_0_20px_rgba(34,211,238,0.2)] backdrop-blur-sm">
               {/* Close button */}
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-sm md:text-base font-bold text-amber-400">
-                  🎮 INVITE OTHERS TO JOIN
-                </h3>
+              <div className="flex justify-end mb-1">
                 <button
                   onClick={() => setShowJoinCTA(false)}
                   className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
@@ -673,27 +670,20 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
                 </button>
               </div>
               
-              <div className="space-y-2">
-                {/* Session ID */}
+              <div className="text-center space-y-2">
+                <p className="text-amber-400 text-sm md:text-base font-bold">
+                  🎮 Play with me:
+                </p>
+                
+                {/* URL and Session ID combined */}
                 <div className="bg-black/40 rounded p-2">
-                  <p className="text-gray-400 text-[10px] md:text-xs mb-1">Session ID:</p>
-                  <p className="text-cyan-400 text-sm md:text-base font-bold tracking-wider font-mono break-all">
+                  <p className="text-cyan-400 text-xs md:text-sm font-semibold break-all">
+                    {window.location.origin}
+                  </p>
+                  <p className="text-amber-400 text-base md:text-lg font-bold tracking-wider font-mono break-all mt-1">
                     {sessionId}
                   </p>
                 </div>
-                
-                {/* URL */}
-                <div className="bg-black/40 rounded p-2">
-                  <p className="text-gray-400 text-[10px] md:text-xs mb-1">Go to:</p>
-                  <p className="text-amber-400 text-xs md:text-sm font-semibold break-all">
-                    {window.location.origin}
-                  </p>
-                </div>
-                
-                {/* Instructions */}
-                <p className="text-cyan-100 text-[10px] md:text-xs">
-                  1. Visit URL → 2. Tap "Multiplayer" → 3. Enter Session ID
-                </p>
               </div>
             </div>
           </div>
