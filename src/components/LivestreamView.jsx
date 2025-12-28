@@ -23,6 +23,8 @@ const LivestreamView = ({ sessionId }) => {
   const [celebrationTriggered, setCelebrationTriggered] = useState(false);
   // Ref to track the last known valid startTime (persists across renders/resets)
   const lastValidStartTimeRef = useRef(null);
+  // Demo mode coherence when no players are active (entices viewers to join)
+  const [demoCoherence, setDemoCoherence] = useState(0);
   // Captured stats at moment of breakthrough (before reset)
   const [breakthroughStats, setBreakthroughStats] = useState({
     activePlayers: 0,
@@ -54,6 +56,7 @@ const LivestreamView = ({ sessionId }) => {
       sessionDuration: 0,
     });
     setPlayers({}); // Also reset players
+    setDemoCoherence(0); // Reset demo coherence
   }, [sessionId]);
 
   // Generate QR code for join URL
@@ -202,13 +205,49 @@ const LivestreamView = ({ sessionId }) => {
         sessionDuration: 0,
       });
 
-      // Reset startTime and coherence in Firebase so timer starts fresh when next player joins
+      // Reset startTime in Firebase so timer starts fresh when next player joins
+      // Note: coherence will be handled by demo mode, not reset to 0
       const sessionRef = db.ref(db.database, `sessions/${sessionId}`);
-      db.update(sessionRef, { startTime: null, coherence: 0 }).catch(err => {
+      db.update(sessionRef, { startTime: null }).catch(err => {
         console.error('Failed to reset session:', err);
       });
+    } else if (playerCount > 0) {
+      // Players joined - reset demo coherence so real coherence takes over
+      setDemoCoherence(0);
     }
   }, [players, sessionId]);
+
+  // Demo mode: slowly increase coherence when no players are active (entices viewers to join)
+  useEffect(() => {
+    const playerCount = Object.keys(players).length;
+
+    if (playerCount === 0 && sessionId && db.database) {
+      console.log('🎭 Demo mode active - slowly increasing coherence to entice players');
+
+      const demoInterval = setInterval(() => {
+        setDemoCoherence(prev => {
+          // Slowly oscillate between 0 and ~85% to show the visualization
+          // Use a sine wave pattern for organic feel
+          const time = Date.now() / 1000;
+          const baseValue = 40; // Center around 40%
+          const amplitude = 35; // Oscillate ±35% (so 5% to 75%)
+          const period = 60; // Complete cycle every 60 seconds
+          const newValue = baseValue + amplitude * Math.sin((time / period) * 2 * Math.PI);
+
+          // Update Firebase with demo coherence
+          const sessionRef = db.ref(db.database, `sessions/${sessionId}`);
+          db.update(sessionRef, {
+            coherence: Math.round(newValue * 10) / 10,
+            activePlayers: 0,
+          }).catch(err => console.error('Failed to update demo coherence:', err));
+
+          return newValue;
+        });
+      }, 500); // Update every 500ms for smooth animation
+
+      return () => clearInterval(demoInterval);
+    }
+  }, [Object.keys(players).length, sessionId]);
 
   // Update session duration (only if there are players and startTime exists)
   useEffect(() => {
@@ -338,6 +377,9 @@ const LivestreamView = ({ sessionId }) => {
       const totalPlayerCoherence = playerArray.reduce((sum, p) => sum + (p.playerCoherence || 0), 0);
       coherencePercent = totalPlayerCoherence / activePlayers;
       syncedPlayers = playerArray.filter(p => p.isInSync).length;
+    } else {
+      // Demo mode: use demo coherence to show visualization
+      coherencePercent = demoCoherence;
     }
 
     return {
@@ -346,7 +388,7 @@ const LivestreamView = ({ sessionId }) => {
       activePlayers,
       coherenceLevel: getCoherenceLevel(coherencePercent),
     };
-  }, [players, getCoherenceLevel]);
+  }, [players, demoCoherence, getCoherenceLevel]);
 
   // Trigger celebration when coherence reaches 100%
   useEffect(() => {
@@ -474,6 +516,46 @@ const LivestreamView = ({ sessionId }) => {
 
     return positions;
   }, [Object.keys(players).length]);
+
+  // Generate demo cell positions when no real players (enticing visualization)
+  const demoCellPositions = useMemo(() => {
+    const playerCount = Object.keys(players).length;
+    if (playerCount > 0) return []; // No demo cells when real players exist
+
+    // Generate 15-30 demo cells based on demo coherence
+    const demoCount = Math.floor(15 + (demoCoherence / 100) * 15);
+    const positions = [];
+
+    const cellSize = 12;
+    const gap = 16;
+    const containerWidth = 1920;
+    const containerHeight = 1080;
+    const cellsPerRow = Math.floor(containerWidth / (cellSize + gap));
+
+    for (let i = 0; i < demoCount; i++) {
+      const col = i % cellsPerRow;
+      const row = Math.floor(i / cellsPerRow);
+
+      const xPixels = gap + col * (cellSize + gap) + (cellSize / 2);
+      const yPixels = gap + row * (cellSize + gap) + (cellSize / 2);
+
+      const x = (xPixels / containerWidth) * 100;
+      const y = (yPixels / containerHeight) * 100;
+
+      // Determine if this demo cell is "in sync" based on demo coherence
+      // Higher coherence = more cells in sync
+      const isInSync = (i / demoCount) * 100 < demoCoherence;
+
+      positions.push({
+        playerId: `demo_${i}`,
+        x: Math.min(98, x),
+        y: Math.min(98, y),
+        isInSync,
+      });
+    }
+
+    return positions;
+  }, [Object.keys(players).length, demoCoherence]);
 
   if (!sessionId) {
     return (
@@ -716,10 +798,12 @@ const LivestreamView = ({ sessionId }) => {
               {/* Synced Players Count */}
               <div className="flex justify-between mt-4 text-lg">
                 <span className="text-gray-400">
-                  Synchronized:
+                  {coherenceMetrics.activePlayers > 0 ? 'Synchronized:' : 'Demo Mode:'}
                 </span>
                 <span className="font-bold" style={{ color: getCoherenceColor() }}>
-                  {coherenceMetrics.syncedPlayers} / {coherenceMetrics.activePlayers}
+                  {coherenceMetrics.activePlayers > 0
+                    ? `${coherenceMetrics.syncedPlayers} / ${coherenceMetrics.activePlayers}`
+                    : 'Waiting for players...'}
                 </span>
               </div>
             </div>
@@ -848,7 +932,9 @@ const LivestreamView = ({ sessionId }) => {
         {/* Cell Visualization */}
         <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl border-2 border-cyan-900/50 p-6">
           <h2 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
-            THE BODY - {coherenceMetrics.activePlayers} CELLS CONNECTED
+            {coherenceMetrics.activePlayers > 0
+              ? `THE BODY - ${coherenceMetrics.activePlayers} CELLS CONNECTED`
+              : '🎭 DEMO MODE - Scan QR to Join!'}
           </h2>
 
           <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-800">
@@ -896,6 +982,40 @@ const LivestreamView = ({ sessionId }) => {
                     animation: isInSync
                       ? `pulse ${2 - coherenceMetrics.coherencePercent * 0.01}s infinite ${animDelay}s`
                       : `flicker ${1.5 + Math.random()}s infinite ${animDelay}s`,
+                  }}
+                />
+              );
+            })}
+
+            {/* Demo Cells (shown when no real players - enticing visualization) */}
+            {demoCellPositions.map(({ playerId, x, y, isInSync }, index) => {
+              const cellColor = isInSync ? COLORS.AMBER_400 : COLORS.RED_900;
+              const glowColor = isInSync
+                ? 'rgba(251, 191, 36, 0.8)'
+                : 'rgba(127, 29, 29, 0.6)';
+
+              const baseGlow = isInSync ? 20 : 10;
+              const coherenceBoost = Math.floor(demoCoherence / 20);
+              const glowSize = baseGlow + coherenceBoost * 3;
+
+              const animDelay = (index % 10) * 0.1;
+
+              return (
+                <div
+                  key={playerId}
+                  className="absolute rounded-full transition-all duration-500"
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    width: '12px',
+                    height: '12px',
+                    backgroundColor: cellColor,
+                    boxShadow: `0 0 ${glowSize}px ${glowColor}`,
+                    transform: 'translate(-50%, -50%)',
+                    opacity: 0.8, // Slightly transparent to indicate demo mode
+                    animation: isInSync
+                      ? `pulse ${2 - demoCoherence * 0.01}s infinite ${animDelay}s`
+                      : `flicker ${1.5 + (index % 5) * 0.2}s infinite ${animDelay}s`,
                   }}
                 />
               );
