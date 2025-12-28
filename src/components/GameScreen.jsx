@@ -659,22 +659,21 @@ const GameScreen = ({ sessionId, playerId, gameMode = 'single', cells = [], visu
         {gameMode === 'multi' && showJoinCTA && (
           <div className="relative z-20 w-full max-w-md px-4 mb-4 animate-in fade-in duration-300">
             <div className="bg-gradient-to-br from-cyan-900/60 to-amber-900/60 rounded-lg p-3 md:p-4 border border-cyan-500/50 shadow-[0_0_20px_rgba(34,211,238,0.2)] backdrop-blur-sm">
-              {/* Close button */}
-              <div className="flex justify-end mb-1">
+              {/* Header row with Play with me and close button */}
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-amber-400 text-sm md:text-base font-bold">
+                  🎮 Play with me:
+                </p>
                 <button
                   onClick={() => setShowJoinCTA(false)}
-                  className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+                  className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200 flex-shrink-0"
                   aria-label="Close join instructions"
                 >
                   <CloseIcon size={16} />
                 </button>
               </div>
 
-              <div className="text-center space-y-2">
-                <p className="text-amber-400 text-sm md:text-base font-bold">
-                  🎮 Play with me:
-                </p>
-
+              <div className="text-center">
                 {/* URL and Session ID combined */}
                 <div className="bg-black/40 rounded p-2">
                   <p className="text-cyan-400 text-xs md:text-sm font-semibold break-all">
