@@ -217,22 +217,31 @@ const LivestreamView = ({ sessionId }) => {
     }
   }, [players, sessionId]);
 
-  // Demo mode: slowly increase coherence when no players are active (entices viewers to join)
+  // Demo mode: randomly move coherence when no players are active (entices viewers to join)
   useEffect(() => {
     const playerCount = Object.keys(players).length;
 
     if (playerCount === 0 && sessionId && db.database) {
-      console.log('🎭 Demo mode active - slowly increasing coherence to entice players');
+      console.log('🎭 Demo mode active - randomly varying coherence to entice players');
+
+      // Random walk parameters
+      const minCoherence = 5;
+      const maxCoherence = 75;
+      const maxStep = 3; // Maximum change per tick
 
       const demoInterval = setInterval(() => {
         setDemoCoherence(prev => {
-          // Slowly oscillate between 0 and ~85% to show the visualization
-          // Use a sine wave pattern for organic feel
-          const time = Date.now() / 1000;
-          const baseValue = 40; // Center around 40%
-          const amplitude = 35; // Oscillate ±35% (so 5% to 75%)
-          const period = 60; // Complete cycle every 60 seconds
-          const newValue = baseValue + amplitude * Math.sin((time / period) * 2 * Math.PI);
+          // Random walk with bias toward center and boundaries
+          let step = (Math.random() - 0.5) * 2 * maxStep; // Random step between -maxStep and +maxStep
+
+          // Add slight bias toward center (40%) to prevent getting stuck at extremes
+          const center = 40;
+          const biasStrength = 0.1;
+          step += (center - prev) * biasStrength;
+
+          // Calculate new value and clamp to bounds
+          let newValue = prev + step;
+          newValue = Math.max(minCoherence, Math.min(maxCoherence, newValue));
 
           // Update Firebase with demo coherence
           const sessionRef = db.ref(db.database, `sessions/${sessionId}`);
